@@ -95,59 +95,61 @@ export default function PricingPage() {
             <ul style={styles.featuresList}>
               <li>✓ CV performants illimités</li>
               <li>✓ Lettres de motivation illimitées</li>
-              <li>✗ Offres d'emploi en temps réel</li>
-              <li>✗ Opportunités de ta niche</li>
-              <li>✗ Analyse ATS avancée</li>
+              <li style={{ color: '#ef4444' }}>✗ <span style={{ textDecoration: 'line-through' }}>Offres d'emploi en temps réel</span></li>
+              <li style={{ color: '#ef4444' }}>✗ <span style={{ textDecoration: 'line-through' }}>Opportunités de ta niche</span></li>
+              <li style={{ color: '#ef4444' }}>✗ <span style={{ textDecoration: 'line-through' }}>Analyse ATS avancée</span></li>
             </ul>
           </div>
 
-          {/* Plan 2: Standard */}
-          <div style={styles.priceCard}>
-            <span style={styles.planName}>STANDARD</span>
-            <p style={styles.planDesc}>Pour une recherche d'emploi active, sans aucune limite.</p>
+          {/* Plan 2: Standard (Recommandé) */}
+          <div style={styles.popularCard}>
+            <div style={styles.popularBadge}>⭐ RECOMMANDÉ</div>
+            <span style={{...styles.planName, color: 'var(--primary)'}}>STANDARD</span>
+            <p style={{...styles.planDesc, color: 'var(--dark-text-muted)'}}>Pour une recherche d'emploi active, sans aucune limite.</p>
 
             <div style={styles.priceContainer}>
-              <span style={styles.priceAmount}>5 000</span>
+              <span style={{...styles.priceAmount, color: '#fff'}}>5 000</span>
               <span style={styles.priceCurrency}>FCFA / mois</span>
             </div>
 
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
-            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('standard')}>
+            <Link href="/register" className="btn btn-primary" style={styles.cardBtn} onClick={() => selectPlan('standard')}>
               Choisir ce plan
             </Link>
 
             <ul style={styles.featuresList}>
-              <li>✓ CV performants illimités</li>
-              <li>✓ Lettres de motivation illimitées</li>
-              <li>✓ Modifications illimitées</li>
-              <li>✓ Toutes les offres d'emploi en temps réel</li>
-              <li>✓ Accès aux nouvelles opportunités de ta niche</li>
+              <li style={{color: '#fff'}}>✓ CV performants illimités</li>
+              <li style={{color: '#fff'}}>✓ Lettres de motivation illimitées</li>
+              <li style={{color: '#fff'}}>✓ Modifications illimitées</li>
+              <li style={{color: '#fff'}}>✓ Toutes les offres d'emploi en temps réel</li>
+              <li style={{color: '#fff'}}>✓ Accès aux nouvelles opportunités de ta niche</li>
+              <li style={{color: '#fff'}}>✓ Analyse ATS avancée du CV (Score)</li>
+              <li style={{color: '#fff'}}>✓ Support prioritaire par WhatsApp</li>
             </ul>
           </div>
 
-          {/* Plan 3: Premium (Le Plus Populaire) */}
-          <div style={styles.popularCard}>
-            <div style={styles.popularBadge}>🔥 LE PLUS POPULAIRE</div>
-            <span style={{...styles.planName, color: 'var(--primary)'}}>PREMIUM</span>
-            <p style={{...styles.planDesc, color: 'var(--dark-text-muted)'}}>Idéal pour maximiser tes chances de décrocher ton premier emploi.</p>
+          {/* Plan 3: Premium (6 mois) */}
+          <div style={styles.priceCard}>
+            <span style={styles.planName}>PREMIUM</span>
+            <p style={styles.planDesc}>Le meilleur tarif pour aller au bout de ta recherche.</p>
 
             <div style={styles.priceContainer}>
-              <span style={{...styles.priceAmount, color: '#fff'}}>15 000</span>
+              <span style={styles.priceAmount}>15 000</span>
               <span style={styles.priceCurrency}>FCFA / 6 mois</span>
             </div>
 
             <p style={styles.priceCaption}>Soit seulement <strong>2 500 FCFA / mois</strong> (-50% d'économie)</p>
 
-            <Link href="/register" className="btn btn-primary" style={styles.cardBtn} onClick={() => selectPlan('premium')}>
+            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('premium')}>
               Choisir ce plan
             </Link>
 
             <ul style={styles.featuresList}>
-              <li style={{color: '#fff'}}>✓ Tout ce qui est inclus dans le Standard</li>
-              <li style={{color: '#fff'}}>✓ Accès prioritaire aux nouvelles opportunités de ta niche</li>
-              <li style={{color: '#fff'}}>✓ Analyse ATS avancée du CV (Score)</li>
-              <li style={{color: '#fff'}}>✓ Support prioritaire par WhatsApp</li>
+              <li>✓ Tout ce qui est inclus dans le Standard</li>
+              <li>✓ Engagement 6 mois — 2 500 FCFA/mois seulement</li>
+              <li>✓ Accès prioritaire aux nouvelles opportunités de ta niche</li>
+              <li>✓ Relecture humaine du CV</li>
             </ul>
           </div>
 
@@ -203,11 +205,17 @@ export default function PricingPage() {
                 <tr>
                   <td style={styles.tableTd}>Compatibilité score ATS</td>
                   <td style={styles.tableTd}>—</td>
-                  <td style={styles.tableTd}>—</td>
+                  <td style={styles.tableTd}>✓</td>
                   <td style={styles.tableTd}>✓</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Support prioritaire WhatsApp</td>
+                  <td style={styles.tableTd}>—</td>
+                  <td style={styles.tableTd}>✓</td>
+                  <td style={styles.tableTd}>✓</td>
+                </tr>
+                <tr>
+                  <td style={styles.tableTd}>Relecture humaine du CV</td>
                   <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>✓</td>

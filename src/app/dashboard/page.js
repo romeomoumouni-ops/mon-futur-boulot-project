@@ -1882,15 +1882,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <ul style={styles.featuresList}>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ CV performants illimités</li>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ Lettres de motivation illimitées</li>
-                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Offres d'emploi en temps réel</li>
-                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Opportunités de ta niche</li>
-                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Analyse ATS avancée</li>
+                    <li style={{ color: '#ef4444', fontSize: '12px' }}>✗ <span style={{ textDecoration: 'line-through' }}>Offres d'emploi en temps réel</span></li>
+                    <li style={{ color: '#ef4444', fontSize: '12px' }}>✗ <span style={{ textDecoration: 'line-through' }}>Opportunités de ta niche</span></li>
+                    <li style={{ color: '#ef4444', fontSize: '12px' }}>✗ <span style={{ textDecoration: 'line-through' }}>Analyse ATS avancée</span></li>
                   </ul>
                 </div>
 
                 {/* Plan Standard */}
                 <div style={{ ...styles.priceCard, border: '2px solid var(--primary)', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: 'var(--primary)', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>POPULAIRE</div>
+                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: 'var(--primary)', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>RECOMMANDÉ</div>
                   <span style={{ ...styles.planName, color: 'var(--primary)' }}>STANDARD</span>
                   <div style={styles.priceContainer}>
                     <span style={styles.priceAmount}>5 000</span>
@@ -1906,6 +1906,8 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <li style={{ color: '#fff' }}>✓ Modifications illimitées</li>
                     <li style={{ color: '#fff' }}>✓ Toutes les offres d'emploi</li>
                     <li style={{ color: '#fff' }}>✓ Nouvelles opportunités de ta niche</li>
+                    <li style={{ color: '#fff' }}>✓ Analyse ATS avancée du CV (Score)</li>
+                    <li style={{ color: '#fff' }}>✓ Support prioritaire par WhatsApp</li>
                   </ul>
                 </div>
 
@@ -1923,10 +1925,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </button>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ Tout ce qu'inclut le plan Standard</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Engagement 6 mois — 2 500 FCFA/mois</li>
                     <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Accès prioritaire aux opportunités de ta niche</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Analyse ATS avancée du CV (Score)</li>
                     <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Relecture humaine du CV</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Support prioritaire par WhatsApp</li>
                   </ul>
                 </div>
 
