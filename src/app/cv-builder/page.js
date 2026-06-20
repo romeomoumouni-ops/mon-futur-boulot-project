@@ -106,19 +106,19 @@ export default function CvBuilderPage() {
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', color: '#0f172a' }}>
       
       {/* CV TOP AUTO SAVE BAR */}
-      <header style={styles.topBar}>
+      <header style={styles.topBar} className="cv-topbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <Link href="/dashboard" style={styles.logo}>
             <span style={styles.logoDot}>M</span>
             <strong>MonFuturBoulot</strong>
           </Link>
-          <span style={{ color: '#cbd5e1' }}>|</span>
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }}>
+          <span style={{ color: '#cbd5e1' }} className="cv-topbar-hide-mobile">|</span>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }} className="cv-topbar-hide-mobile">
             Mon CV / <strong style={{ color: '#0f172a' }}>Marketing Junior - {cvData.firstName} {cvData.lastName[0]}.</strong>
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span style={{ fontSize: '12px', color: '#64748b' }}>Sauvegarde auto - il y a 12s</span>
+          <span style={{ fontSize: '12px', color: '#64748b' }} className="cv-topbar-hide-mobile">Sauvegarde auto - il y a 12s</span>
           <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>Aperçu</button>
           <button className="btn btn-primary btn-sm" onClick={() => window.print()}>Télécharger PDF ↓</button>
         </div>
@@ -126,7 +126,7 @@ export default function CvBuilderPage() {
 
       {/* Progress Stepper (matching screen 3) */}
       <div style={styles.stepperContainer}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', padding: 0 }}>
+        <div className="container db-cv-stepper" style={{ display: 'flex', justifyContent: 'space-between', padding: 0 }}>
           <div style={{...styles.stepIndicator, ...(activeStep >= 1 ? styles.stepIndicatorDone : {}), cursor: 'pointer'}} onClick={() => setActiveStep(1)}>
             <span style={styles.stepCircle}>✓</span>
             <span style={styles.stepText}>ÉTAPE 1<br /><strong>Informations</strong></span>
@@ -148,7 +148,7 @@ export default function CvBuilderPage() {
 
       {/* Main Workspace */}
       <div className="container" style={{ paddingTop: '30px', paddingBottom: '60px' }}>
-        <div style={styles.cvWorkspace}>
+        <div style={styles.cvWorkspace} className="db-cv-workspace">
           
           {/* Left Form Column */}
           <div style={styles.cvFormColumn}>
@@ -666,7 +666,7 @@ export default function CvBuilderPage() {
           </div>
 
           {/* Right Live Preview Column */}
-          <div style={styles.cvPreviewColumn}>
+          <div style={styles.cvPreviewColumn} className="cv-preview-col">
             
             <div style={styles.previewControls}>
               <span>APERÇU EN DIRECT</span>

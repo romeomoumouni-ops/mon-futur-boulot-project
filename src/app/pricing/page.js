@@ -43,12 +43,12 @@ export default function PricingPage() {
             <span style={styles.logoDot}>M</span>
             <strong>MonFuturBoulot</strong><span style={{color: 'var(--primary)'}}>.com</span>
           </Link>
-          <nav style={styles.nav}>
+          <nav style={styles.nav} className="landing-nav">
             <Link href="/#features" style={styles.navLink}>Fonctionnalités</Link>
             <Link href="/#jobs-info" style={styles.navLink}>Offres d'emploi</Link>
             <Link href="/pricing" style={{...styles.navLink, ...styles.navLinkActive}}>Tarifs</Link>
           </nav>
-          <div style={styles.navActions}>
+          <div style={styles.navActions} className="landing-nav-actions">
             <Link href="/register" style={styles.loginLink}>Connexion</Link>
             <Link href="/register" className="btn btn-primary btn-sm">
               S'abonner
@@ -61,7 +61,7 @@ export default function PricingPage() {
       <section style={styles.heroSection}>
         <div className="container" style={{ textAlign: 'center' }}>
           <span style={styles.greenBadge}>✨ INVESTIS DANS TON AVENIR, PAS DANS DES FRAIS CACHÉS</span>
-          <h1 style={styles.title}>
+          <h1 style={styles.title} className="hero-title-responsive">
             Un job en Afrique, ça vaut <br />
             bien <span style={{color: 'var(--primary)'}}>un café par semaine</span>.
           </h1>
@@ -161,7 +161,7 @@ export default function PricingPage() {
         <div className="container" style={{ maxWidth: '900px' }}>
           <h2 style={{ textAlign: 'center', marginBottom: '40px' }}>Compare en un coup d'œil</h2>
           
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-scroll">
             <table style={styles.table}>
               <thead>
                 <tr>

@@ -68,10 +68,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={styles.pageContainer}>
-      
+    <div style={styles.pageContainer} className="auth-page">
+
       {/* LEFT PANE (WHITE BACKGROUND) */}
-      <div style={styles.leftPane}>
+      <div style={styles.leftPane} className="auth-form-pane">
         <div style={styles.formWrapper}>
           
           <Link href="/" style={styles.logo}>
@@ -207,7 +207,7 @@ export default function RegisterPage() {
       </div>
 
       {/* RIGHT PANE (DARK BACKGROUND) */}
-      <div style={styles.rightPane}>
+      <div style={styles.rightPane} className="auth-promo-pane">
         <div style={styles.marketingWrapper}>
           
           <div style={styles.badgeContainer}>
@@ -276,7 +276,7 @@ const styles = {
   pageContainer: {
     display: 'flex',
     minHeight: '100vh',
-    width: '100vw',
+    width: '100%',
     backgroundColor: '#ffffff'
   },
   leftPane: {

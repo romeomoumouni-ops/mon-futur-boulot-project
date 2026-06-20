@@ -359,6 +359,8 @@ const styles = {
     marginBottom: '24px'
   },
   greenBadge: {
+    display: 'inline-block',
+    maxWidth: '100%',
     backgroundColor: 'rgba(0, 184, 124, 0.1)',
     color: 'var(--primary)',
     padding: '8px 16px',
