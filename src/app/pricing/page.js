@@ -3,6 +3,7 @@
 import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
+import ChariowWidget from '@/components/ChariowWidget';
 
 export default function PricingPage() {
   const { plan, selectPlan } = useContext(AppContext);
@@ -88,9 +89,9 @@ export default function PricingPage() {
 
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
-            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('basique')}>
-              Choisir ce plan
-            </Link>
+            <div style={styles.cardBtn}>
+              <ChariowWidget productId="prd_covoyuoz" primaryColor="#00b87c" />
+            </div>
 
             <ul style={styles.featuresList}>
               <li>✓ CV performants illimités</li>
@@ -114,9 +115,9 @@ export default function PricingPage() {
 
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
-            <Link href="/register" className="btn btn-primary" style={styles.cardBtn} onClick={() => selectPlan('standard')}>
-              Choisir ce plan
-            </Link>
+            <div style={styles.cardBtn}>
+              <ChariowWidget productId="prd_mouzb4yn" primaryColor="#00b87c" />
+            </div>
 
             <ul style={styles.featuresList}>
               <li style={{color: '#fff'}}>✓ CV performants illimités</li>
@@ -141,9 +142,9 @@ export default function PricingPage() {
 
             <p style={styles.priceCaption}>Soit seulement <strong>2 500 FCFA / mois</strong> (-50% d'économie)</p>
 
-            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('premium')}>
-              Choisir ce plan
-            </Link>
+            <div style={styles.cardBtn}>
+              <ChariowWidget productId="prd_2dl6fbu2" primaryColor="#a855f7" />
+            </div>
 
             <ul style={styles.featuresList}>
               <li>✓ Tout ce qui est inclus dans le Standard</li>

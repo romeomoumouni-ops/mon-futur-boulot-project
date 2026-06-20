@@ -4,6 +4,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 import { generateCvPdf } from '@/lib/pdf';
+import ChariowWidget from '@/components/ChariowWidget';
 
 const INDUSTRIES = [
   { id: 'marketing', icon: '📈', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
@@ -1877,9 +1878,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <span style={styles.priceCurrency}>FCFA/mois</span>
                   </div>
                   <p style={styles.priceCaption}>L'essentiel pour préparer ta candidature</p>
-                  <button className="btn btn-secondary btn-sm" style={styles.cardBtn} onClick={() => { selectPlan('basique'); openModal('Plan Basique', 'Bienvenue sur le plan Basique ! 🎉', 'success'); }}>
-                    {plan === 'basique' ? '✓ Plan Actuel' : 'Choisir ce plan'}
-                  </button>
+                  <div style={styles.cardBtn}>
+                    <ChariowWidget productId="prd_covoyuoz" primaryColor="#00b87c" />
+                  </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ CV performants illimités</li>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ Lettres de motivation illimitées</li>
@@ -1898,9 +1899,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <span style={styles.priceCurrency}>FCFA/mois</span>
                   </div>
                   <p style={styles.priceCaption}>Flexibilité totale, sans engagement</p>
-                  <button className="btn btn-primary btn-sm" style={styles.cardBtn} onClick={() => { selectPlan('standard'); openModal('Plan Standard', 'Bienvenue sur le plan Standard ! 🎉', 'success'); }}>
-                    {plan === 'standard' ? '✓ Plan Actuel' : "S'abonner maintenant"}
-                  </button>
+                  <div style={styles.cardBtn}>
+                    <ChariowWidget productId="prd_mouzb4yn" primaryColor="#00b87c" />
+                  </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ CV performants illimités</li>
                     <li style={{ color: '#fff' }}>✓ Lettres de motivation illimitées</li>
@@ -1921,9 +1922,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <span style={styles.priceCurrency}>FCFA</span>
                   </div>
                   <p style={styles.priceCaption}>6 mois — soit 2 500 FCFA/mois (−50%)</p>
-                  <button className="btn btn-primary btn-sm" style={{ ...styles.cardBtn, background: 'linear-gradient(135deg, #a855f7, #7c3aed)', border: 'none' }} onClick={() => { selectPlan('premium'); openModal('Plan Premium', 'Bienvenue sur le plan Premium 6 mois ! 🎉👑', 'success'); }}>
-                    {plan === 'premium' ? '✓ Plan Actuel' : "S'abonner — Économise 50%"}
-                  </button>
+                  <div style={styles.cardBtn}>
+                    <ChariowWidget productId="prd_2dl6fbu2" primaryColor="#a855f7" />
+                  </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ Tout ce qu'inclut le plan Standard</li>
                     <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Engagement 6 mois — 2 500 FCFA/mois</li>
