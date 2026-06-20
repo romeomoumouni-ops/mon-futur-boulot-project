@@ -39,7 +39,12 @@ function ensureChariow() {
 }
 
 // Widget de paiement Snap (popup sur le site, sans quitter la page).
-export default function ChariowWidget({ productId, primaryColor = '#00b87c', ctaWidth = 'block' }) {
+export default function ChariowWidget({
+  productId,
+  primaryColor = '#00b87c',
+  ctaWidth = 'block',
+  ctaText = "Choisir ce plan d'abonnement",
+}) {
   useEffect(() => {
     ensureChariow();
   }, [productId]);
@@ -47,11 +52,13 @@ export default function ChariowWidget({ productId, primaryColor = '#00b87c', cta
   return (
     <div
       id="chariow-widget"
+      className="mfb-chariow"
       data-product-id={productId}
       data-store-domain={STORE_DOMAIN}
       data-style="tap"
       data-border-style="rounded"
       data-cta-width={ctaWidth}
+      data-custom-cta-text={ctaText}
       data-background-color="#FFFFFF"
       data-cta-animation="shake_scale"
       data-locale="fr"

@@ -2,11 +2,13 @@
 
 import React, { createContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const router = useRouter();
+  const [supabase] = useState(() => createClient());
   
   // Simulated initial values based on user screenshots (Aminata Diallo)
   const defaultCV = {
@@ -117,75 +119,96 @@ export const AppProvider = ({ children }) => {
     interviewsObtained: 3
   });
 
-  // Load from localStorage on mount
+  // Données locales (CV, lettres, candidatures) — conservées par navigateur pour le MVP.
   useEffect(() => {
-    const savedUser = localStorage.getItem('mfb_user');
     const savedCV = localStorage.getItem('mfb_cv');
-    const savedPlan = localStorage.getItem('mfb_plan');
     const savedApps = localStorage.getItem('mfb_apps');
     const savedLetters = localStorage.getItem('mfb_letters');
     const savedJobs = localStorage.getItem('mfb_jobs');
-
-    if (savedUser) setUser(JSON.parse(savedUser));
     if (savedCV) setCvData(JSON.parse(savedCV));
-    // Normalise les anciens noms de plan vers le nouveau modèle (basique/standard/premium).
-    if (savedPlan) {
-      const PLAN_MIGRATION = { free: 'standard', gratuit: 'standard', mensuel: 'standard', semestriel: 'premium' };
-      setPlan(PLAN_MIGRATION[savedPlan] || savedPlan);
-    }
     if (savedApps) setApplications(JSON.parse(savedApps));
     if (savedLetters) setLetters(JSON.parse(savedLetters));
     if (savedJobs) setJobs(JSON.parse(savedJobs));
   }, []);
+
+  // Session réelle Supabase (auth)
+  useEffect(() => {
+    const applySession = (session) => {
+      const u = session?.user;
+      if (u) {
+        const meta = u.user_metadata || {};
+        setUser({
+          id: u.id,
+          email: u.email,
+          firstName: meta.first_name || '',
+          lastName: meta.last_name || '',
+          phone: meta.phone || '',
+          country: meta.country || '',
+          city: meta.city || '',
+        });
+      } else {
+        setUser(null);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => applySession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => applySession(session));
+    return () => sub.subscription.unsubscribe();
+  }, [supabase]);
 
   // Save changes to localStorage helper
   const saveState = (key, value) => {
     localStorage.setItem(key, JSON.stringify(value));
   };
 
-  // Auth Operations
-  const registerUser = (userData) => {
-    const newUser = {
-      ...userData,
-      avatar: '/avatar.png',
-      registeredAt: new Date().toISOString()
-    };
-    setUser(newUser);
-    saveState('mfb_user', newUser);
-    
-    // Seed CV with registering name
+  // Auth réelle (Supabase). Retournent { error } | { ok, needsConfirmation? }.
+  const registerUser = async (userData) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        data: {
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          phone: userData.phone || '',
+          country: userData.country || '',
+          city: userData.city || '',
+        },
+      },
+    });
+    if (error) return { error: error.message };
+
+    // Pré-remplit le CV local avec le nom saisi
     const updatedCV = {
       ...cvData,
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
       phone: userData.phone || cvData.phone,
-      address: `${userData.city || 'Abidjan'}, ${userData.country || 'Côte d\'Ivoire'}`
+      address: `${userData.city || 'Abidjan'}, ${userData.country || 'Côte d\'Ivoire'}`,
     };
     setCvData(updatedCV);
     saveState('mfb_cv', updatedCV);
-    
-    router.push('/dashboard');
+
+    if (data.session) {
+      // Connecté immédiatement -> doit choisir un plan d'abonnement
+      router.push('/pricing');
+      return { ok: true };
+    }
+    // Confirmation e-mail requise par Supabase
+    return { ok: true, needsConfirmation: true };
   };
 
-  const loginUser = (email, password) => {
-    // Mock login that matches registered user or creates session for Aminata
-    const sessionUser = {
-      firstName: 'Aminata',
-      lastName: 'Diallo',
-      email: email || 'aminata.diallo@gmail.com',
-      country: 'Côte d\'Ivoire',
-      phone: '+225 07 12 34 56 78',
-      city: 'Abidjan'
-    };
-    setUser(sessionUser);
-    saveState('mfb_user', sessionUser);
+  const loginUser = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    // Le middleware redirige vers /pricing si aucun abonnement actif
     router.push('/dashboard');
+    return { ok: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('mfb_user');
     router.push('/');
   };
 

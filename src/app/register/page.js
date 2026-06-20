@@ -17,25 +17,41 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleToggleMode = (mode) => {
     setIsLoginMode(mode);
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setNotice('');
 
     if (isLoginMode) {
       if (!email || !password) {
         setError('Veuillez remplir tous les champs.');
         return;
       }
-      loginUser(email, password);
+      setSubmitting(true);
+      const res = await loginUser(email, password);
+      setSubmitting(false);
+      if (res?.error) {
+        setError(
+          /invalid login/i.test(res.error)
+            ? 'E-mail ou mot de passe incorrect.'
+            : res.error
+        );
+      }
     } else {
       if (!firstName || !lastName || !email || !phone || !password) {
         setError('Veuillez remplir tous les champs.');
+        return;
+      }
+      if (password.length < 6) {
+        setError('Le mot de passe doit contenir au moins 6 caractères.');
         return;
       }
       if (!agreeTerms) {
@@ -43,27 +59,18 @@ export default function RegisterPage() {
         return;
       }
 
-      let registeredUsers = [];
-      try {
-        const savedList = localStorage.getItem('mfb_registered_users');
-        if (savedList) {
-          registeredUsers = JSON.parse(savedList);
-        }
-      } catch (err) {}
-      
-      if (!registeredUsers.some(u => u.email === email)) {
-        registeredUsers.push({ firstName, lastName, email, country, phone, password });
-        localStorage.setItem('mfb_registered_users', JSON.stringify(registeredUsers));
+      setSubmitting(true);
+      const res = await registerUser({ firstName, lastName, email, country, phone, password });
+      setSubmitting(false);
+      if (res?.error) {
+        setError(
+          /already registered|already exists|user already/i.test(res.error)
+            ? 'Un compte existe déjà avec cet e-mail. Connecte-toi.'
+            : res.error
+        );
+      } else if (res?.needsConfirmation) {
+        setNotice('Compte créé ✅ Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi pour choisir ton abonnement.');
       }
-
-      registerUser({
-        firstName,
-        lastName,
-        email,
-        country,
-        phone,
-        password
-      });
     }
   };
 
@@ -87,6 +94,11 @@ export default function RegisterPage() {
           </p>
 
           {error && <div style={styles.errorMessage}>{error}</div>}
+          {notice && (
+            <div style={{ background: 'var(--primary-light)', color: 'var(--primary-hover)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', padding: '12px 14px', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>
+              {notice}
+            </div>
+          )}
 
           {/* Actual Form */}
           <form onSubmit={handleSubmit}>
@@ -190,8 +202,8 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary" style={styles.submitBtn}>
-              {isLoginMode ? 'Se connecter →' : 'Créer mon compte →'}
+            <button type="submit" className="btn btn-primary" style={styles.submitBtn} disabled={submitting}>
+              {submitting ? 'Patiente…' : isLoginMode ? 'Se connecter →' : 'Créer mon compte →'}
             </button>
           </form>
 

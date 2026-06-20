@@ -69,6 +69,18 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   -webkit-overflow-scrolling: touch;
 }
 
+/* Bouton du widget de paiement Chariow : grand CTA pleine largeur, comme les boutons du site */
+#chariow-widget { width: 100%; }
+#chariow-widget .cw-button-base,
+#chariow-widget button {
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 15px 24px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-md) !important;
+}
+
 body {
   background-color: var(--light-bg);
   color: var(--light-text);
