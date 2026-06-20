@@ -1,0 +1,123 @@
+# Project Rules and Design Guidelines (MonFuturBoulot.com)
+
+You must strictly adhere to the following UI, UX, and design system rules for all code modifications, new component additions, and page developments in this workspace.
+
+---
+
+## 1. Core Color Palette & Design Tokens
+
+You must ONLY use the CSS variables defined in [globals.css](file:///Users/romeomoumouniattolou/Mon%20futur%20job/src/app/globals.css). Never hardcode generic hex values, RGB values, or color names.
+
+### Brand Colors
+- **Primary Brand Color**: `var(--primary)` (`#00b87c`)
+- **Primary Hover**: `var(--primary-hover)` (`#009e6a`)
+- **Primary Light (Background/Highlight)**: `var(--primary-light)` (`#e8f9f3`)
+- **Primary Glow**: `var(--primary-glow)` (`rgba(0, 184, 124, 0.15)`)
+
+### Dark Theme Palette
+- **Background**: `var(--dark-bg)` (`#080c14`)
+- **Card Background**: `var(--dark-card)` (`#0e1422`)
+- **Border**: `var(--dark-border)` (`#1a2436`)
+- **Text (High Contrast)**: `var(--dark-text)` (`#f8fafc`)
+- **Text (Muted)**: `var(--dark-text-muted)` (`#94a3b8`)
+
+### Light Theme Palette
+- **Background**: `var(--light-bg)` (`#f8fafc`)
+- **Card Background**: `var(--light-card)` (`#ffffff`)
+- **Border**: `var(--light-border)` (`#e2e8f0`)
+- **Text (High Contrast)**: `var(--light-text)` (`#0f172a`)
+- **Text (Muted)**: `var(--light-text-muted)` (`#64748b`)
+
+### Alert & Status Colors
+- **Error**: `var(--error)` (`#ef4444`)
+- **Success**: `var(--success)` (`#10b981`)
+- **Warning**: `var(--warning)` (`#f59e0b`)
+
+---
+
+## 2. Layout, Borders & Shadows
+
+- **Border Radius**:
+  - Small elements (inputs, badges, small buttons): `var(--radius-sm)` (`8px`)
+  - Medium elements (cards, containers, standard buttons): `var(--radius-md)` (`12px`)
+  - Large elements (major pages section cards, modals): `var(--radius-lg)` (`18px`)
+  - Pills, tags, full-round components: `var(--radius-full)` (`9999px`)
+- **Shadows**:
+  - Dropdown/menus: `var(--shadow-sm)`
+  - Cards, default panels: `var(--shadow-md)`
+  - Elevated modals/CV previews: `var(--shadow-lg)`
+  - Premium sections: `var(--shadow-premium)`
+- **Transitions**:
+  - Always use `var(--transition)` (`all 0.25s cubic-bezier(0.4, 0, 0.2, 1)`) for hover states, color shifts, and transitions.
+
+---
+
+## 3. Typography & Styling Guidelines
+
+- **Font Family**: Always use `'Outfit', sans-serif`. Do not use default sans-serif or other fonts.
+- **Font Weights**:
+  - Headings (h1, h2, h3, h4): `700` or `800` for strong prominence.
+  - Subtitles and key UI labels: `500` or `600`.
+  - Body text: `300` or `400`.
+- **Text Gradients**: For premium headers and accents, use the `.text-gradient` helper:
+  `background: linear-gradient(135deg, var(--primary) 0%, #00e699 100%);`
+  `-webkit-background-clip: text;`
+  `-webkit-text-fill-color: transparent;`
+
+---
+
+## 4. Components & UX Standards
+
+### Buttons
+Use the predefined CSS classes in `.globals.css` or map inline styles to mirror:
+- **Primary**: `.btn.btn-primary` (Green background, white text, transform hover + glow shadow)
+- **Secondary**: `.btn.btn-secondary` (White background, dark text, light border)
+- **Dark/Outline-Dark**: `.btn.btn-dark` or `.btn.btn-outline-dark`
+
+### Forms & Inputs
+All interactive inputs must use:
+- Class `.form-input`
+- High-contrast text, smooth focus borders in `var(--primary)`, and a subtle outer glow shadow using `var(--primary-glow)`.
+
+### Theme Wrappers
+Ensure pages have appropriate wrapper elements. E.g., for dark theme pages, use `<div className="dark-theme">` as a container to apply appropriate global dark background and text overrides.
+
+### Language
+All user-facing text, actions, and headings must be in **French** (fr) as per the project requirements.
+
+---
+
+## 5. 📱 Mobile-First Responsive Design — RÈGLE OBLIGATOIRE
+
+> ⚠️ **AVANT toute modification UI, TOUJOURS vérifier le rendu mobile en premier (375px de large).**
+
+### Breakpoints officiels
+| Écran | Largeur | Comportement |
+|---|---|---|
+| Mobile | `< 768px` | 1 colonne, sidebar cachée, nav hamburger |
+| Tablette | `768–1023px` | Grilles compactes, 2 colonnes max |
+| Desktop | `≥ 1024px` | Sidebar fixe, multi-colonnes, layout complet |
+
+### Règles de mise en page
+- **Sidebar Dashboard** : sur mobile, c'est un panneau coulissant (`position: fixed`, `transform: translateX(-100%)`) déclenché par un bouton hamburger (`.db-hamburger`). Utiliser les classes CSS : `.db-sidebar`, `.db-sidebar.sidebar-open`, `.db-sidebar-overlay.overlay-active`.
+- **Grids** : toujours utiliser les classes CSS dédiées au lieu d'inline styles pour les grilles multi-colonnes :
+  - `.db-split` → 2 cols desktop, 1 col mobile
+  - `.db-cv-workspace` → 2 cols desktop, 1 col mobile
+  - `.db-pricing-grid` → 3 cols desktop, 1 col mobile
+  - `.db-stats-grid` → auto-fit desktop, 2 cols mobile
+- **Ne jamais** écrire `gridTemplateColumns: 'repeat(N, 1fr)'` sans ajouter la classe CSS responsive correspondante.
+- **Tailles de police** : maximum `h1` sur mobile = `28px`. Utiliser la classe `.hero-title-responsive` pour les grands titres.
+- **Boutons** : dans un formulaire ou en contexte hero, `width: 100%` sur mobile.
+- **Padding** : utiliser `padding: 14px` sur mobile au lieu de `30px+`. La classe `.db-content` gère cela automatiquement.
+
+### Classes CSS disponibles (dans `globals.css`)
+- **Landing** : `.landing-nav`, `.landing-nav-actions`, `.landing-mobile-toggle`, `.hero-actions-row`, `.footer-grid-responsive`, `.footer-bottom-responsive`
+- **Dashboard** : `.db-layout`, `.db-main`, `.db-sidebar`, `.db-sidebar-overlay`, `.db-hamburger`, `.db-sidebar-close`, `.db-content`, `.db-topbar-search`, `.db-user-meta`, `.db-welcome-btns`, `.db-split`, `.db-cv-workspace`, `.db-pricing-grid`, `.db-admin-stats`, `.db-admin-cols`, `.db-stats-grid`
+
+### Checklist avant tout commit UI
+- [ ] Testé à 375px (iPhone SE)
+- [ ] Testé à 390px (iPhone 14)
+- [ ] Testé à 768px (tablette)
+- [ ] Sidebar hamburger fonctionne
+- [ ] Pas de scroll horizontal
+- [ ] Boutons et formulaires accessibles au pouce
