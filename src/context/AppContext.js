@@ -108,7 +108,7 @@ export const AppProvider = ({ children }) => {
   const [letters, setLetters] = useState([
     { id: 1, company: 'Wave', role: 'Community Manager', date: 'Hier - 18h32', content: 'Bonjour Wave,\n\nJe suis très intéressée par le poste de Community Manager. Avec mon expérience en freelance auprès de PME locales et mes compétences en réseaux sociaux, je saurai accroître l\'impact de votre marque en ligne...' }
   ]);
-  const [plan, setPlan] = useState('mensuel'); // 'mensuel', 'semestriel' (plus de plan gratuit)
+  const [plan, setPlan] = useState('standard'); // 'basique', 'standard', 'premium'
   const [atsScore, setAtsScore] = useState(85);
   const [stats, setStats] = useState({
     cvsCreated: 2,
@@ -128,8 +128,11 @@ export const AppProvider = ({ children }) => {
 
     if (savedUser) setUser(JSON.parse(savedUser));
     if (savedCV) setCvData(JSON.parse(savedCV));
-    // Plus de plan gratuit : tout ancien plan 'free'/'gratuit' est ramené au Mensuel.
-    if (savedPlan) setPlan(savedPlan === 'free' || savedPlan === 'gratuit' ? 'mensuel' : savedPlan);
+    // Normalise les anciens noms de plan vers le nouveau modèle (basique/standard/premium).
+    if (savedPlan) {
+      const PLAN_MIGRATION = { free: 'standard', gratuit: 'standard', mensuel: 'standard', semestriel: 'premium' };
+      setPlan(PLAN_MIGRATION[savedPlan] || savedPlan);
+    }
     if (savedApps) setApplications(JSON.parse(savedApps));
     if (savedLetters) setLetters(JSON.parse(savedLetters));
     if (savedJobs) setJobs(JSON.parse(savedJobs));

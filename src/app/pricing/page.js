@@ -17,7 +17,7 @@ export default function PricingPage() {
   const faqData = [
     {
       q: "Comment démarrer ?",
-      a: "Choisis le plan Mensuel ou Semestriel, crée ton compte, et tu accèdes immédiatement à tout : CV et lettres de motivation illimités, modifications illimitées et toutes les offres d'emploi en temps réel."
+      a: "Choisis le plan Basique, Standard ou Premium, crée ton compte, et tu accèdes immédiatement à tes outils. Le Basique couvre les CV et lettres de motivation ; le Standard et le Premium ajoutent les offres d'emploi et les opportunités de ta niche."
     },
     {
       q: "Comment se passe le paiement en FCFA ?",
@@ -76,9 +76,34 @@ export default function PricingPage() {
       <section style={{ padding: '20px 0 80px 0' }}>
         <div className="container" style={styles.cardsGrid}>
 
-          {/* Plan 1: Mensuel */}
+          {/* Plan 1: Basique */}
           <div style={styles.priceCard}>
-            <span style={styles.planName}>MENSUEL</span>
+            <span style={styles.planName}>BASIQUE</span>
+            <p style={styles.planDesc}>L'essentiel pour préparer ta candidature.</p>
+
+            <div style={styles.priceContainer}>
+              <span style={styles.priceAmount}>2 500</span>
+              <span style={styles.priceCurrency}>FCFA / mois</span>
+            </div>
+
+            <p style={styles.priceCaption}>Payé mensuellement</p>
+
+            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('basique')}>
+              Choisir ce plan
+            </Link>
+
+            <ul style={styles.featuresList}>
+              <li>✓ CV performants illimités</li>
+              <li>✓ Lettres de motivation illimitées</li>
+              <li>✗ Offres d'emploi en temps réel</li>
+              <li>✗ Opportunités de ta niche</li>
+              <li>✗ Analyse ATS avancée</li>
+            </ul>
+          </div>
+
+          {/* Plan 2: Standard */}
+          <div style={styles.priceCard}>
+            <span style={styles.planName}>STANDARD</span>
             <p style={styles.planDesc}>Pour une recherche d'emploi active, sans aucune limite.</p>
 
             <div style={styles.priceContainer}>
@@ -88,7 +113,7 @@ export default function PricingPage() {
 
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
-            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('mensuel')}>
+            <Link href="/register" className="btn btn-secondary" style={styles.cardBtn} onClick={() => selectPlan('standard')}>
               Choisir ce plan
             </Link>
 
@@ -101,10 +126,10 @@ export default function PricingPage() {
             </ul>
           </div>
 
-          {/* Plan 2: Semestriel (Le Plus Populaire) */}
+          {/* Plan 3: Premium (Le Plus Populaire) */}
           <div style={styles.popularCard}>
             <div style={styles.popularBadge}>🔥 LE PLUS POPULAIRE</div>
-            <span style={{...styles.planName, color: 'var(--primary)'}}>SEMESTRIEL</span>
+            <span style={{...styles.planName, color: 'var(--primary)'}}>PREMIUM</span>
             <p style={{...styles.planDesc, color: 'var(--dark-text-muted)'}}>Idéal pour maximiser tes chances de décrocher ton premier emploi.</p>
 
             <div style={styles.priceContainer}>
@@ -114,12 +139,12 @@ export default function PricingPage() {
 
             <p style={styles.priceCaption}>Soit seulement <strong>2 500 FCFA / mois</strong> (-50% d'économie)</p>
 
-            <Link href="/register" className="btn btn-primary" style={styles.cardBtn} onClick={() => selectPlan('semestriel')}>
+            <Link href="/register" className="btn btn-primary" style={styles.cardBtn} onClick={() => selectPlan('premium')}>
               Choisir ce plan
             </Link>
 
             <ul style={styles.featuresList}>
-              <li style={{color: '#fff'}}>✓ Tout ce qui est inclus dans le Mensuel</li>
+              <li style={{color: '#fff'}}>✓ Tout ce qui est inclus dans le Standard</li>
               <li style={{color: '#fff'}}>✓ Accès prioritaire aux nouvelles opportunités de ta niche</li>
               <li style={{color: '#fff'}}>✓ Analyse ATS avancée du CV (Score)</li>
               <li style={{color: '#fff'}}>✓ Support prioritaire par WhatsApp</li>
@@ -139,8 +164,9 @@ export default function PricingPage() {
               <thead>
                 <tr>
                   <th style={styles.tableTh}>FONCTIONNALITÉ</th>
-                  <th style={styles.tableTh}>Mensuel</th>
-                  <th style={styles.tableTh}>Semestriel</th>
+                  <th style={styles.tableTh}>Basique</th>
+                  <th style={styles.tableTh}>Standard</th>
+                  <th style={styles.tableTh}>Premium</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,9 +174,11 @@ export default function PricingPage() {
                   <td style={styles.tableTd}>CV performants</td>
                   <td style={styles.tableTd}>Illimité</td>
                   <td style={styles.tableTd}>Illimité</td>
+                  <td style={styles.tableTd}>Illimité</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Lettres de motivation</td>
+                  <td style={styles.tableTd}>Illimité</td>
                   <td style={styles.tableTd}>Illimité</td>
                   <td style={styles.tableTd}>Illimité</td>
                 </tr>
@@ -158,24 +186,29 @@ export default function PricingPage() {
                   <td style={styles.tableTd}>Modifications</td>
                   <td style={styles.tableTd}>Illimité</td>
                   <td style={styles.tableTd}>Illimité</td>
+                  <td style={styles.tableTd}>Illimité</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Offres d'emploi en temps réel</td>
+                  <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>✓</td>
                   <td style={styles.tableTd}>✓</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Nouvelles opportunités de ta niche</td>
+                  <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>✓</td>
                   <td style={styles.tableTd}>✓ (prioritaire)</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Compatibilité score ATS</td>
                   <td style={styles.tableTd}>—</td>
+                  <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>✓</td>
                 </tr>
                 <tr>
                   <td style={styles.tableTd}>Support prioritaire WhatsApp</td>
+                  <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>—</td>
                   <td style={styles.tableTd}>✓</td>
                 </tr>

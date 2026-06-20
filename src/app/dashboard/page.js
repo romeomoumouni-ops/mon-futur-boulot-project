@@ -1812,7 +1812,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <label className="form-label">{t("profilePlanLabel", "Plan d'abonnement actuel")}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
                     <span className="cv-badge" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 'bold', fontSize: '12px', padding: '6px 12px' }}>
-                      {!isPremium ? t("profilePlanFree", "🆓 Plan Gratuit") : plan === 'mensuel' ? t("profilePlanMonthly", "⭐ Plan Mensuel Premium") : t("profilePlanVIP", "👑 Plan Semestriel VIP (6 mois)")}
+                      {plan === 'basique' ? '🥉 Plan Basique' : plan === 'standard' ? '⭐ Plan Standard' : '👑 Plan Premium (6 mois)'}
                     </span>
                     <button className="btn btn-secondary btn-sm" onClick={() => setCurrentView('pricing')}>{t("profileChangePlanBtn", "Changer de plan")}</button>
                   </div>
@@ -1866,48 +1866,67 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 </p>
               </div>
 
-              <div className="db-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', maxWidth: '720px', margin: '0 auto' }}>
+              <div className="db-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '980px', margin: '0 auto' }}>
 
-                {/* Plan Mensuel */}
-                <div style={{ ...styles.priceCard, border: '2px solid var(--primary)', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: 'var(--primary)', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>{t("pricePopular", "POPULAIRE")}</div>
-                  <span style={{ ...styles.planName, color: 'var(--primary)' }}>{t("priceMonthlyTitle", "MENSUEL")}</span>
+                {/* Plan Basique */}
+                <div style={{ ...styles.priceCard, border: '1px solid var(--dark-border)' }}>
+                  <span style={styles.planName}>BASIQUE</span>
                   <div style={styles.priceContainer}>
-                    <span style={styles.priceAmount}>5 000</span>
-                    <span style={styles.priceCurrency}>FCFA/{t("lang" === "en" ? "month" : "mois")}</span>
+                    <span style={styles.priceAmount}>2 500</span>
+                    <span style={styles.priceCurrency}>FCFA/mois</span>
                   </div>
-                  <p style={styles.priceCaption}>{t("priceMonthlyDesc", "Flexibilité totale, sans engagement")}</p>
-                  <button className="btn btn-primary btn-sm" style={styles.cardBtn} onClick={() => { selectPlan('mensuel'); openModal(t('priceMonthlyBtn', 'Nouveau Plan Premium'), t('lang' === 'en' ? 'Welcome to the Premium Monthly plan! 🎉' : 'Bienvenue sur le plan Mensuel Premium ! 🎉'), 'success'); }}>
-                    {plan === 'mensuel' ? t("priceFreeBtnActive", "✓ Plan Actuel") : t("priceMonthlyBtn", "S'abonner maintenant")}
+                  <p style={styles.priceCaption}>L'essentiel pour préparer ta candidature</p>
+                  <button className="btn btn-secondary btn-sm" style={styles.cardBtn} onClick={() => { selectPlan('basique'); openModal('Plan Basique', 'Bienvenue sur le plan Basique ! 🎉', 'success'); }}>
+                    {plan === 'basique' ? '✓ Plan Actuel' : 'Choisir ce plan'}
                   </button>
                   <ul style={styles.featuresList}>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature1", "✓ CV performants illimités")}</li>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature2", "✓ Lettres de motivation illimitées")}</li>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature3", "✓ Modifications illimitées")}</li>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature4", "✓ Toutes les offres d'emploi")}</li>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature5", "✓ Nouvelles opportunités de ta niche")}</li>
-                    <li style={{ color: '#fff' }}>{t("pricePremiumFeature6", "✓ Candidatures en 1 clic")}</li>
+                    <li style={{ color: 'var(--dark-text-muted)' }}>✓ CV performants illimités</li>
+                    <li style={{ color: 'var(--dark-text-muted)' }}>✓ Lettres de motivation illimitées</li>
+                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Offres d'emploi en temps réel</li>
+                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Opportunités de ta niche</li>
+                    <li style={{ color: '#475569', opacity: 0.45, textDecoration: 'line-through', fontSize: '12px' }}>Analyse ATS avancée</li>
                   </ul>
                 </div>
 
-                {/* Plan Semestriel */}
+                {/* Plan Standard */}
+                <div style={{ ...styles.priceCard, border: '2px solid var(--primary)', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: 'var(--primary)', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>POPULAIRE</div>
+                  <span style={{ ...styles.planName, color: 'var(--primary)' }}>STANDARD</span>
+                  <div style={styles.priceContainer}>
+                    <span style={styles.priceAmount}>5 000</span>
+                    <span style={styles.priceCurrency}>FCFA/mois</span>
+                  </div>
+                  <p style={styles.priceCaption}>Flexibilité totale, sans engagement</p>
+                  <button className="btn btn-primary btn-sm" style={styles.cardBtn} onClick={() => { selectPlan('standard'); openModal('Plan Standard', 'Bienvenue sur le plan Standard ! 🎉', 'success'); }}>
+                    {plan === 'standard' ? '✓ Plan Actuel' : "S'abonner maintenant"}
+                  </button>
+                  <ul style={styles.featuresList}>
+                    <li style={{ color: '#fff' }}>✓ CV performants illimités</li>
+                    <li style={{ color: '#fff' }}>✓ Lettres de motivation illimitées</li>
+                    <li style={{ color: '#fff' }}>✓ Modifications illimitées</li>
+                    <li style={{ color: '#fff' }}>✓ Toutes les offres d'emploi</li>
+                    <li style={{ color: '#fff' }}>✓ Nouvelles opportunités de ta niche</li>
+                  </ul>
+                </div>
+
+                {/* Plan Premium */}
                 <div style={{ ...styles.priceCard, border: '2px solid #a855f7', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: '#a855f7', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>{t("priceBestValue", "BEST VALUE")}</div>
-                  <span style={{ ...styles.planName, color: '#c084fc' }}>{t("priceSemestrielTitle", "SEMESTRIEL")}</span>
+                  <div style={{ position: 'absolute', top: '18px', right: '-30px', backgroundColor: '#a855f7', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '4px 40px', transform: 'rotate(45deg)', letterSpacing: '0.05em' }}>BEST VALUE</div>
+                  <span style={{ ...styles.planName, color: '#c084fc' }}>PREMIUM</span>
                   <div style={styles.priceContainer}>
                     <span style={styles.priceAmount}>15 000</span>
                     <span style={styles.priceCurrency}>FCFA</span>
                   </div>
-                  <p style={styles.priceCaption}>{t("priceSemestrielDesc", "6 mois — soit 2 500 FCFA/mois (−50%)")}</p>
-                  <button className="btn btn-primary btn-sm" style={{ ...styles.cardBtn, background: 'linear-gradient(135deg, #a855f7, #7c3aed)', border: 'none' }} onClick={() => { selectPlan('semestriel'); openModal(t('priceSemestrielBtn', 'Plan VIP Activé'), t('lang' === 'en' ? 'Welcome to the VIP Semestriel 6 months plan! 🎉👑' : 'Bienvenue sur le plan Semestriel VIP 6 mois ! 🎉👑'), 'success'); }}>
-                    {plan === 'semestriel' ? t("priceFreeBtnActive", "✓ Plan Actuel") : t("priceSemestrielBtn", "S'abonner — Économise 50%")}
+                  <p style={styles.priceCaption}>6 mois — soit 2 500 FCFA/mois (−50%)</p>
+                  <button className="btn btn-primary btn-sm" style={{ ...styles.cardBtn, background: 'linear-gradient(135deg, #a855f7, #7c3aed)', border: 'none' }} onClick={() => { selectPlan('premium'); openModal('Plan Premium', 'Bienvenue sur le plan Premium 6 mois ! 🎉👑', 'success'); }}>
+                    {plan === 'premium' ? '✓ Plan Actuel' : "S'abonner — Économise 50%"}
                   </button>
                   <ul style={styles.featuresList}>
-                    <li style={{ color: '#fff' }}>{t("priceVipFeature1", "✓ Tout ce qu'inclut le plan Mensuel")}</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>{t("priceVipFeature2", "⭐ Accès prioritaire aux opportunités de ta niche")}</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>{t("priceVipFeature3", "⭐ Analyse ATS avancée du CV (Score)")}</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>{t("priceVipFeature4", "⭐ Relecture humaine du CV")}</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>{t("priceVipFeature5", "⭐ Support prioritaire par WhatsApp")}</li>
+                    <li style={{ color: '#fff' }}>✓ Tout ce qu'inclut le plan Standard</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Accès prioritaire aux opportunités de ta niche</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Analyse ATS avancée du CV (Score)</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Relecture humaine du CV</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Support prioritaire par WhatsApp</li>
                   </ul>
                 </div>
 
@@ -1917,7 +1936,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               <div style={{ textAlign: 'center', marginTop: '40px' }}>
                 <div style={{ display: 'inline-block', padding: '16px 28px', backgroundColor: 'var(--dark-card)', border: '1px solid #a855f7', borderRadius: 'var(--radius-lg)' }}>
                   <p style={{ color: 'var(--dark-text-muted)', fontSize: '13px', margin: 0 }}>
-                    {t("priceSavingsTip", "💡 Conseil : Le plan Semestriel te fait économiser 15 000 FCFA sur 6 mois vs le mensuel.")}
+                    💡 Conseil : le plan Premium (6 mois) revient à 2 500 FCFA/mois, soit le prix du Basique mais avec tout l'accès du Standard.
                   </p>
                 </div>
               </div>

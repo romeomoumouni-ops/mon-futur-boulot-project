@@ -21,15 +21,16 @@ Plateforme tout-en-un pour aider les **jeunes diplômés d'Afrique francophone**
 
 ---
 
-## 💳 Modèle économique — 100% payant (plus de plan gratuit)
+## 💳 Modèle économique — 3 paliers payants
 
 | Plan | Prix | Contenu |
 |---|---|---|
-| **Mensuel** | 5 000 FCFA / mois | CV + lettres illimités, modifications illimitées, toutes les offres, opportunités de ta niche |
-| **Semestriel** ⭐ *(le plus populaire)* | 15 000 FCFA / 6 mois (≈ 2 500/mois, −50%) | Tout le Mensuel + accès prioritaire aux opportunités, analyse ATS avancée, support WhatsApp prioritaire |
+| **Basique** | 2 500 FCFA / mois | CV + lettres de motivation illimités (sans les offres / opportunités / ATS) |
+| **Standard** | 5 000 FCFA / mois | Tout le Basique + modifications illimitées, toutes les offres, opportunités de ta niche |
+| **Premium** ⭐ *(le plus populaire)* | 15 000 FCFA / 6 mois (≈ 2 500/mois, −50%) | Tout le Standard + accès prioritaire aux opportunités, analyse ATS avancée, support WhatsApp prioritaire |
 
-- **Plus aucun plan gratuit ni limite de crédits.** Toute personne connectée a un accès illimité.
-- Le plan annuel a été supprimé. Les formations / certifications ont été **entièrement retirées** du produit.
+- **Pas de plan gratuit.** Valeurs de `plan` : `basique` / `standard` / `premium` (défaut `standard`).
+- Les formations / certifications ont été **entièrement retirées** du produit.
 
 ---
 
