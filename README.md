@@ -99,4 +99,12 @@ Plateforme tout-en-un pour aider les **jeunes diplômés d'Afrique francophone**
 
 ---
 
+## 🚀 Déploiement automatique (règle du projet)
+
+- Le repo GitHub `romeomoumouni-ops/mon-futur-boulot-project` est relié à **Vercel** → **chaque push sur `main` déclenche un redéploiement automatique** sur le domaine `monfuturboulot.com`.
+- **Règle de travail** : chaque modification validée est **committée puis poussée automatiquement** sur `main` → elle devient visible en ligne sans action manuelle.
+- Authentification : un jeton GitHub est enregistré dans le **trousseau macOS** (helper `osxkeychain`), donc `git push` fonctionne sans ressaisie. (Si le jeton expire, en recréer un sur https://github.com/settings/tokens avec le scope `repo`.)
+
+---
+
 *Dernière mise à jour : 20 juin 2026.*
