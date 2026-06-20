@@ -4,6 +4,7 @@ import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
+import { generateCvPdf } from '@/lib/pdf';
 
 export default function CvBuilderPage() {
   const router = useRouter();
@@ -119,8 +120,8 @@ export default function CvBuilderPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <span style={{ fontSize: '12px', color: '#64748b' }} className="cv-topbar-hide-mobile">Sauvegarde auto - il y a 12s</span>
-          <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>Aperçu</button>
-          <button className="btn btn-primary btn-sm" onClick={() => window.print()}>Télécharger PDF ↓</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => generateCvPdf('open', cvData.firstName, cvData.lastName)}>Aperçu</button>
+          <button className="btn btn-primary btn-sm" onClick={() => generateCvPdf('save', cvData.firstName, cvData.lastName)}>Télécharger PDF ↓</button>
         </div>
       </header>
 
@@ -635,22 +636,17 @@ export default function CvBuilderPage() {
                   </p>
 
                   <div style={{ display: 'flex', gap: '12px' }}>
-                    <button 
-                      className="btn btn-secondary" 
+                    <button
+                      className="btn btn-secondary"
                       style={{ flex: 1 }}
-                      onClick={() => {
-                        alert("Génération d'aperçu d'impression... Utilisez Ctrl+P / Cmd+P pour sauvegarder sous format PDF.");
-                        window.print();
-                      }}
+                      onClick={() => generateCvPdf('open', cvData.firstName, cvData.lastName)}
                     >
-                      👁️ Imprimer le CV
+                      👁️ Aperçu du CV
                     </button>
-                    <button 
-                      className="btn btn-primary" 
+                    <button
+                      className="btn btn-primary"
                       style={{ flex: 1 }}
-                      onClick={() => {
-                        alert("Téléchargement du fichier PDF en cours...\nFichier: CV_" + cvData.firstName + "_" + cvData.lastName + ".pdf");
-                      }}
+                      onClick={() => generateCvPdf('save', cvData.firstName, cvData.lastName)}
                     >
                       📥 Télécharger le PDF ↓
                     </button>

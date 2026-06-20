@@ -3,6 +3,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
+import { generateCvPdf } from '@/lib/pdf';
 
 const INDUSTRIES = [
   { id: 'marketing', icon: '📈', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
@@ -1276,8 +1277,8 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}>{t("cvAutoSave", "Sauvegarde auto - il y a 12s")}</span>
-                  <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>{t("cvPreviewBtn", "Aperçu")}</button>
-                  <button className="btn btn-primary btn-sm" onClick={() => window.print()}>{t("cvDownloadPDF", "Télécharger PDF ↓")}</button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => generateCvPdf('open', cvData.firstName, cvData.lastName)}>{t("cvPreviewBtn", "Aperçu")}</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => generateCvPdf('save', cvData.firstName, cvData.lastName)}>{t("cvDownloadPDF", "Télécharger PDF ↓")}</button>
                 </div>
               </div>
 
