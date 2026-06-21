@@ -11,6 +11,24 @@ export default function BienvenuePage() {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [status, setStatus] = useState('checking'); // checking | active | waiting | nosession
+  const [note, setNote] = useState('');
+  const [entering, setEntering] = useState(false);
+
+  // Bouton sûr : ne va au dashboard QUE si l'accès est réellement débloqué
+  // (évite d'être renvoyé vers /pricing si le paiement n'est pas encore validé).
+  const handleEnter = async () => {
+    setEntering(true);
+    setNote('');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setStatus('nosession'); setEntering(false); return; }
+    const { data: ok } = await supabase.rpc('has_active_access');
+    setEntering(false);
+    if (ok === true) {
+      router.push('/dashboard');
+    } else {
+      setNote('⏳ Ton accès finit de s’activer, patiente quelques secondes puis réessaie.');
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -69,11 +87,12 @@ export default function BienvenuePage() {
             <p style={styles.text}>
               Activation de ton accès en cours… cela prend quelques secondes.
             </p>
-            <button className="btn btn-primary" style={styles.btn} onClick={() => router.push('/dashboard')}>
-              Accéder à mon espace →
+            <button className="btn btn-primary" style={styles.btn} onClick={handleEnter} disabled={entering}>
+              {entering ? 'Vérification…' : 'Accéder à mon espace →'}
             </button>
+            {note && <p style={{ ...styles.text, color: 'var(--primary)', marginTop: '14px', marginBottom: 0, fontWeight: 600 }}>{note}</p>}
             <p style={styles.hint}>
-              Si rien ne se passe après une minute, rafraîchis la page. Assure-toi d'avoir payé avec la
+              Ton accès s'active automatiquement après le paiement. Assure-toi d'avoir payé avec la
               même adresse e-mail que ton compte.
             </p>
           </>
