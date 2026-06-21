@@ -669,7 +669,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     isPremium,
     remaining,
     canUse,
-    consume
+    consume,
+    // Accès par palier d'abonnement
+    accessPlan,
+    canUseProFeatures
   } = useContext(AppContext);
 
   // Current active view
@@ -1175,6 +1178,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <button style={styles.widgetHeaderLink} onClick={() => setCurrentView('jobs')}>{t("dashViewAll", "Voir tout →")}</button>
                   </div>
                   
+                  {canUseProFeatures ? (
                   <div style={styles.jobsList}>
                     {jobs.map((job) => (
                       <div key={job.id} style={styles.jobItemCard}>
@@ -1191,6 +1195,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       </div>
                     ))}
                   </div>
+                  ) : (
+                  <div style={{ ...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', gap: '10px', padding: '24px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700 }}>🔒 Offres réservées aux plans Standard &amp; Premium</div>
+                    <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', margin: 0 }}>
+                      Le plan Basique te donne le CV et les lettres de motivation. Passe au Standard pour débloquer les offres d'emploi et les opportunités de ta niche.
+                    </p>
+                    <button className="btn btn-primary btn-sm" onClick={() => setCurrentView('pricing')}>Passer au Standard →</button>
+                  </div>
+                  )}
                 </div>
 
                 {/* Right Column: Recent Activities */}
@@ -1573,10 +1586,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                   </div>
 
-                  {/* ATS Compatibility Meter */}
+                  {/* ATS Compatibility Meter — réservé Standard / Premium */}
+                  {canUseProFeatures ? (
                   <div style={styles.atsCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '700' }}>
-                      <span>{t("cvAtsTitle", "🚀 Score IA • Compatibilité ATS")}</span>
+                      <span>{t("cvAtsTitle", "🚀 Score • Compatibilité ATS")}</span>
                       <span style={{ color: 'var(--primary)' }}>{atsScore}%</span>
                     </div>
                     <div style={styles.atsBarBackground}>
@@ -1586,6 +1600,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       {t("cvAtsFeedback", "✓ Excellent ! Pour atteindre 100%, ajoute 2 certifications ou un projet personnel.")}
                     </p>
                   </div>
+                  ) : (
+                  <div style={{ ...styles.atsCard, textAlign: 'center' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>🔒 Score ATS — Standard &amp; Premium</div>
+                    <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: 0 }}>
+                      L'analyse ATS avancée n'est pas incluse dans le plan Basique.{' '}
+                      <span onClick={() => setCurrentView('pricing')} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Passer au Standard →</span>
+                    </p>
+                  </div>
+                  )}
 
                 </div>
 
@@ -1750,7 +1773,17 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 </p>
               </div>
 
-              {/* Jobs List grid */}
+              {/* Jobs List grid — réservé aux plans Standard / Premium */}
+              {!canUseProFeatures ? (
+                <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div>
+                  <h3 style={{ marginBottom: '8px' }}>Réservé aux plans Standard et Premium</h3>
+                  <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto 20px' }}>
+                    Les offres d'emploi en temps réel et les opportunités de ta niche ne sont pas incluses dans le plan Basique. Passe au Standard pour y accéder.
+                  </p>
+                  <button className="btn btn-primary" onClick={() => setCurrentView('pricing')}>Passer au Standard →</button>
+                </div>
+              ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
                 {jobs.map((job) => (
                   <div key={job.id} style={{...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', padding: '24px', gap: '15px'}}>
@@ -1778,6 +1811,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           )}
 

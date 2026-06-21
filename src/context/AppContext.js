@@ -111,6 +111,7 @@ export const AppProvider = ({ children }) => {
     { id: 1, company: 'Wave', role: 'Community Manager', date: 'Hier - 18h32', content: 'Bonjour Wave,\n\nJe suis très intéressée par le poste de Community Manager. Avec mon expérience en freelance auprès de PME locales et mes compétences en réseaux sociaux, je saurai accroître l\'impact de votre marque en ligne...' }
   ]);
   const [plan, setPlan] = useState('standard'); // 'basique', 'standard', 'premium'
+  const [accessPlan, setAccessPlan] = useState(null); // plan effectif côté serveur (abonnement réel)
   const [atsScore, setAtsScore] = useState(85);
   const [stats, setStats] = useState({
     cvsCreated: 2,
@@ -131,29 +132,63 @@ export const AppProvider = ({ children }) => {
     if (savedJobs) setJobs(JSON.parse(savedJobs));
   }, []);
 
-  // Session réelle Supabase (auth)
+  // Session réelle Supabase (auth) + plan effectif + CV du compte
   useEffect(() => {
-    const applySession = (session) => {
+    const applySession = async (session) => {
       const u = session?.user;
-      if (u) {
-        const meta = u.user_metadata || {};
-        setUser({
-          id: u.id,
-          email: u.email,
-          firstName: meta.first_name || '',
-          lastName: meta.last_name || '',
-          phone: meta.phone || '',
-          country: meta.country || '',
-          city: meta.city || '',
-        });
-      } else {
+      if (!u) {
         setUser(null);
+        setAccessPlan(null);
+        return;
       }
+      const meta = u.user_metadata || {};
+      setUser({
+        id: u.id,
+        email: u.email,
+        firstName: meta.first_name || '',
+        lastName: meta.last_name || '',
+        phone: meta.phone || '',
+        country: meta.country || '',
+        city: meta.city || '',
+      });
+
+      // Plan effectif (abonnement réel côté serveur)
+      try {
+        const { data: ap } = await supabase.rpc('current_access_plan');
+        setAccessPlan(ap || null);
+      } catch { setAccessPlan(null); }
+
+      // CV du compte (multi-appareils) : on charge depuis Supabase s'il existe
+      try {
+        const { data: row } = await supabase
+          .from('user_cvs')
+          .select('data')
+          .eq('user_id', u.id)
+          .maybeSingle();
+        if (row?.data) {
+          setCvData(row.data);
+          saveState('mfb_cv', row.data);
+        }
+        cvLoadedRef.current = true;
+      } catch { cvLoadedRef.current = true; }
     };
     supabase.auth.getSession().then(({ data }) => applySession(data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => applySession(session));
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
+
+  // Sauvegarde du CV dans le compte (Supabase), avec anti-rebond, dès qu'il change.
+  const cvLoadedRef = React.useRef(false);
+  useEffect(() => {
+    if (!user?.id || !cvLoadedRef.current) return;
+    const t = setTimeout(() => {
+      supabase
+        .from('user_cvs')
+        .upsert({ user_id: user.id, data: cvData, updated_at: new Date().toISOString() })
+        .then(() => {});
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [cvData, user, supabase]);
 
   // Save changes to localStorage helper
   const saveState = (key, value) => {
@@ -366,11 +401,13 @@ export const AppProvider = ({ children }) => {
       selectPlan,
       addJob,
       deleteJob,
-      // Accès (illimité pour tous — plus de plan gratuit)
+      // Accès / abonnement réel
       isPremium,
       canUse,
       remaining,
-      consume
+      consume,
+      accessPlan, // 'basique' | 'standard' | 'premium' | null
+      canUseProFeatures: accessPlan === 'standard' || accessPlan === 'premium'
     }}>
       {children}
     </AppContext.Provider>
