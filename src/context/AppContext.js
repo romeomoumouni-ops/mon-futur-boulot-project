@@ -226,7 +226,7 @@ export const AppProvider = ({ children }) => {
 
     if (data.session) {
       // Connecté immédiatement -> doit choisir un plan d'abonnement
-      router.push('/pricing');
+      router.push('/pricing?access=required');
       return { ok: true };
     }
     // Confirmation e-mail requise par Supabase

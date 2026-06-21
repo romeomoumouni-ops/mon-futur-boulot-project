@@ -6,15 +6,17 @@ import { AppContext } from '@/context/AppContext';
 import ChariowWidget from '@/components/ChariowWidget';
 
 export default function PricingPage() {
-  const { plan, selectPlan } = useContext(AppContext);
+  const { plan, selectPlan, user, accessPlan } = useContext(AppContext);
 
-  // Bandeau "abonnement requis" si l'utilisateur a été redirigé ici sans accès
-  const [accessRequired, setAccessRequired] = useState(false);
+  // Bandeau "abonnement requis" : si redirigé ici (?access=required) OU si l'utilisateur
+  // est connecté mais n'a pas encore d'abonnement actif.
+  const [paramRequired, setParamRequired] = useState(false);
   useEffect(() => {
     if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('access') === 'required') {
-      setAccessRequired(true);
+      setParamRequired(true);
     }
   }, []);
+  const accessRequired = paramRequired || (!!user && !accessPlan);
 
   // Accordion active state tracker
   const [activeFaq, setActiveFaq] = useState(null);
