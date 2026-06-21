@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 import ChariowWidget from '@/components/ChariowWidget';
 
 export default function PricingPage() {
   const { plan, selectPlan } = useContext(AppContext);
+
+  // Bandeau "abonnement requis" si l'utilisateur a été redirigé ici sans accès
+  const [accessRequired, setAccessRequired] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('access') === 'required') {
+      setAccessRequired(true);
+    }
+  }, []);
 
   // Accordion active state tracker
   const [activeFaq, setActiveFaq] = useState(null);
@@ -61,6 +69,11 @@ export default function PricingPage() {
       {/* HERO / HEADER SECTION */}
       <section style={styles.heroSection}>
         <div className="container" style={{ textAlign: 'center' }}>
+          {accessRequired && (
+            <div style={{ maxWidth: '640px', margin: '0 auto 24px', padding: '14px 18px', backgroundColor: 'rgba(0,184,124,0.12)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '14px', fontWeight: 500 }}>
+              🔒 Ton compte est créé ! Choisis un abonnement ci-dessous pour accéder à ton espace et commencer.
+            </div>
+          )}
           <span style={styles.greenBadge}>✨ INVESTIS DANS TON AVENIR, PAS DANS DES FRAIS CACHÉS</span>
           <h1 style={styles.title} className="hero-title-responsive">
             Un job en Afrique, ça vaut <br />
