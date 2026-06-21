@@ -14,7 +14,8 @@ export default function CvBuilderPage() {
     addCVItem,
     deleteCVItem,
     atsScore,
-    changeTemplate
+    changeTemplate,
+    canUseProFeatures
   } = useContext(AppContext);
 
   // Stepper state
@@ -747,7 +748,8 @@ export default function CvBuilderPage() {
 
             </div>
 
-            {/* ATS Score card */}
+            {/* ATS Score card — réservé Standard / Premium */}
+            {canUseProFeatures ? (
             <div style={styles.atsCard}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '700' }}>
                 <span>🚀 Score • Compatibilité ATS</span>
@@ -760,6 +762,15 @@ export default function CvBuilderPage() {
                 ✓ Excellent ! Pour atteindre 100%, ajoute 2 certifications ou un projet personnel.
               </p>
             </div>
+            ) : (
+            <div style={{ ...styles.atsCard, textAlign: 'center' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>🔒 Score ATS — Standard &amp; Premium</div>
+              <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>
+                L'analyse ATS avancée n'est pas incluse dans le plan Basique.{' '}
+                <a href="/pricing" style={{ color: 'var(--primary)', fontWeight: 600 }}>Passer au Standard →</a>
+              </p>
+            </div>
+            )}
 
           </div>
 
