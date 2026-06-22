@@ -3,24 +3,23 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Mappage produit Chariow -> plan + durée d'accès (en mois)
+// Mappage produit Chariow -> plan + durée d'accès (en JOURS, exacts/"pile")
 const PRODUCTS = {
   // Produits actuels (type license, vendus via l'API Checkout)
-  prd_j5az5wo8: { plan: 'basique', months: 1 },    // 2 500 FCFA / mois
-  prd_jg1uxdp8: { plan: 'standard', months: 1 },   // 5 000 FCFA / mois
-  prd_pa4ronz5: { plan: 'premium', months: 6 },    // 15 000 FCFA / 6 mois
+  prd_j5az5wo8: { plan: 'basique', days: 30 },    // 2 500 FCFA / 30 jours
+  prd_jg1uxdp8: { plan: 'standard', days: 30 },   // 5 000 FCFA / 30 jours
+  prd_pa4ronz5: { plan: 'premium', days: 180 },   // 15 000 FCFA / 180 jours (≈ 6 mois)
   // Anciens produits (widget) — gardés pour les abonnements déjà payés
-  prd_covoyuoz: { plan: 'basique', months: 1 },
-  prd_mouzb4yn: { plan: 'standard', months: 1 },
-  prd_2dl6fbu2: { plan: 'premium', months: 6 },
+  prd_covoyuoz: { plan: 'basique', days: 30 },
+  prd_mouzb4yn: { plan: 'standard', days: 30 },
+  prd_2dl6fbu2: { plan: 'premium', days: 180 },
 };
 
-function addMonths(dateIso, months) {
+// Ajoute un nombre exact de jours (pile, 24h chacun) à une date.
+function addDays(dateIso, days) {
   const d = dateIso ? new Date(dateIso) : new Date();
   const base = isNaN(d.getTime()) ? new Date() : d;
-  const result = new Date(base);
-  result.setMonth(result.getMonth() + months);
-  return result.toISOString();
+  return new Date(base.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 // Vérifie la vente auprès de l'API Chariow (anti-usurpation). Best-effort.
@@ -91,7 +90,7 @@ export async function POST(request) {
   }
 
   const startedAt = sale.created_at || new Date().toISOString();
-  const expiresAt = addMonths(startedAt, mapping.months);
+  const expiresAt = addDays(startedAt, mapping.days);
 
   try {
     const supabase = createAdminClient();
