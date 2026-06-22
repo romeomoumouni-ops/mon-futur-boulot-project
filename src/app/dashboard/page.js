@@ -45,7 +45,7 @@ const TRANSLATIONS = {
 
     // Dashboard View
     dashWelcomeTitle: "Bonjour {name}, prête à décrocher ton job ?",
-    dashWelcomeText: "Tu as 3 nouvelles offres qui correspondent à ton profil. Continue sur ta lancée pour décrocher ton job !",
+    dashWelcomeText: "Crée ton CV performant, génère tes lettres de motivation et explore les offres d'emploi. Commence dès maintenant !",
     dashViewJobsBtn: "Voir les offres recommandées →",
     dashCompleteProfileBtn: "Compléter mon profil",
     dashProfileCompleted: "Profil complété",
@@ -355,7 +355,7 @@ const TRANSLATIONS = {
 
     // Dashboard View
     dashWelcomeTitle: "Hello {name}, ready to land your job?",
-    dashWelcomeText: "You have 3 new offers matching your profile, and 2 recommended courses to boost your application. Keep going!",
+    dashWelcomeText: "Build your high-performing CV, generate your cover letters and explore job offers. Start now!",
     dashViewJobsBtn: "View recommended offers →",
     dashCompleteProfileBtn: "Complete my profile",
     dashProfileCompleted: "Profile completed",
@@ -715,8 +715,8 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   const [aiTip, setAiTip] = useState('');
 
   // Cover letter generator states
-  const [letterRole, setLetterRole] = useState('Community Manager');
-  const [letterCompany, setLetterCompany] = useState('Wave');
+  const [letterRole, setLetterRole] = useState('');
+  const [letterCompany, setLetterCompany] = useState('');
   const [letterTone, setLetterTone] = useState('Professionnel');
   const [generatedLetterContent, setGeneratedLetterContent] = useState('');
   const [isLetterGenerating, setIsLetterGenerating] = useState(false);
@@ -792,12 +792,25 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     setModalConfig({ ...modalConfig, isOpen: false });
   };
 
-  // Get active username
-  const firstName = user?.firstName || 'Aminata';
-  const lastName = user?.lastName || 'Diallo';
-  const userEmail = user?.email || 'aminata.diallo@gmail.com';
-  const userCountry = user?.country || 'Côte d\'Ivoire';
-  const userPhone = user?.phone || '+225 07 12 34 56 78';
+  // Get active username (depuis le compte réel)
+  const firstName = user?.firstName || '';
+  const lastName = user?.lastName || '';
+  const userEmail = user?.email || '';
+  const userCountry = user?.country || '';
+  const userPhone = user?.phone || '';
+
+  // Complétude réelle du profil/CV (0–100%) calculée sur le contenu rempli
+  const profileCompletion = (() => {
+    const checks = [
+      !!cvData.title,
+      (cvData.summary || '').length > 20,
+      (cvData.experiences || []).length > 0,
+      (cvData.educations || []).length > 0,
+      (cvData.skills || []).length > 0,
+    ];
+    const done = checks.filter(Boolean).length;
+    return Math.round((done / checks.length) * 100);
+  })();
 
   // Optimisation du CV — moteur heuristique (limité en version gratuite)
   const triggerAiCVHelp = (field) => {
@@ -1091,11 +1104,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
             
             <div style={styles.userProfilePill} onClick={() => setCurrentView('profile')}>
               <div style={styles.userAvatarSmall}>
-                {firstName[0]}{lastName[0]}
+                {((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'}
               </div>
             <div style={styles.userProfileMeta} className="db-user-meta">
-                <span style={styles.userName}>{firstName} {lastName[0]}.</span>
-                <span style={styles.userLocation}>{userCountry}</span>
+                <span style={styles.userName}>{firstName || userEmail || 'Mon compte'}{lastName ? ` ${lastName[0]}.` : ''}</span>
+                <span style={styles.userLocation}>{userCountry || ''}</span>
               </div>
             </div>
           </div>
@@ -1112,24 +1125,24 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               <div style={styles.welcomeCard}>
                 <div style={{ flex: 1 }}>
                   <h2 style={{ fontSize: '28px', color: '#0f172a', marginBottom: '8px' }}>
-                    {t("dashWelcomeTitle", "Bonjour {name}, prête à décrocher ton job ?", { name: firstName })}
+                    {firstName ? `Bonjour ${firstName}, prêt à décrocher ton job ?` : 'Bienvenue sur ton espace 👋'}
                   </h2>
                   <p style={{ color: 'var(--light-text-muted)', fontSize: '15px', marginBottom: '20px' }}>
-                    {t("dashWelcomeText", "Tu as 3 nouvelles offres qui correspondent à ton profil, et 2 formations recommandées pour booster ta candidature. Continue sur ta lancée !")}
+                    {t("dashWelcomeText", "Crée ton CV performant, génère tes lettres de motivation et explore les offres d'emploi. Commence dès maintenant !")}
                   </p>
                   <div style={{ display: 'flex', gap: '12px' }} className="db-welcome-btns">
-                    <button className="btn btn-primary" onClick={() => setCurrentView('jobs')}>{t("dashViewJobsBtn", "Voir les offres recommandées →")}</button>
-                    <button className="btn btn-secondary" onClick={() => setCurrentView('cv')}>{t("dashCompleteProfileBtn", "Compléter mon profil")}</button>
+                    <button className="btn btn-primary" onClick={() => setCurrentView('cv')}>{t("dashCompleteProfileBtn", "Créer mon CV")}</button>
+                    <button className="btn btn-secondary" onClick={() => setCurrentView('letters')}>{t("dashLettersBtn", "Lettre de motivation")}</button>
                   </div>
                 </div>
 
-                {/* Circular completion gauge */}
+                {/* Circular completion gauge — complétude réelle du profil */}
                 <div style={styles.gaugeContainer}>
                   <div style={styles.gaugeCircle}>
-                    <span style={{ fontSize: '26px', fontWeight: '800', color: 'var(--primary)' }}>70%</span>
+                    <span style={{ fontSize: '26px', fontWeight: '800', color: 'var(--primary)' }}>{profileCompletion}%</span>
                   </div>
                   <p style={{ fontSize: '12px', fontWeight: '700', color: '#0f172a', marginTop: '10px' }}>{t("dashProfileCompleted", "Profil complété")}</p>
-                  <p style={{ fontSize: '10px', color: 'var(--light-text-muted)' }}>{t("dashStepsLeft", "Plus que 3 étapes")}</p>
+                  <p style={{ fontSize: '10px', color: 'var(--light-text-muted)' }}>{profileCompletion < 100 ? 'Complète ton CV' : 'Profil complet ✅'}</p>
                 </div>
               </div>
 
@@ -1138,7 +1151,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 <div style={styles.statCard}>
                   <div style={styles.statHeader}>
                     <span>{t("statCVs", "CV créés")}</span>
-                    <span style={styles.statTag}>{t("statCVsTag", "+1 cette semaine")}</span>
                   </div>
                   <div style={styles.statNumber}>{stats.cvsCreated}</div>
                 </div>
@@ -1146,7 +1158,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 <div style={styles.statCard}>
                   <div style={styles.statHeader}>
                     <span>{t("statLetters", "Lettres générées")}</span>
-                    <span style={styles.statTag}>{t("statLettersTag", "+5 cette semaine")}</span>
                   </div>
                   <div style={styles.statNumber}>{stats.lettersGenerated}</div>
                 </div>
@@ -1154,7 +1165,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 <div style={styles.statCard}>
                   <div style={styles.statHeader}>
                     <span>{t("statApps", "Candidatures envoyées")}</span>
-                    <span style={styles.statTag}>{t("statAppsTag", "+3 nouvelles")}</span>
                   </div>
                   <div style={styles.statNumber}>{stats.applicationsSent}</div>
                 </div>
@@ -1162,7 +1172,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 <div style={styles.statCard}>
                   <div style={styles.statHeader}>
                     <span>{t("statInterviews", "Entretiens obtenus")}</span>
-                    <span style={styles.statTag} className="green">{t("statInterviewsTag", "+2 vues")}</span>
                   </div>
                   <div style={styles.statNumber}>{stats.interviewsObtained}</div>
                 </div>
@@ -1179,6 +1188,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   
                   {canUseProFeatures ? (
+                  jobs.length === 0 ? (
+                  <div style={{ ...styles.jobItemCard, padding: '24px', color: 'var(--light-text-muted)', fontSize: '13px', justifyContent: 'center' }}>
+                    Aucune offre disponible pour le moment. Reviens bientôt 👀
+                  </div>
+                  ) : (
                   <div style={styles.jobsList}>
                     {jobs.map((job) => (
                       <div key={job.id} style={styles.jobItemCard}>
@@ -1189,12 +1203,13 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                             {job.company} • {job.location} • {job.contract} • {job.salary}
                           </p>
                         </div>
-                        <button className="btn btn-secondary btn-sm" onClick={() => { applyJob(job); openModal(t('appsTitle', 'Candidature envoyée'), t('dashActivityOrangeViewed', `Ta candidature a été envoyée avec succès pour le poste de ${job.role} chez ${job.company}.`), 'success'); }}>
+                        <button className="btn btn-secondary btn-sm" onClick={() => { applyJob(job); openModal('Candidature envoyée', `Ta candidature a été envoyée avec succès pour le poste de ${job.role} chez ${job.company}.`, 'success'); }}>
                           {t("apply", "Postuler")}
                         </button>
                       </div>
                     ))}
                   </div>
+                  )
                   ) : (
                   <div style={{ ...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', gap: '10px', padding: '24px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 700 }}>🔒 Offres réservées aux plans Standard &amp; Premium</div>
@@ -1214,37 +1229,32 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
 
                   <div style={styles.feedList}>
-                    <div style={styles.feedItem}>
-                      <span style={styles.feedCheckIcon}>✓</span>
-                      <div>
-                        <p style={styles.feedText}>{t("dashActivityOrangeViewed", "Ta candidature à Orange CI a été consultée par le recruteur.")}</p>
-                        <span style={styles.feedTime}>{t("dashActivityOrangeTime", "Il y a 2 heures")}</span>
+                    {applications.length === 0 && letters.length === 0 ? (
+                      <div style={{ padding: '20px 4px', color: 'var(--light-text-muted)', fontSize: '13px' }}>
+                        Aucune activité pour le moment. Crée ton CV et postule pour voir ton activité ici.
                       </div>
-                    </div>
-
-                    <div style={styles.feedItem}>
-                      <span style={styles.feedCheckIcon}>✉️</span>
-                      <div>
-                        <p style={styles.feedText}>{t("dashActivityWaveLetter", "Tu as généré une lettre de motivation IA pour Wave.")}</p>
-                        <span style={styles.feedTime}>{t("dashActivityWaveTime", "Hier - 18h52")}</span>
-                      </div>
-                    </div>
-
-                    <div style={styles.feedItem}>
-                      <span style={styles.feedCheckIcon}>⚡</span>
-                      <div>
-                        <p style={styles.feedText}>{t("dashActivityNewJobs", "3 nouvelles offres d'emploi correspondent à ton profil.")}</p>
-                        <span style={styles.feedTime}>{t("dashActivityNewJobsTime", "Hier - 09h00")}</span>
-                      </div>
-                    </div>
-
-                    <div style={styles.feedItem}>
-                      <span style={styles.feedCheckIcon}>🎓</span>
-                      <div>
-                        <p style={styles.feedText}>{t("dashActivityExcelStarted", "Tu as commencé la formation Excel avancé.")}</p>
-                        <span style={styles.feedTime}>{t("dashActivityExcelTime", "Il y a 2 jours")}</span>
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        {letters.slice(0, 3).map((l) => (
+                          <div key={`l-${l.id}`} style={styles.feedItem}>
+                            <span style={styles.feedCheckIcon}>✉️</span>
+                            <div>
+                              <p style={styles.feedText}>Lettre de motivation générée{l.company ? ` pour ${l.company}` : ''}.</p>
+                              <span style={styles.feedTime}>{translateDate(l.date)}</span>
+                            </div>
+                          </div>
+                        ))}
+                        {applications.slice(0, 3).map((a) => (
+                          <div key={`a-${a.id}`} style={styles.feedItem}>
+                            <span style={styles.feedCheckIcon}>✓</span>
+                            <div>
+                              <p style={styles.feedText}>Candidature envoyée{a.company ? ` à ${a.company}` : ''}{a.role ? ` (${a.role})` : ''}.</p>
+                              <span style={styles.feedTime}>{translateDate(a.date)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -1287,7 +1297,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {/* CV TOP AUTO SAVE BAR */}
               <div style={styles.cvTopBar} className="db-cv-topbar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <strong>{t("navCV", "Mon CV")}</strong> / <span style={{ color: 'var(--light-text-muted)' }}>{t("cvTopBarTitle", "Marketing Junior - {name}", { name: `${firstName} ${lastName[0]}.` })}</span>
+                  <strong>{t("navCV", "Mon CV")}</strong>{(firstName || lastName) ? <span style={{ color: 'var(--light-text-muted)' }}> / {firstName} {lastName}</span> : null}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}>{t("cvAutoSave", "Sauvegarde auto - il y a 12s")}</span>

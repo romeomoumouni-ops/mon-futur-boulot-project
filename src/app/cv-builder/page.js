@@ -116,7 +116,7 @@ export default function CvBuilderPage() {
           </Link>
           <span style={{ color: '#cbd5e1' }} className="cv-topbar-hide-mobile">|</span>
           <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }} className="cv-topbar-hide-mobile">
-            Mon CV / <strong style={{ color: '#0f172a' }}>Marketing Junior - {cvData.firstName} {cvData.lastName[0]}.</strong>
+            Mon CV{(cvData.firstName || cvData.lastName) ? <> / <strong style={{ color: '#0f172a' }}>{cvData.firstName} {cvData.lastName}</strong></> : ''}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -168,7 +168,7 @@ export default function CvBuilderPage() {
                   <h3 style={styles.editorCardTitle}>Photo de profil</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                     <div style={styles.avatarLarge}>
-                      {cvData.firstName ? cvData.firstName[0] : 'A'}{cvData.lastName ? cvData.lastName[0] : 'D'}
+                      {(cvData.firstName ? cvData.firstName[0] : '') || (cvData.lastName ? cvData.lastName[0] : '') || '👤'}
                     </div>
                     <button className="btn btn-secondary btn-sm" onClick={() => alert('Photo de profil mise à jour')}>Changer la photo</button>
                     <button className="btn btn-secondary btn-sm" style={{ border: 'none', color: '#ef4444' }} onClick={() => alert('Photo de profil supprimée')}>Supprimer</button>

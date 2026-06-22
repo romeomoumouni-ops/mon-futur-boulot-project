@@ -10,122 +10,47 @@ export const AppProvider = ({ children }) => {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   
-  // Simulated initial values based on user screenshots (Aminata Diallo)
+  // CV vierge par défaut (aucune donnée de démo). Pré-rempli avec le compte à l'inscription.
   const defaultCV = {
-    firstName: 'Aminata',
-    lastName: 'Diallo',
-    title: 'Marketing Digital Junior',
-    email: 'aminata.diallo@gmail.com',
-    phone: '+225 07 12 34 56 78',
-    address: 'Abidjan, Côte d\'Ivoire',
-    linkedin: 'in/aminata-d',
-    summary: 'Jeune diplômée passionnée par le marketing digital, expérimentée en gestion de réseaux sociaux et création de contenu impactant.',
-    experiences: [
-      {
-        id: 1,
-        role: 'Stage Marketing',
-        company: 'Wave CI',
-        location: 'Abidjan',
-        period: 'Juin - Sept 2025',
-        desc: '• Géré la stratégie réseaux sociaux (+15k followers en 3 mois)\n• Créé 80+ visuels Canva pour campagnes promotionnelles\n• Analysé KPI avec Google Analytics et reporting hebdo\n• Coordonné 3 campagnes promo (+22% engagement)'
-      },
-      {
-        id: 2,
-        role: 'Community Manager Freelance',
-        company: 'Plusieurs clients',
-        location: 'Abidjan',
-        period: 'Jan - Mai 2025',
-        desc: '• Géré 4 comptes Instagram et TikTok pour PME locales\n• Élaboré des calendriers éditoriaux mensuels\n• Augmenté l\'engagement client de 35% en moyenne'
-      }
-    ],
-    educations: [
-      {
-        id: 1,
-        degree: 'Licence Marketing & Communication',
-        school: 'Université Félix Houphouët-Boigny',
-        location: 'Abidjan',
-        period: '2022 - 2025',
-        desc: 'Mention Bien. Spécialisation en marketing digital et communication web.'
-      }
-    ],
-    skills: ['SEO', 'Canva', 'Google Analytics', 'Meta Ads', 'TikTok', 'Excel', 'Copywriting'],
-    languages: [
-      { name: 'Français', level: 'Natif' },
-      { name: 'Anglais', level: 'B2' },
-      { name: 'Dioula', level: 'Courant' }
-    ],
-    template: 'modern' // 'modern', 'classic', 'creative'
+    firstName: '',
+    lastName: '',
+    title: '',
+    email: '',
+    phone: '',
+    address: '',
+    linkedin: '',
+    summary: '',
+    experiences: [],
+    educations: [],
+    skills: [],
+    languages: [],
+    template: 'modern', // 'modern', 'classic', 'creative'
   };
 
-  const initialJobs = [
-    {
-      id: 1,
-      role: 'Assistant Marketing Digital',
-      company: 'Orange CI',
-      location: 'Abidjan',
-      contract: 'CDI',
-      salary: '250k FCFA',
-      logo: 'O',
-      logoBg: '#ff6600'
-    },
-    {
-      id: 2,
-      role: 'Community Manager Junior',
-      company: 'MTN Côte d\'Ivoire',
-      location: 'Abidjan',
-      contract: 'CDD',
-      salary: '220k FCFA',
-      logo: 'M',
-      logoBg: '#ffcc00'
-    },
-    {
-      id: 3,
-      role: 'Chargée de communication',
-      company: 'Wave',
-      location: 'Yopougon',
-      contract: 'CDI',
-      salary: '280k FCFA',
-      logo: 'W',
-      logoBg: '#1c93e3'
-    },
-    {
-      id: 4,
-      role: 'Assistante Brand Manager',
-      company: 'SOLIBRA',
-      location: 'Treichville',
-      contract: 'Stage',
-      salary: '150k FCFA',
-      logo: 'S',
-      logoBg: '#00aa50'
-    }
-  ];
+  // Aucune offre de démo : les offres réelles seront gérées par l'admin.
+  const initialJobs = [];
 
   const [user, setUser] = useState(null);
   const [cvData, setCvData] = useState(defaultCV);
   const [jobs, setJobs] = useState(initialJobs);
-  const [applications, setApplications] = useState([
-    { id: 1, role: 'Stage Marketing', company: 'Wave CI', location: 'Abidjan', date: 'Il y a 2 heures', status: 'Consultée' },
-    { id: 2, role: 'Community Manager', company: 'Wave', location: 'Yopougon', date: 'Hier - 18h32', status: 'Envoyée' }
-  ]);
-  const [letters, setLetters] = useState([
-    { id: 1, company: 'Wave', role: 'Community Manager', date: 'Hier - 18h32', content: 'Bonjour Wave,\n\nJe suis très intéressée par le poste de Community Manager. Avec mon expérience en freelance auprès de PME locales et mes compétences en réseaux sociaux, je saurai accroître l\'impact de votre marque en ligne...' }
-  ]);
+  const [applications, setApplications] = useState([]);
+  const [letters, setLetters] = useState([]);
   const [plan, setPlan] = useState('standard'); // 'basique', 'standard', 'premium'
   const [accessPlan, setAccessPlan] = useState(null); // plan effectif côté serveur (abonnement réel)
-  const [atsScore, setAtsScore] = useState(85);
+  const [atsScore, setAtsScore] = useState(0);
   const [stats, setStats] = useState({
-    cvsCreated: 2,
-    lettersGenerated: 12,
-    applicationsSent: 8,
-    interviewsObtained: 3
+    cvsCreated: 0,
+    lettersGenerated: 0,
+    applicationsSent: 0,
+    interviewsObtained: 0,
   });
 
   // Données locales (CV, lettres, candidatures) — conservées par navigateur pour le MVP.
   useEffect(() => {
-    const savedCV = localStorage.getItem('mfb_cv');
-    const savedApps = localStorage.getItem('mfb_apps');
-    const savedLetters = localStorage.getItem('mfb_letters');
-    const savedJobs = localStorage.getItem('mfb_jobs');
+    const savedCV = localStorage.getItem('mfb_cv_v2');
+    const savedApps = localStorage.getItem('mfb_apps_v2');
+    const savedLetters = localStorage.getItem('mfb_letters_v2');
+    const savedJobs = localStorage.getItem('mfb_jobs_v2');
     if (savedCV) setCvData(JSON.parse(savedCV));
     if (savedApps) setApplications(JSON.parse(savedApps));
     if (savedLetters) setLetters(JSON.parse(savedLetters));
@@ -167,7 +92,7 @@ export const AppProvider = ({ children }) => {
           .maybeSingle();
         if (row?.data) {
           setCvData(row.data);
-          saveState('mfb_cv', row.data);
+          saveState('mfb_cv_v2', row.data);
         }
         cvLoadedRef.current = true;
       } catch { cvLoadedRef.current = true; }
@@ -222,7 +147,7 @@ export const AppProvider = ({ children }) => {
       address: `${userData.city || 'Abidjan'}, ${userData.country || 'Côte d\'Ivoire'}`,
     };
     setCvData(updatedCV);
-    saveState('mfb_cv', updatedCV);
+    saveState('mfb_cv_v2', updatedCV);
 
     if (data.session) {
       // Connecté immédiatement -> doit choisir un plan d'abonnement
@@ -251,7 +176,7 @@ export const AppProvider = ({ children }) => {
   const updateCV = (field, value) => {
     const updated = { ...cvData, [field]: value };
     setCvData(updated);
-    saveState('mfb_cv', updated);
+    saveState('mfb_cv_v2', updated);
     recalculateATS(updated);
   };
 
@@ -261,7 +186,7 @@ export const AppProvider = ({ children }) => {
       [section]: [...cvData[section], { id: Date.now(), ...item }]
     };
     setCvData(updated);
-    saveState('mfb_cv', updated);
+    saveState('mfb_cv_v2', updated);
     recalculateATS(updated);
   };
 
@@ -271,7 +196,7 @@ export const AppProvider = ({ children }) => {
       [section]: cvData[section].map(item => item.id === id ? { ...item, ...updatedItem } : item)
     };
     setCvData(updated);
-    saveState('mfb_cv', updated);
+    saveState('mfb_cv_v2', updated);
     recalculateATS(updated);
   };
 
@@ -281,14 +206,14 @@ export const AppProvider = ({ children }) => {
       [section]: cvData[section].filter(item => item.id !== id)
     };
     setCvData(updated);
-    saveState('mfb_cv', updated);
+    saveState('mfb_cv_v2', updated);
     recalculateATS(updated);
   };
 
   const changeTemplate = (templateName) => {
     const updated = { ...cvData, template: templateName };
     setCvData(updated);
-    saveState('mfb_cv', updated);
+    saveState('mfb_cv_v2', updated);
   };
 
   // ATS Score Calculator
@@ -317,7 +242,7 @@ export const AppProvider = ({ children }) => {
     };
     const updated = [newLetter, ...letters];
     setLetters(updated);
-    saveState('mfb_letters', updated);
+    saveState('mfb_letters_v2', updated);
     
     // Increment letter stats
     setStats(prev => ({ ...prev, lettersGenerated: prev.lettersGenerated + 1 }));
@@ -335,7 +260,7 @@ export const AppProvider = ({ children }) => {
     };
     const updated = [newApp, ...applications];
     setApplications(updated);
-    saveState('mfb_apps', updated);
+    saveState('mfb_apps_v2', updated);
     
     // Increment application stats
     setStats(prev => ({ ...prev, applicationsSent: prev.applicationsSent + 1 }));
@@ -355,13 +280,13 @@ export const AppProvider = ({ children }) => {
     };
     const updated = [newJob, ...jobs];
     setJobs(updated);
-    saveState('mfb_jobs', updated);
+    saveState('mfb_jobs_v2', updated);
   };
 
   const deleteJob = (id) => {
     const updated = jobs.filter(j => j.id !== id);
     setJobs(updated);
-    saveState('mfb_jobs', updated);
+    saveState('mfb_jobs_v2', updated);
   };
 
   // Subscription
