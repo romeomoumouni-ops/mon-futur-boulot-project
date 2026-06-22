@@ -3,7 +3,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
-import ChariowWidget from '@/components/ChariowWidget';
+import CheckoutButton from '@/components/CheckoutButton';
 
 export default function PricingPage() {
   const { plan, selectPlan, user, accessPlan } = useContext(AppContext);
@@ -105,7 +105,7 @@ export default function PricingPage() {
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
             <div style={styles.cardBtn}>
-              <ChariowWidget productId="prd_covoyuoz" primaryColor="#00b87c" />
+              <CheckoutButton plan="basique" primary={false} />
             </div>
 
             <ul style={styles.featuresList}>
@@ -131,7 +131,7 @@ export default function PricingPage() {
             <p style={styles.priceCaption}>Payé mensuellement</p>
 
             <div style={styles.cardBtn}>
-              <ChariowWidget productId="prd_mouzb4yn" primaryColor="#00b87c" />
+              <CheckoutButton plan="standard" />
             </div>
 
             <ul style={styles.featuresList}>
@@ -158,7 +158,7 @@ export default function PricingPage() {
             <p style={styles.priceCaption}>Soit seulement <strong>2 500 FCFA / mois</strong> (-50% d'économie)</p>
 
             <div style={styles.cardBtn}>
-              <ChariowWidget productId="prd_2dl6fbu2" primaryColor="#a855f7" />
+              <CheckoutButton plan="premium" primary={false} />
             </div>
 
             <ul style={styles.featuresList}>

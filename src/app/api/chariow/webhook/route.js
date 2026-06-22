@@ -5,9 +5,14 @@ export const dynamic = 'force-dynamic';
 
 // Mappage produit Chariow -> plan + durée d'accès (en mois)
 const PRODUCTS = {
-  prd_covoyuoz: { plan: 'basique', months: 1 },   // 2 500 FCFA / mois
-  prd_mouzb4yn: { plan: 'standard', months: 1 },   // 5 000 FCFA / mois
-  prd_2dl6fbu2: { plan: 'premium', months: 6 },    // 15 000 FCFA / 6 mois
+  // Produits actuels (type license, vendus via l'API Checkout)
+  prd_j5az5wo8: { plan: 'basique', months: 1 },    // 2 500 FCFA / mois
+  prd_jg1uxdp8: { plan: 'standard', months: 1 },   // 5 000 FCFA / mois
+  prd_pa4ronz5: { plan: 'premium', months: 6 },    // 15 000 FCFA / 6 mois
+  // Anciens produits (widget) — gardés pour les abonnements déjà payés
+  prd_covoyuoz: { plan: 'basique', months: 1 },
+  prd_mouzb4yn: { plan: 'standard', months: 1 },
+  prd_2dl6fbu2: { plan: 'premium', months: 6 },
 };
 
 function addMonths(dateIso, months) {
@@ -64,7 +69,10 @@ export async function POST(request) {
   const product = payload.product || {};
   const customer = payload.customer || {};
   const productId = product.id;
-  const email = (customer.email || '').trim().toLowerCase();
+  // L'e-mail réel du compte est passé dans custom_metadata (l'e-mail Chariow est un dummy).
+  // On garde customer.email en repli pour les anciens paiements (widget).
+  const metaEmail = sale?.custom_metadata?.app_user_email;
+  const email = (metaEmail || customer.email || '').trim().toLowerCase();
   const saleId = sale.id || null;
 
   const mapping = productId ? PRODUCTS[productId] : null;

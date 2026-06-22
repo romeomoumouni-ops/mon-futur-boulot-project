@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 import { generateCvPdf } from '@/lib/pdf';
-import ChariowWidget from '@/components/ChariowWidget';
+import CheckoutButton from '@/components/CheckoutButton';
 
 const INDUSTRIES = [
   { id: 'marketing', icon: '📈', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
@@ -1913,7 +1913,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   <p style={styles.priceCaption}>L'essentiel pour préparer ta candidature</p>
                   <div style={styles.cardBtn}>
-                    <ChariowWidget productId="prd_covoyuoz" primaryColor="#00b87c" />
+                    <CheckoutButton plan="basique" primary={false} />
                   </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ CV performants illimités</li>
@@ -1934,7 +1934,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   <p style={styles.priceCaption}>Flexibilité totale, sans engagement</p>
                   <div style={styles.cardBtn}>
-                    <ChariowWidget productId="prd_mouzb4yn" primaryColor="#00b87c" />
+                    <CheckoutButton plan="standard" />
                   </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ CV performants illimités</li>
@@ -1957,7 +1957,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   <p style={styles.priceCaption}>6 mois — soit 2 500 FCFA/mois (−50%)</p>
                   <div style={styles.cardBtn}>
-                    <ChariowWidget productId="prd_2dl6fbu2" primaryColor="#a855f7" />
+                    <CheckoutButton plan="premium" primary={false} />
                   </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ Tout ce qu'inclut le plan Standard</li>
