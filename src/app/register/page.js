@@ -2,10 +2,12 @@
 
 import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
 
 export default function RegisterPage() {
-  const { registerUser, loginUser } = useContext(AppContext);
+  const { registerUser, loginUser, user } = useContext(AppContext);
+  const router = useRouter();
   const [isLoginMode, setIsLoginMode] = useState(false);
 
   // Ouvre directement le mode connexion si ?mode=login (depuis "Me connecter")
@@ -14,6 +16,16 @@ export default function RegisterPage() {
       setIsLoginMode(true);
     }
   }, []);
+
+  // Si une session est déjà active et qu'on arrive en mode connexion (clic "Me connecter"),
+  // on ramène directement au dashboard sans redemander les identifiants.
+  useEffect(() => {
+    if (!user) return;
+    if (typeof window === 'undefined') return;
+    if (new URLSearchParams(window.location.search).get('mode') === 'login') {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   // Form fields
   const [firstName, setFirstName] = useState('');

@@ -37,6 +37,7 @@ export const AppProvider = ({ children }) => {
   const [letters, setLetters] = useState([]);
   const [plan, setPlan] = useState('standard'); // 'basique', 'standard', 'premium'
   const [accessPlan, setAccessPlan] = useState(null); // plan effectif côté serveur (abonnement réel)
+  const [accessExpiresAt, setAccessExpiresAt] = useState(null); // fin d'accès (null = illimité)
   const [atsScore, setAtsScore] = useState(0);
   const [stats, setStats] = useState({
     cvsCreated: 0,
@@ -64,6 +65,7 @@ export const AppProvider = ({ children }) => {
       if (!u) {
         setUser(null);
         setAccessPlan(null);
+        setAccessExpiresAt(null);
         return;
       }
       const meta = u.user_metadata || {};
@@ -82,6 +84,12 @@ export const AppProvider = ({ children }) => {
         const { data: ap } = await supabase.rpc('current_access_plan');
         setAccessPlan(ap || null);
       } catch { setAccessPlan(null); }
+
+      // Fin d'accès (pour les rappels de renouvellement en J-3/J-2)
+      try {
+        const { data: exp } = await supabase.rpc('current_access_expiry');
+        setAccessExpiresAt(exp || null);
+      } catch { setAccessExpiresAt(null); }
 
       // CV du compte (multi-appareils) : on charge depuis Supabase s'il existe
       try {
@@ -332,6 +340,7 @@ export const AppProvider = ({ children }) => {
       remaining,
       consume,
       accessPlan, // 'basique' | 'standard' | 'premium' | null
+      accessExpiresAt, // ISO string | null (null = accès illimité)
       canUseProFeatures: accessPlan === 'standard' || accessPlan === 'premium'
     }}>
       {children}

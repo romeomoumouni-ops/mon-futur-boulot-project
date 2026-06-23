@@ -672,12 +672,34 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     consume,
     // Accès par palier d'abonnement
     accessPlan,
+    accessExpiresAt,
     canUseProFeatures
   } = useContext(AppContext);
 
   // Current active view
   const [currentView, setCurrentView] = useState(defaultView); // 'dashboard', 'cv', 'letters', 'jobs', 'formations', 'applications', 'pricing', 'admin'
-  
+
+  // ---- Rappel de renouvellement (J-3 / J-2) ----
+  const renewDaysLeft = React.useMemo(() => {
+    if (!accessExpiresAt) return null; // null = accès illimité (proprio/admin)
+    const ms = new Date(accessExpiresAt).getTime() - Date.now();
+    if (isNaN(ms)) return null;
+    return Math.ceil(ms / (24 * 60 * 60 * 1000));
+  }, [accessExpiresAt]);
+  const renewActive = renewDaysLeft !== null && renewDaysLeft > 0 && renewDaysLeft <= 3;
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  useEffect(() => {
+    if (!renewActive) { setShowRenewModal(false); return; }
+    try {
+      const todayKey = `mfb_renew_dismissed_${new Date().toISOString().slice(0, 10)}`;
+      setShowRenewModal(localStorage.getItem(todayKey) !== '1');
+    } catch { setShowRenewModal(true); }
+  }, [renewActive]);
+  const dismissRenewModal = () => {
+    setShowRenewModal(false);
+    try { localStorage.setItem(`mfb_renew_dismissed_${new Date().toISOString().slice(0, 10)}`, '1'); } catch {}
+  };
+
   // Search query in top bar
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -1124,7 +1146,25 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
         {/* VIEW CONTENTS */}
         <main style={styles.viewContent} className="db-content">
-          
+
+          {/* Bandeau de renouvellement (J-3 / J-2) — visible sur toutes les vues */}
+          {renewActive && (
+            <div style={styles.renewBanner}>
+              <span style={{ fontSize: '20px', flexShrink: 0 }}>⏳</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <strong style={{ display: 'block', fontSize: '14px', color: '#7c2d12' }}>
+                  Ton abonnement se termine {renewDaysLeft <= 1 ? "demain" : `dans ${renewDaysLeft} jours`}.
+                </strong>
+                <span style={{ fontSize: '13px', color: '#9a3412' }}>
+                  Renouvelle-le pour garder l'accès à ton espace, tes documents et les offres.
+                </span>
+              </div>
+              <Link href="/pricing?renew=1" className="btn btn-primary btn-sm" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                Renouveler
+              </Link>
+            </div>
+          )}
+
           {/* VIEW: MAIN DASHBOARD */}
           {currentView === 'dashboard' && (
             <div className="animate-fade-in">
@@ -2206,6 +2246,30 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
         </div>
       )}
 
+      {/* MODAL DE RENOUVELLEMENT (J-3 / J-2) */}
+      {showRenewModal && renewActive && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <div style={{ ...styles.modalHeader, borderBottomColor: 'var(--warning)' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                ⏳ {renewDaysLeft <= 1 ? 'Ton abonnement expire demain' : `Plus que ${renewDaysLeft} jours d'accès`}
+              </h3>
+              <button onClick={dismissRenewModal} style={styles.modalCloseBtn}>✕</button>
+            </div>
+            <div style={styles.modalBody}>
+              <p style={{ margin: 0 }}>
+                Ton abonnement <strong>{accessPlan || ''}</strong> se termine {renewDaysLeft <= 1 ? 'demain' : `dans ${renewDaysLeft} jours`}.
+                Renouvelle-le maintenant pour continuer à créer tes CV, tes lettres et accéder aux offres sans interruption.
+              </p>
+            </div>
+            <div style={styles.modalFooter}>
+              <button className="btn btn-secondary" onClick={dismissRenewModal} style={{ marginRight: '10px' }}>Plus tard</button>
+              <Link href="/pricing?renew=1" className="btn btn-primary" onClick={dismissRenewModal}>Renouveler mon abonnement</Link>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -2835,6 +2899,16 @@ const styles = {
   rowInputs: {
     display: 'flex',
     gap: '16px'
+  },
+  renewBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+    background: 'linear-gradient(90deg, #fff7ed, #ffedd5)',
+    border: '1px solid #fdba74',
+    borderRadius: '14px',
+    padding: '14px 16px',
+    marginBottom: '20px'
   },
   modalOverlay: {
     position: 'fixed',
