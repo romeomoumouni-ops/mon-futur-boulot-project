@@ -1372,7 +1372,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         />
                       ) : (
                         <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {(cvData.firstName?.[0] || 'A')}{(cvData.lastName?.[0] || 'D')}
+                          {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || '👤'}
                         </div>
                       )}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1523,7 +1523,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                           <img src={profilePhoto || cvData.photo} alt="Photo" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)', flexShrink: 0 }} />
                         ) : (
                           <div style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {(cvData.firstName?.[0] || 'A')}{(cvData.lastName?.[0] || 'D')}
+                            {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || '👤'}
                           </div>
                         )}
                         <div>
@@ -1834,6 +1834,37 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               </p>
 
               <div style={styles.editorSectionCard}>
+                {/* Photo de profil */}
+                <div className="form-group">
+                  <label className="form-label">Photo de profil</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '6px' }}>
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handlePhotoUpload}
+                    />
+                    {(profilePhoto || cvData.photo) ? (
+                      <img
+                        src={profilePhoto || cvData.photo}
+                        alt="Photo de profil"
+                        style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)', flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => photoInputRef.current?.click()}>📷 Changer la photo</button>
+                      {(profilePhoto || cvData.photo) && (
+                        <button type="button" className="btn btn-secondary btn-sm" style={{ border: 'none', color: '#ef4444' }} onClick={() => { setProfilePhoto(null); updateCV('photo', null); }}>Supprimer</button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">{t("profileNameLabel", "Prénom & Nom")}</label>
                   <input type="text" className="form-input" value={`${firstName} ${lastName}`} readOnly />
