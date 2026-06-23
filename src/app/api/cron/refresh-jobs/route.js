@@ -6,25 +6,32 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Pays francophones d'Afrique (ville principale pour de meilleurs résultats JSearch)
+// Pays francophones d'Afrique (ville principale) — code + libellé de recherche
 const COUNTRIES = [
-  { code: 'CI', query: "emploi Abidjan Côte d'Ivoire" },
-  { code: 'SN', query: 'emploi Dakar Sénégal' },
-  { code: 'CM', query: 'emploi Douala Cameroun' },
-  { code: 'BJ', query: 'emploi Cotonou Bénin' },
-  { code: 'TG', query: 'emploi Lomé Togo' },
-  { code: 'BF', query: 'emploi Ouagadougou Burkina Faso' },
-  { code: 'ML', query: 'emploi Bamako Mali' },
-  { code: 'GA', query: 'emploi Libreville Gabon' },
-  { code: 'GN', query: 'emploi Conakry Guinée' },
-  { code: 'CD', query: 'emploi Kinshasa RD Congo' },
-  { code: 'NE', query: 'emploi Niamey Niger' },
-  { code: 'CG', query: 'emploi Brazzaville Congo' },
+  { code: 'CI', place: "Abidjan Côte d'Ivoire" },
+  { code: 'SN', place: 'Dakar Sénégal' },
+  { code: 'CM', place: 'Douala Cameroun' },
+  { code: 'BJ', place: 'Cotonou Bénin' },
+  { code: 'TG', place: 'Lomé Togo' },
+  { code: 'BF', place: 'Ouagadougou Burkina Faso' },
+  { code: 'ML', place: 'Bamako Mali' },
+  { code: 'GA', place: 'Libreville Gabon' },
+  { code: 'GN', place: 'Conakry Guinée' },
+  { code: 'CD', place: 'Kinshasa RD Congo' },
+  { code: 'NE', place: 'Niamey Niger' },
+  { code: 'CG', place: 'Brazzaville Congo' },
+];
+
+// Secteurs courants — on alterne pour faire remonter des offres variées chaque jour
+const SECTORS = [
+  'développeur', 'commercial', 'comptable', 'marketing', 'assistant administratif',
+  'ingénieur', 'logistique', 'ressources humaines', 'chef de projet',
+  'technicien', 'vendeur', 'community manager', 'finance', 'gestionnaire',
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TARGET_NEW = 3;   // 1 à 3 nouvelles offres par jour
-const MAX_CALLS = 6;    // garde-fou quota JSearch (free ~200/mois)
+const MAX_CALLS = 8;    // garde-fou quota JSearch
 const PURGE_DAYS = 60;  // une offre reste 60 jours puis est retirée
 
 export async function GET(request) {
@@ -39,12 +46,15 @@ export async function GET(request) {
   const url = new URL(request.url);
   const dryRun = url.searchParams.get('dry') === '1';
 
-  // Ordre tournant : un pays différent "démarre" chaque jour pour couvrir tout le continent
+  // Combinaisons (pays, secteur) tournantes : décalage différent chaque jour
   const dayIndex = Math.floor(Date.now() / DAY_MS);
-  const start = dayIndex % COUNTRIES.length;
-  const ordered = [...COUNTRIES.slice(start), ...COUNTRIES.slice(0, start)];
+  const pairs = [];
+  for (let i = 0; i < MAX_CALLS; i++) {
+    const c = COUNTRIES[(dayIndex + i) % COUNTRIES.length];
+    const s = SECTORS[(dayIndex + i) % SECTORS.length];
+    pairs.push({ code: c.code, query: `${s} ${c.place}` });
+  }
 
-  // Client admin (service role) — nécessaire pour dédoublonner et insérer
   let supabase = null;
   try {
     supabase = createAdminClient();
@@ -58,17 +68,16 @@ export async function GET(request) {
   const tried = [];
   let calls = 0;
 
-  for (const c of ordered) {
+  for (const p of pairs) {
     if (collected.length >= TARGET_NEW || calls >= MAX_CALLS) break;
     calls++;
-    tried.push(c.code);
+    tried.push(p.query);
 
-    const rows = await fetchJSearchJobs({ query: c.query, limit: 10, datePosted: 'week' })
-      .then((r) => r.map((x) => ({ ...x, country: x.country || c.code })))
+    const rows = await fetchJSearchJobs({ query: p.query, limit: 10, datePosted: 'month' })
+      .then((r) => r.map((x) => ({ ...x, country: x.country || p.code })))
       .catch(() => []);
     if (!rows.length) continue;
 
-    // Lesquelles existent déjà en base ?
     let existingIds = new Set();
     if (supabase) {
       const ids = rows.map((r) => r.external_id).filter(Boolean);
@@ -93,7 +102,6 @@ export async function GET(request) {
     });
   }
 
-  // Insertion des nouvelles offres (1 à 3). Si le marché est vide ce jour-là -> 0, on n'invente rien.
   let inserted = 0;
   if (collected.length) {
     const { error } = await supabase.from('jobs').insert(collected);
@@ -101,12 +109,9 @@ export async function GET(request) {
     inserted = collected.length;
   }
 
-  // Purge des offres de +60 jours (par date d'ajout)
   const cutoff = new Date(Date.now() - PURGE_DAYS * DAY_MS).toISOString();
   const { data: purged } = await supabase
     .from('jobs').delete().eq('source', 'jsearch').lt('created_at', cutoff).select('id');
 
-  return NextResponse.json({
-    ok: true, tried, calls, inserted, purged: (purged || []).length,
-  });
+  return NextResponse.json({ ok: true, tried, calls, inserted, purged: (purged || []).length });
 }
