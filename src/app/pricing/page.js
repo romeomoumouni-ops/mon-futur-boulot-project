@@ -6,17 +6,18 @@ import { AppContext } from '@/context/AppContext';
 import CheckoutButton from '@/components/CheckoutButton';
 
 export default function PricingPage() {
-  const { plan, selectPlan, user, accessPlan } = useContext(AppContext);
+  const { plan, selectPlan } = useContext(AppContext);
 
-  // Bandeau "abonnement requis" : si redirigé ici (?access=required) OU si l'utilisateur
-  // est connecté mais n'a pas encore d'abonnement actif.
-  const [paramRequired, setParamRequired] = useState(false);
+  // Bandeau "abonnement requis" : UNIQUEMENT si on a été redirigé ici explicitement
+  // (?access=required, posé par le middleware ou après inscription).
+  // On ne se base PAS sur accessPlan côté client (chargé en différé) pour éviter
+  // d'afficher le bandeau à tort à un utilisateur déjà abonné.
+  const [accessRequired, setAccessRequired] = useState(false);
   useEffect(() => {
     if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('access') === 'required') {
-      setParamRequired(true);
+      setAccessRequired(true);
     }
   }, []);
-  const accessRequired = paramRequired || (!!user && !accessPlan);
 
   // Accordion active state tracker
   const [activeFaq, setActiveFaq] = useState(null);
@@ -73,7 +74,7 @@ export default function PricingPage() {
         <div className="container" style={{ textAlign: 'center' }}>
           {accessRequired && (
             <div style={{ maxWidth: '640px', margin: '0 auto 24px', padding: '14px 18px', backgroundColor: 'rgba(0,184,124,0.12)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '14px', fontWeight: 500 }}>
-              🔒 Ton compte est créé ! Choisis un abonnement ci-dessous pour accéder à ton espace et commencer.
+              🔒 Choisis ton abonnement ci-dessous pour accéder à ton espace MonFuturBoulot.
             </div>
           )}
           <h1 style={styles.title} className="hero-title-responsive">
