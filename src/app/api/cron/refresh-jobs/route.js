@@ -6,7 +6,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Pays francophones d'Afrique (ville principale) — code + libellé de recherche
+// Pays francophones d'Afrique (ville principale). La requête générique
+// "emploi à {ville} {pays}" (date_posted=all) renvoie des résultats fiables.
 const COUNTRIES = [
   { code: 'CI', place: "Abidjan Côte d'Ivoire" },
   { code: 'SN', place: 'Dakar Sénégal' },
@@ -14,19 +15,10 @@ const COUNTRIES = [
   { code: 'BJ', place: 'Cotonou Bénin' },
   { code: 'TG', place: 'Lomé Togo' },
   { code: 'BF', place: 'Ouagadougou Burkina Faso' },
-  { code: 'ML', place: 'Bamako Mali' },
   { code: 'GA', place: 'Libreville Gabon' },
   { code: 'GN', place: 'Conakry Guinée' },
   { code: 'CD', place: 'Kinshasa RD Congo' },
-  { code: 'NE', place: 'Niamey Niger' },
   { code: 'CG', place: 'Brazzaville Congo' },
-];
-
-// Secteurs courants — on alterne pour faire remonter des offres variées chaque jour
-const SECTORS = [
-  'développeur', 'commercial', 'comptable', 'marketing', 'assistant administratif',
-  'ingénieur', 'logistique', 'ressources humaines', 'chef de projet',
-  'technicien', 'vendeur', 'community manager', 'finance', 'gestionnaire',
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -46,14 +38,12 @@ export async function GET(request) {
   const url = new URL(request.url);
   const dryRun = url.searchParams.get('dry') === '1';
 
-  // Combinaisons (pays, secteur) tournantes : décalage différent chaque jour
+  // Rotation quotidienne : pays de départ + page (1→3) qui changent chaque jour,
+  // pour faire remonter des offres différentes au fil des jours.
   const dayIndex = Math.floor(Date.now() / DAY_MS);
-  const pairs = [];
-  for (let i = 0; i < MAX_CALLS; i++) {
-    const c = COUNTRIES[(dayIndex + i) % COUNTRIES.length];
-    const s = SECTORS[(dayIndex + i) % SECTORS.length];
-    pairs.push({ code: c.code, query: `${s} ${c.place}` });
-  }
+  const start = dayIndex % COUNTRIES.length;
+  const ordered = [...COUNTRIES.slice(start), ...COUNTRIES.slice(0, start)];
+  const page = 1 + (dayIndex % 3);
 
   let supabase = null;
   try {
@@ -68,14 +58,20 @@ export async function GET(request) {
   const tried = [];
   let calls = 0;
 
-  for (const p of pairs) {
+  for (const c of ordered) {
     if (collected.length >= TARGET_NEW || calls >= MAX_CALLS) break;
     calls++;
-    tried.push(p.query);
+    tried.push(c.code);
 
-    const rows = await fetchJSearchJobs({ query: p.query, limit: 10, datePosted: 'month' })
-      .then((r) => r.map((x) => ({ ...x, country: x.country || p.code })))
-      .catch(() => []);
+    // 2 pages tentées (la page du jour + page 1 en repli) pour maximiser les chances
+    const pagesToTry = page === 1 ? [1] : [page, 1];
+    let rows = [];
+    for (const pg of pagesToTry) {
+      rows = await fetchJSearchJobs({ query: `emploi à ${c.place}`, limit: 10, datePosted: 'all', page: pg })
+        .then((r) => r.map((x) => ({ ...x, country: x.country || c.code })))
+        .catch(() => []);
+      if (rows.length) break;
+    }
     if (!rows.length) continue;
 
     let existingIds = new Set();
@@ -97,7 +93,7 @@ export async function GET(request) {
 
   if (dryRun) {
     return NextResponse.json({
-      ok: true, dryRun: true, tried, calls, found: collected.length,
+      ok: true, dryRun: true, page, tried, calls, found: collected.length,
       sample: collected.map((c) => ({ role: c.role, company: c.company, location: c.location })),
     });
   }
@@ -113,5 +109,5 @@ export async function GET(request) {
   const { data: purged } = await supabase
     .from('jobs').delete().eq('source', 'jsearch').lt('created_at', cutoff).select('id');
 
-  return NextResponse.json({ ok: true, tried, calls, inserted, purged: (purged || []).length });
+  return NextResponse.json({ ok: true, page, tried, calls, inserted, purged: (purged || []).length });
 }

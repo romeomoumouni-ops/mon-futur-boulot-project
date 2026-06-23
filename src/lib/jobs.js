@@ -31,15 +31,16 @@ function formatSalary(j) {
 }
 
 // Interroge JSearch et renvoie des offres normalisées (prêtes pour la table `jobs`).
-// datePosted: 'all' | 'today' | '3days' | 'week' | 'month' (par défaut 'week' = offres récentes/d'actualité)
-export async function fetchJSearchJobs({ query, limit = 5, datePosted = 'week' }) {
+// datePosted: 'all' par défaut — les filtres 'week'/'month' renvoient souvent 0 résultat
+// sur les marchés africains francophones, donc on prend tout et on purge à 60 jours.
+export async function fetchJSearchJobs({ query, limit = 5, datePosted = 'all', page = 1 }) {
   const apiKey = process.env.RAPIDAPI_KEY;
   if (!apiKey) {
     console.log('[jobs] RAPIDAPI_KEY absent — aucune offre récupérée');
     return [];
   }
 
-  const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&page=1&num_pages=1&date_posted=${datePosted}`;
+  const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&page=${page}&num_pages=1&date_posted=${datePosted}`;
   let res;
   try {
     res = await fetch(url, {
