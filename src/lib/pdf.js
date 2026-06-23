@@ -48,6 +48,66 @@ async function buildPdfBlob(firstName, lastName) {
   }
 }
 
+// Génère un PDF propre (format lettre A4) à partir du texte de la lettre de motivation.
+export async function generateLetterPdf(text, firstName = '', lastName = '') {
+  if (typeof window === 'undefined' || !text) return;
+
+  let html2pdf;
+  try {
+    html2pdf = (await import('html2pdf.js')).default;
+  } catch (e) {
+    alert("Le module de génération PDF n'a pas pu être chargé. Réessaie dans un instant.");
+    return;
+  }
+
+  // Conteneur temporaire mis en forme (hors écran)
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;';
+  const page = document.createElement('div');
+  page.style.cssText = 'padding:56px 60px;font-family:Georgia,\'Times New Roman\',serif;font-size:13px;line-height:1.7;color:#1f2937;white-space:pre-wrap;word-wrap:break-word;';
+  page.textContent = text;
+  wrap.appendChild(page);
+  document.body.appendChild(wrap);
+
+  const safeName = `${firstName || 'lettre'}-${lastName || ''}`
+    .toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const filename = `Lettre-${safeName || 'motivation'}.pdf`;
+
+  const opt = {
+    margin: 0,
+    filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false },
+    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] },
+  };
+
+  try {
+    const blob = await html2pdf().set(opt).from(wrap).output('blob');
+    const file = new File([blob], filename, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Ma lettre de motivation', text: 'Ma lettre — MonFuturBoulot.com' });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  } catch (e) {
+    alert("Une erreur est survenue pendant la génération du PDF. Réessaie.");
+  } finally {
+    wrap.remove();
+  }
+}
+
 export async function generateCvPdf(mode = 'save', firstName = 'cv', lastName = '') {
   if (typeof window === 'undefined') return;
 

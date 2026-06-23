@@ -3,7 +3,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
-import { generateCvPdf } from '@/lib/pdf';
+import { generateCvPdf, generateLetterPdf } from '@/lib/pdf';
 import CheckoutButton from '@/components/CheckoutButton';
 
 const INDUSTRIES = [
@@ -80,13 +80,13 @@ const TRANSLATIONS = {
     actionLetterTitle: "Lettre de motivation",
     actionLetterDesc: "Personnalisée par secteur d'activité",
     actionExploreJobsTitle: "Explorer les offres",
-    actionExploreJobsDesc: "+842 offres dans tout le pays",
+    actionExploreJobsDesc: "De nouvelles offres ajoutées automatiquement",
     actionFreeCoursesTitle: "Formations gratuites",
     actionFreeCoursesDesc: "Boostez vos compétences métiers",
 
     // CV Builder Step Bar & Stepper
     cvTopBarTitle: "Mon CV / Marketing Junior - {name}",
-    cvAutoSave: "Sauvegarde auto - il y a 12s",
+    cvAutoSave: "💾 Sauvegarde automatique",
     cvPreviewBtn: "Aperçu",
     cvDownloadPDF: "Télécharger PDF ↓",
     cvStep1: "ÉTAPE 1",
@@ -99,8 +99,8 @@ const TRANSLATIONS = {
     cvStep4Label: "Style & Téléchargement",
 
     // CV Builder Form Left
-    cvFormStep2Title: "Ton expérience et ta formation",
-    cvFormStep2Desc: "Ajoute tes expériences (stages, projets, jobs étudiants). Elles seront reformulées en langage professionnel percutant.",
+    cvFormStep2Title: "Complète ton CV",
+    cvFormStep2Desc: "Remplis chaque section ci-dessous : coordonnées, résumé, expériences, formation, compétences et langues. L'aperçu à droite se met à jour en direct.",
     cvAiHelperTitle: "✨ Optimise ton CV pour le marché",
     cvAiHelperDesc: "Décris tes expériences en quelques mots, on les reformule selon les modèles qui décrochent le plus d'entretiens.",
     cvAiHelperBtn: "Optimiser mon CV",
@@ -190,7 +190,7 @@ const TRANSLATIONS = {
     // Jobs Explorer
     jobsTitle: "Explorer les offres d'emploi en temps réel",
     jobsDesc: "Les recruteurs publient directement des offres de stages et CDI pour les jeunes diplômés d'Afrique.",
-    jobsApplyBtn: "Postuler en 1 clic",
+    jobsApplyBtn: "Postuler",
 
     // Formations Hub
     formTitle: "Renforce tes compétences et valide des certificats",
@@ -390,13 +390,13 @@ const TRANSLATIONS = {
     actionLetterTitle: "Cover letter",
     actionLetterDesc: "Personalized by industry",
     actionExploreJobsTitle: "Explore job offers",
-    actionExploreJobsDesc: "+842 offers nationwide",
+    actionExploreJobsDesc: "New offers added automatically",
     actionFreeCoursesTitle: "Free courses",
     actionFreeCoursesDesc: "Boost your professional skills",
 
     // CV Builder Step Bar & Stepper
     cvTopBarTitle: "My CV / Junior Marketing - {name}",
-    cvAutoSave: "Auto-saved - 12s ago",
+    cvAutoSave: "💾 Auto-saved",
     cvPreviewBtn: "Preview",
     cvDownloadPDF: "Download PDF ↓",
     cvStep1: "STEP 1",
@@ -409,8 +409,8 @@ const TRANSLATIONS = {
     cvStep4Label: "Style & Download",
 
     // CV Builder Form Left
-    cvFormStep2Title: "Your experience and education",
-    cvFormStep2Desc: "Add your experiences (internships, projects, student jobs). They'll be rephrased into a compelling professional tone.",
+    cvFormStep2Title: "Complete your CV",
+    cvFormStep2Desc: "Fill in each section below: contact details, summary, experience, education, skills and languages. The preview on the right updates live.",
     cvAiHelperTitle: "✨ Optimize your CV for the market",
     cvAiHelperDesc: "Describe your experiences in a few words, we'll rephrase them like a pro.",
     cvAiHelperBtn: "Optimize my CV",
@@ -500,7 +500,7 @@ const TRANSLATIONS = {
     // Jobs Explorer
     jobsTitle: "Explore job offers in real time",
     jobsDesc: "Recruiters publish internship and CDI offers directly for young African graduates.",
-    jobsApplyBtn: "Apply in 1 click",
+    jobsApplyBtn: "Apply",
 
     // Formations Hub
     formTitle: "Strengthen your skills and validate certificates",
@@ -653,6 +653,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     letters,
     plan,
     atsScore,
+    atsChecklist,
     stats,
     logout,
     updateCV,
@@ -673,7 +674,8 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     // Accès par palier d'abonnement
     accessPlan,
     accessExpiresAt,
-    canUseProFeatures
+    canUseProFeatures,
+    supabase
   } = useContext(AppContext);
 
   // Current active view
@@ -700,6 +702,51 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     try { localStorage.setItem(`mfb_renew_dismissed_${new Date().toISOString().slice(0, 10)}`, '1'); } catch {}
   };
 
+  // ---- Messagerie support (Standard / Premium) ----
+  // Réutilise le client Supabase du contexte (ne PAS créer un 2e client : conflit d'auth)
+  const supabaseClient = supabase;
+  const [supportMessages, setSupportMessages] = useState([]);
+  const [supportInput, setSupportInput] = useState('');
+  const [supportLoading, setSupportLoading] = useState(false);
+  const [supportSending, setSupportSending] = useState(false);
+
+  const fetchSupportMessages = async () => {
+    if (!user?.id) return;
+    setSupportLoading(true);
+    const { data } = await supabaseClient
+      .from('support_messages')
+      .select('id, sender, body, created_at')
+      .order('created_at', { ascending: true });
+    setSupportMessages(data || []);
+    setSupportLoading(false);
+  };
+
+  const sendSupportMessage = async (e) => {
+    e.preventDefault();
+    const body = supportInput.trim();
+    if (!body || !user?.id) return;
+    setSupportSending(true);
+    const { data, error } = await supabaseClient
+      .from('support_messages')
+      .insert({ user_id: user.id, email: user.email, sender: 'user', body })
+      .select('id, sender, body, created_at')
+      .single();
+    setSupportSending(false);
+    if (error) {
+      openModal('Erreur', "Ton message n'a pas pu être envoyé. Réessaie dans un instant.", 'warning');
+      return;
+    }
+    // Ajout optimiste (évite la course avec la relecture)
+    setSupportMessages((prev) => [...prev, data]);
+    setSupportInput('');
+  };
+
+  // Charge les messages quand on ouvre la vue Support
+  useEffect(() => {
+    if (currentView === 'support' && user?.id) fetchSupportMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentView, user]);
+
   // Search query in top bar
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -718,6 +765,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   const [newEduSchool, setNewEduSchool] = useState('');
   const [newEduPeriod, setNewEduPeriod] = useState('');
   const [newEduLocation, setNewEduLocation] = useState('');
+
+  const [newSkill, setNewSkill] = useState('');
+  const [newLangName, setNewLangName] = useState('');
+  const [newLangLevel, setNewLangLevel] = useState('Courant');
 
   // Admin form inputs states
   const [adminJobRole, setAdminJobRole] = useState('');
@@ -875,22 +926,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     }, 1200);
   };
 
-  // Générateur de lettre de motivation — personnalisé par secteur (limité en version gratuite)
-  const generateAiLetter = (e) => {
-    e.preventDefault();
-    if (!letterIndustry) { openModal('Information requise', 'Veuillez d\'abord sélectionner votre secteur d\'activité.', 'warning'); return; }
-    if (!canUse('letters')) {
-      openModal(
-        'Limite de la version gratuite atteinte',
-        'La version gratuite autorise une seule lettre de motivation. Passe à un plan payant pour des lettres illimitées.',
-        'warning'
-      );
-      setCurrentView('pricing');
-      return;
-    }
-    setIsLetterGenerating(true);
-    setGeneratedLetterContent('');
-
+  // Construit le texte de la lettre à partir des champs + du CV.
+  // enhanced = version "améliorée" (accroche + paragraphe de valeur + appel à l'action plus fort).
+  const buildLetterText = (enhanced = false) => {
     const INDUSTRY_VOCAB = {
       marketing: { keywords: 'stratégie de contenu, ROI, engagement digital et KPI', value: 'créativité et sens analytique', closing: 'porter votre marque à un niveau supérieur' },
       tech: { keywords: 'solutions data-driven, développement agile et veille technologique', value: 'adaptabilité et esprit d\'innovation', closing: 'contribuer à vos projets de transformation digitale' },
@@ -921,7 +959,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
     const expPhrase = cvData.experiences && cvData.experiences.length > 0
       ? `Au cours de mon expérience en tant que ${cvData.experiences[0].role} chez ${cvData.experiences[0].company}, j'ai développé des compétences directement applicables dans le secteur ${industryLabel}.`
-      : `À travers ma formation en ${cvData.educations && cvData.educations.length > 0 ? cvData.educations[0].degree : 'ma filière'}, j'ai acquis des bases solides adaptées au secteur ${industryLabel}.`;
+      : `À travers ma formation${cvData.educations && cvData.educations.length > 0 ? ` en ${cvData.educations[0].degree}` : ''}, j'ai acquis des bases solides adaptées au secteur ${industryLabel}.`;
 
     const skillsLine = cvData.skills && cvData.skills.length > 0
       ? `Ma maîtrise de ${vocab.keywords} — renforcée par ma pratique de ${cvData.skills.slice(0, 3).join(', ')} — me permet d'être rapidement opérationnel(le) et de ${vocab.closing}.`
@@ -935,8 +973,26 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
       ? `\n\nCe qui me motive particulièrement à rejoindre ${letterCompany} : ${letterMotivation}.`
       : `\n\nRejoindre ${letterCompany} représente pour moi une opportunité unique d'exprimer pleinement mon ${vocab.value} dans un environnement de référence du secteur ${industryLabel}.`;
 
-    let template = `Objet : Candidature au poste de ${letterRole} — ${firstName} ${lastName}\n\n${recipientOpening}\n\n${toneOpening} pour le poste de ${letterRole} au sein de ${letterCompany}.\n\n${expPhrase} ${skillsLine}${achievementPhrase}${motivationPhrase}\n\nJe suis disponible pour un entretien à votre convenance et reste à votre entière disposition pour tout complément d'information.\n\nVeuillez agréer, ${recipientClosing}, l'expression de mes salutations distinguées.\n\n${firstName} ${lastName}\n📞 ${cvData.phone || ''}\n✉️ ${cvData.email || ''}`;
+    const hook = enhanced
+      ? `\n\nVotre recherche d'un(e) ${letterRole} a immédiatement retenu mon attention : le profil recherché correspond précisément à la valeur que je souhaite apporter à une équipe telle que la vôtre.`
+      : '';
+    const extraValue = enhanced
+      ? ` Au-delà des compétences techniques, je me distingue par mon ${vocab.value} — des qualités déterminantes pour réussir dans le secteur ${industryLabel}.`
+      : '';
+    const cta = enhanced
+      ? `Je serais ravi(e) d'échanger avec vous lors d'un entretien afin de vous démontrer concrètement comment je peux ${vocab.closing}. Je vous remercie par avance de l'attention portée à ma candidature.`
+      : `Je suis disponible pour un entretien à votre convenance et reste à votre entière disposition pour tout complément d'information.`;
 
+    return `Objet : Candidature au poste de ${letterRole} — ${firstName} ${lastName}\n\n${recipientOpening}\n\n${toneOpening} pour le poste de ${letterRole} au sein de ${letterCompany}.${hook}\n\n${expPhrase} ${skillsLine}${extraValue}${achievementPhrase}${motivationPhrase}\n\n${cta}\n\nVeuillez agréer, ${recipientClosing}, l'expression de mes salutations distinguées.\n\n${firstName} ${lastName}${cvData.phone ? `\n📞 ${cvData.phone}` : ''}${cvData.email ? `\n✉️ ${cvData.email}` : ''}`;
+  };
+
+  // Génère la lettre (animation de frappe) et l'enregistre dans l'historique
+  const generateAiLetter = (e) => {
+    e.preventDefault();
+    if (!letterIndustry) { openModal('Information requise', 'Veuillez d\'abord sélectionner votre secteur d\'activité.', 'warning'); return; }
+    setIsLetterGenerating(true);
+    setGeneratedLetterContent('');
+    const template = buildLetterText(false);
     let index = 0;
     const interval = setInterval(() => {
       if (index < template.length - 1) {
@@ -945,10 +1001,26 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
       } else {
         clearInterval(interval);
         setIsLetterGenerating(false);
-        consume('letters');
         createCoverLetter({ company: letterCompany, role: letterRole, content: template });
       }
-    }, 7);
+    }, 5);
+  };
+
+  // Améliore la lettre : version plus développée et plus percutante
+  const improveLetter = () => {
+    if (!letterRole || !letterCompany) { openModal('Information requise', "Renseigne d'abord le poste et l'entreprise, puis génère une lettre.", 'warning'); return; }
+    setIsLetterGenerating(true);
+    setTimeout(() => {
+      const enhanced = buildLetterText(true);
+      setGeneratedLetterContent(enhanced);
+      setIsLetterGenerating(false);
+    }, 500);
+  };
+
+  // Télécharge la lettre actuelle en PDF
+  const downloadLetter = () => {
+    if (!generatedLetterContent) return;
+    generateLetterPdf(generatedLetterContent, firstName, lastName);
   };
 
   // Photo de profil handler
@@ -969,28 +1041,54 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     e.preventDefault();
     if (!newExpRole || !newExpCompany) return;
     addCVItem('experiences', {
-      role: newExpRole,
-      company: newExpCompany,
-      period: newExpPeriod || '2025',
-      location: newExpLocation || 'Abidjan',
-      desc: newExpDesc || ''
+      role: newExpRole.trim(),
+      company: newExpCompany.trim(),
+      period: newExpPeriod.trim(),
+      location: newExpLocation.trim(),
+      desc: newExpDesc.trim()
     });
     setNewExpRole(''); setNewExpCompany(''); setNewExpPeriod(''); setNewExpLocation(''); setNewExpDesc('');
-    setActiveStep(3);
   };
 
   const handleAddEducation = (e) => {
     e.preventDefault();
     if (!newEduDegree || !newEduSchool) return;
     addCVItem('educations', {
-      degree: newEduDegree,
-      school: newEduSchool,
-      period: newEduPeriod || '2022 - 2025',
-      location: newEduLocation || 'Abidjan',
+      degree: newEduDegree.trim(),
+      school: newEduSchool.trim(),
+      period: newEduPeriod.trim(),
+      location: newEduLocation.trim(),
       desc: ''
     });
     setNewEduDegree(''); setNewEduSchool(''); setNewEduPeriod(''); setNewEduLocation('');
-    setActiveStep(4);
+  };
+
+  // Compétences (tableau de chaînes) — ajout/suppression directe
+  const handleAddSkill = (e) => {
+    e.preventDefault();
+    const v = newSkill.trim();
+    if (!v) return;
+    const current = cvData.skills || [];
+    if (current.some((s) => s.toLowerCase() === v.toLowerCase())) { setNewSkill(''); return; }
+    updateCV('skills', [...current, v]);
+    setNewSkill('');
+  };
+  const handleRemoveSkill = (index) => {
+    updateCV('skills', (cvData.skills || []).filter((_, i) => i !== index));
+  };
+
+  // Langues (tableau d'objets {name, level})
+  const handleAddLanguage = (e) => {
+    e.preventDefault();
+    const name = newLangName.trim();
+    if (!name) return;
+    const current = cvData.languages || [];
+    if (current.some((l) => l.name.toLowerCase() === name.toLowerCase())) { setNewLangName(''); return; }
+    updateCV('languages', [...current, { name, level: newLangLevel }]);
+    setNewLangName(''); setNewLangLevel('Courant');
+  };
+  const handleRemoveLanguage = (index) => {
+    updateCV('languages', (cvData.languages || []).filter((_, i) => i !== index));
   };
 
   // Admin sub-actions
@@ -1048,12 +1146,23 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           >
             {t("navLetters", "✉️ Lettres de motivation")}
           </button>
-          <button 
+          <button
             style={{...styles.sidebarLink, ...(currentView === 'jobs' ? styles.sidebarLinkActive : {})}}
             onClick={() => setCurrentView('jobs')}
           >
             {t("navJobs", "💼 Offres d'emploi")}
           </button>
+          {canUseProFeatures && (
+            <button
+              style={{...styles.sidebarLink, ...(currentView === 'support' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
+              onClick={() => setCurrentView('support')}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+              {t("navSupport", "Support")}
+            </button>
+          )}
         </nav>
 
         <div style={styles.sidebarSectionLabel}>{t("navMyAccount", "MON COMPTE")}</div>
@@ -1251,7 +1360,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                             {job.company} • {job.location} • {job.contract} • {job.salary}
                           </p>
                         </div>
-                        <button className="btn btn-secondary btn-sm" onClick={() => { applyJob(job); openModal('Candidature envoyée', `Ta candidature a été envoyée avec succès pour le poste de ${job.role} chez ${job.company}.`, 'success'); }}>
+                        <button className="btn btn-secondary btn-sm" disabled={!job.url} onClick={() => { if (job.url) window.open(job.url, '_blank', 'noopener,noreferrer'); }}>
                           {t("apply", "Postuler")}
                         </button>
                       </div>
@@ -1325,7 +1434,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('jobs')}>
                   <span style={styles.actionIcon}>💼</span>
                   <h4>{t("actionExploreJobsTitle", "Explorer les offres")}</h4>
-                  <p>{t("actionExploreJobsDesc", "+842 offres dans tout le pays")}</p>
+                  <p>{t("actionExploreJobsDesc", "De nouvelles offres ajoutées automatiquement")}</p>
                 </div>
 
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('applications')}>
@@ -1354,52 +1463,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 </div>
               </div>
 
-              {/* Progress Stepper */}
-              <div style={styles.stepperContainer} className="db-cv-stepper">
-                <div style={{...styles.stepIndicator, ...(activeStep >= 1 ? styles.stepIndicatorDone : {}), cursor: 'pointer'}} onClick={() => setActiveStep(1)}>
-                  <span style={styles.stepCircle}>✓</span>
-                  <span style={styles.stepText}>{t("cvStep1", "ÉTAPE 1")}<br /><strong>{t("cvStep1Label", "Informations")}</strong></span>
-                </div>
-                <div style={{...styles.stepIndicator, ...(activeStep >= 2 ? styles.stepIndicatorActive : {}), cursor: 'pointer'}} onClick={() => setActiveStep(2)}>
-                  <span style={styles.stepCircle}>2</span>
-                  <span style={styles.stepText}>{t("cvStep2", "ÉTAPE 2")}<br /><strong>{t("cvStep2Label", "Expériences")}</strong></span>
-                </div>
-                <div style={{...styles.stepIndicator, ...(activeStep >= 3 ? styles.stepIndicatorPending : {}), cursor: 'pointer'}} onClick={() => setActiveStep(3)}>
-                  <span style={styles.stepCircle}>3</span>
-                  <span style={styles.stepText}>{t("cvStep3", "ÉTAPE 3")}<br /><strong>{t("cvStep3Label", "Formation / Compétences")}</strong></span>
-                </div>
-                <div style={{...styles.stepIndicator, ...(activeStep >= 4 ? styles.stepIndicatorPending : {}), cursor: 'pointer'}} onClick={() => setActiveStep(4)}>
-                  <span style={styles.stepCircle}>4</span>
-                  <span style={styles.stepText}>{t("cvStep4", "ÉTAPE 4")}<br /><strong>{t("cvStep4Label", "Style & Téléchargement")}</strong></span>
-                </div>
-              </div>
-
               {/* CV Editor Workspace */}
               <div style={styles.cvWorkspace} className="db-cv-workspace">
-                
+
                 {/* Left Side: Form Editor */}
                 <div style={styles.cvFormColumn}>
-                  <span style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '12px' }}>{t("cvStep", "ÉTAPE {step} / 4", { step: 2 })}</span>
-                  <h2 style={{ fontSize: '24px', color: '#0f172a', marginBottom: '8px' }}>{t("cvFormStep2Title", "Ton expérience et ta formation")}</h2>
+                  <h2 style={{ fontSize: '24px', color: '#0f172a', marginBottom: '8px' }}>{t("cvFormStep2Title", "Complète ton CV")}</h2>
                   <p style={{ color: 'var(--light-text-muted)', fontSize: '13px', marginBottom: '24px' }}>
-                    {t("cvFormStep2Desc", "Ajoute tes expériences (stages, projets, jobs étudiants). L'IA reformulera tout en langage professionnel.")}
+                    {t("cvFormStep2Desc", "Remplis chaque section ci-dessous. L'aperçu à droite se met à jour en direct.")}
                   </p>
-
-                  {/* AI Banner Helper */}
-                  <div style={styles.aiHelperBanner}>
-                    <div style={styles.aiHelperPill}>{t("cvAiHelperTitle", "✨ L'IA peut t'aider à rédiger")}</div>
-                    <p style={{ fontSize: '12px', margin: '8px 0 12px 0', color: 'var(--dark-text-muted)' }}>
-                      {t("cvAiHelperDesc", "Décris tes expériences en quelques mots, on s'occupe de les reformuler comme un pro.")}
-                    </p>
-                    {aiTip && <div style={{ color: 'var(--primary)', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>{aiTip}</div>}
-                    <button 
-                      className="btn btn-primary btn-sm" 
-                      onClick={() => triggerAiCVHelp('summary')}
-                      disabled={isAiLoading}
-                    >
-                      {isAiLoading ? t("cvAiLoading", "Traitement...") : t("cvAiHelperBtn", "Activer l'IA +")}
-                    </button>
-                  </div>
 
                   {/* Profile Section */}
                   <div style={styles.editorSectionCard}>
@@ -1454,35 +1526,57 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                     <div className="form-group">
                       <label className="form-label">{t("cvLabelTitle", "Titre professionnel")}</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="ex : Développeur web junior, Assistant marketing"
                         value={cvData.title}
                         onChange={(e) => updateCV('title', e.target.value)}
                       />
-                      <button 
-                        style={styles.aiSuggestionLink}
-                        onClick={() => triggerAiCVHelp('suggestion')}
-                      >
-                        {t("cvAiSuggestTitle", "✨ Suggestion IA : \"Spécialiste Marketing Digital & Réseaux Sociaux\"")}
-                      </button>
                     </div>
 
                     <div className="form-group">
                       <label className="form-label">{t("cvLabelSummary", "Résumé professionnel")}</label>
-                      <textarea 
-                        className="form-input" 
-                        rows={3} 
+                      <textarea
+                        className="form-input"
+                        rows={3}
+                        placeholder="Décris en 2-3 phrases qui tu es, ta valeur et ton objectif professionnel."
                         value={cvData.summary}
                         onChange={(e) => updateCV('summary', e.target.value)}
                         style={{ resize: 'vertical' }}
                       />
-                      <button 
+                      <button
                         style={styles.aiSuggestionLink}
                         onClick={() => triggerAiCVHelp('summary')}
+                        disabled={isAiLoading}
                       >
-                        {t("cvAiSuggestSummary", "✨ Reformuler avec l'IA pour plus d'impact")}
+                        {isAiLoading ? '⏳ Génération...' : '✨ Générer un résumé à partir de mes infos'}
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Coordonnées Section */}
+                  <div style={styles.editorSectionCard}>
+                    <h3 style={styles.editorCardTitle}>{t("cvContactTitle", "Coordonnées")}</h3>
+                    <div style={styles.rowInputs}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">{t("cvLabelEmail", "Email")}</label>
+                        <input type="email" className="form-input" placeholder="prenom@email.com" value={cvData.email || ''} onChange={(e) => updateCV('email', e.target.value)} />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">{t("cvLabelPhone", "Téléphone")}</label>
+                        <input type="tel" className="form-input" placeholder="+225 07 00 00 00 00" value={cvData.phone || ''} onChange={(e) => updateCV('phone', e.target.value)} />
+                      </div>
+                    </div>
+                    <div style={styles.rowInputs}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">{t("cvLabelAddress", "Ville / Pays")}</label>
+                        <input type="text" className="form-input" placeholder="Abidjan, Côte d'Ivoire" value={cvData.address || ''} onChange={(e) => updateCV('address', e.target.value)} />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">{t("cvLabelLinkedin", "LinkedIn (optionnel)")}</label>
+                        <input type="text" className="form-input" placeholder="linkedin.com/in/ton-profil" value={cvData.linkedin || ''} onChange={(e) => updateCV('linkedin', e.target.value)} />
+                      </div>
                     </div>
                   </div>
 
@@ -1490,7 +1584,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div style={styles.editorSectionCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                       <h3 style={{ margin: 0 }}>{t("cvExperiencesTitle", "Expériences professionnelles")}</h3>
-                      <button className="btn btn-secondary btn-sm" onClick={() => setActiveStep(2)}>{t("cvAddBtn", "+ Ajouter")}</button>
                     </div>
 
                     {/* Experiences Items List */}
@@ -1508,13 +1601,14 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     {/* Add Experience inline Form */}
                     <form onSubmit={handleAddExperience} style={styles.inlineForm}>
                       <div style={styles.rowInputs}>
-                        <input type="text" placeholder={t("cvAddExpTitle", "Poste (ex: Stage Marketing)")} className="form-input" value={newExpRole} onChange={(e) => setNewExpRole(e.target.value)} style={{ padding: '8px 12px' }} />
-                        <input type="text" placeholder={t("cvAddExpCompany", "Entreprise")} className="form-input" value={newExpCompany} onChange={(e) => setNewExpCompany(e.target.value)} style={{ padding: '8px 12px' }} />
+                        <input type="text" placeholder={t("cvAddExpTitle", "Poste (ex: Stage Marketing)")} className="form-input" value={newExpRole} onChange={(e) => setNewExpRole(e.target.value)} style={{ padding: '8px 12px' }} required />
+                        <input type="text" placeholder={t("cvAddExpCompany", "Entreprise")} className="form-input" value={newExpCompany} onChange={(e) => setNewExpCompany(e.target.value)} style={{ padding: '8px 12px' }} required />
                       </div>
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddExpPeriod", "Période (ex: Juin - Sept 2025)")} className="form-input" value={newExpPeriod} onChange={(e) => setNewExpPeriod(e.target.value)} style={{ padding: '8px 12px' }} />
-                        <input type="text" placeholder={t("cvAddExpDesc", "Description courte")} className="form-input" value={newExpDesc} onChange={(e) => setNewExpDesc(e.target.value)} style={{ padding: '8px 12px' }} />
+                        <input type="text" placeholder={t("cvAddExpLocation", "Lieu (ex: Abidjan)")} className="form-input" value={newExpLocation} onChange={(e) => setNewExpLocation(e.target.value)} style={{ padding: '8px 12px' }} />
                       </div>
+                      <textarea placeholder={t("cvAddExpDesc", "Décris tes missions et résultats (ex: gestion des réseaux, +20% d'engagement...)")} className="form-input" rows={2} value={newExpDesc} onChange={(e) => setNewExpDesc(e.target.value)} style={{ padding: '8px 12px', resize: 'vertical' }} />
                       <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddExpBtn", "Ajouter cette expérience")}</button>
                     </form>
                   </div>
@@ -1522,15 +1616,14 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   {/* Education Section */}
                   <div style={styles.editorSectionCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                      <h3 style={{ margin: 0 }}>{t("cvEducationsTitle", "Formation / Compétences")}</h3>
-                      <button className="btn btn-secondary btn-sm" onClick={() => setActiveStep(3)}>{t("cvAddBtn", "+ Ajouter")}</button>
+                      <h3 style={{ margin: 0 }}>{t("cvEducationsTitle", "Formation")}</h3>
                     </div>
 
                     {cvData.educations.map((edu) => (
                       <div key={edu.id} style={styles.editorListItem}>
                         <div style={{ flex: 1 }}>
                           <strong style={{ color: '#0f172a' }}>{edu.degree}</strong>
-                          <p style={{ fontSize: '11px', color: 'var(--light-text-muted)' }}>{edu.school} • {edu.period} • {edu.location}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--light-text-muted)' }}>{[edu.school, edu.period, edu.location].filter(Boolean).join(' • ')}</p>
                         </div>
                         <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => deleteCVItem('educations', edu.id)}>{t("cvDeleteBtn", "Supprimer")}</button>
                       </div>
@@ -1539,11 +1632,60 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     {/* Add Education inline Form */}
                     <form onSubmit={handleAddEducation} style={styles.inlineForm}>
                       <div style={styles.rowInputs}>
-                        <input type="text" placeholder={t("cvAddEduDegree", "Diplôme (ex: Licence)")} className="form-input" value={newEduDegree} onChange={(e) => setNewEduDegree(e.target.value)} style={{ padding: '8px 12px' }} />
-                        <input type="text" placeholder={t("cvAddEduSchool", "Établissement")} className="form-input" value={newEduSchool} onChange={(e) => setNewEduSchool(e.target.value)} style={{ padding: '8px 12px' }} />
+                        <input type="text" placeholder={t("cvAddEduDegree", "Diplôme (ex: Licence)")} className="form-input" value={newEduDegree} onChange={(e) => setNewEduDegree(e.target.value)} style={{ padding: '8px 12px' }} required />
+                        <input type="text" placeholder={t("cvAddEduSchool", "Établissement")} className="form-input" value={newEduSchool} onChange={(e) => setNewEduSchool(e.target.value)} style={{ padding: '8px 12px' }} required />
                       </div>
-                      <input type="text" placeholder={t("cvAddEduPeriod", "Période (ex: 2022 - 2025)")} className="form-input" value={newEduPeriod} onChange={(e) => setNewEduPeriod(e.target.value)} style={{ padding: '8px 12px' }} />
+                      <div style={styles.rowInputs}>
+                        <input type="text" placeholder={t("cvAddEduPeriod", "Période (ex: 2022 - 2025)")} className="form-input" value={newEduPeriod} onChange={(e) => setNewEduPeriod(e.target.value)} style={{ padding: '8px 12px' }} />
+                        <input type="text" placeholder={t("cvAddEduLocation", "Lieu (ex: Dakar)")} className="form-input" value={newEduLocation} onChange={(e) => setNewEduLocation(e.target.value)} style={{ padding: '8px 12px' }} />
+                      </div>
                       <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddEduBtn", "Ajouter cette formation")}</button>
+                    </form>
+                  </div>
+
+                  {/* Skills Section */}
+                  <div style={styles.editorSectionCard}>
+                    <h3 style={{ margin: '0 0 12px' }}>{t("cvSkillsTitle", "Compétences")}</h3>
+                    {(cvData.skills || []).length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                        {(cvData.skills || []).map((skill, index) => (
+                          <span key={index} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 600, fontSize: '12px', padding: '6px 10px', borderRadius: '999px' }}>
+                            {skill}
+                            <button type="button" onClick={() => handleRemoveSkill(index)} style={{ border: 'none', background: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '14px', lineHeight: 1, padding: 0 }} aria-label="Supprimer">×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <form onSubmit={handleAddSkill} style={{ display: 'flex', gap: '8px' }}>
+                      <input type="text" placeholder={t("cvAddSkill", "ex : Excel, Gestion de projet, SEO")} className="form-input" value={newSkill} onChange={(e) => setNewSkill(e.target.value)} style={{ padding: '8px 12px', flex: 1 }} />
+                      <button type="submit" className="btn btn-secondary btn-sm" style={{ flexShrink: 0 }}>{t("cvAddBtn", "+ Ajouter")}</button>
+                    </form>
+                  </div>
+
+                  {/* Languages Section */}
+                  <div style={styles.editorSectionCard}>
+                    <h3 style={{ margin: '0 0 12px' }}>{t("cvLanguagesTitle", "Langues")}</h3>
+                    {(cvData.languages || []).map((lang, index) => (
+                      <div key={index} style={styles.editorListItem}>
+                        <div style={{ flex: 1 }}>
+                          <strong style={{ color: '#0f172a' }}>{lang.name}</strong>
+                          <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}> — {lang.level}</span>
+                        </div>
+                        <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => handleRemoveLanguage(index)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                      </div>
+                    ))}
+                    <form onSubmit={handleAddLanguage} style={styles.inlineForm}>
+                      <div style={styles.rowInputs}>
+                        <input type="text" placeholder={t("cvAddLangName", "Langue (ex: Anglais)")} className="form-input" value={newLangName} onChange={(e) => setNewLangName(e.target.value)} style={{ padding: '8px 12px' }} />
+                        <select className="form-input" value={newLangLevel} onChange={(e) => setNewLangLevel(e.target.value)} style={{ padding: '8px 12px' }}>
+                          <option value="Débutant">{t("cvLangBeginner", "Débutant")}</option>
+                          <option value="Intermédiaire">{t("cvLangIntermediate", "Intermédiaire")}</option>
+                          <option value="Courant">{t("cvLangFluent", "Courant")}</option>
+                          <option value="Bilingue">{t("cvLangBilingual", "Bilingue")}</option>
+                          <option value="Langue maternelle">{t("cvLangNative", "Langue maternelle")}</option>
+                        </select>
+                      </div>
+                      <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddLangBtn", "Ajouter cette langue")}</button>
                     </form>
                   </div>
 
@@ -1580,64 +1722,82 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', fontSize: '10px', color: '#475569' }}>
-                        <div>📧 {cvData.email}</div>
-                        <div>📞 {cvData.phone}</div>
-                        <div>📍 {cvData.address}</div>
-                        <div>🔗 {cvData.linkedin}</div>
+                        {cvData.email && <div>📧 {cvData.email}</div>}
+                        {cvData.phone && <div>📞 {cvData.phone}</div>}
+                        {cvData.address && <div>📍 {cvData.address}</div>}
+                        {cvData.linkedin && <div>🔗 {cvData.linkedin}</div>}
                       </div>
                     </div>
 
                     {/* Summary */}
-                    <div style={{ marginTop: '12px' }}>
-                      <div className="cv-section-title">{t("cvSectionProfil", "Profil")}</div>
-                      <p style={{ fontSize: '11px', color: '#334155' }}>{cvData.summary}</p>
-                    </div>
+                    {cvData.summary && (
+                      <div style={{ marginTop: '12px' }}>
+                        <div className="cv-section-title">{t("cvSectionProfil", "Profil")}</div>
+                        <p style={{ fontSize: '11px', color: '#334155', whiteSpace: 'pre-line' }}>{cvData.summary}</p>
+                      </div>
+                    )}
 
                     {/* Split Layout for Experience & Skills */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '15px', marginTop: '12px' }}>
-                      
+
                       {/* Left: Experiences & Educations */}
                       <div>
-                        <div className="cv-section-title">{t("cvSectionExperience", "Expérience")}</div>
-                        {cvData.experiences.map((exp) => (
-                          <div key={exp.id} style={{ marginBottom: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
-                              <span>{exp.role}</span>
-                              <span style={{ color: 'var(--light-text-muted)' }}>{exp.period}</span>
-                            </div>
-                            <div style={{ fontSize: '10px', color: 'var(--primary)', fontStyle: 'italic' }}>{exp.company} — {exp.location}</div>
-                            <p style={{ fontSize: '10px', color: '#475569', whiteSpace: 'pre-line', marginTop: '3px' }}>{exp.desc}</p>
-                          </div>
-                        ))}
+                        {cvData.experiences.length > 0 && (
+                          <>
+                            <div className="cv-section-title">{t("cvSectionExperience", "Expérience")}</div>
+                            {cvData.experiences.map((exp) => (
+                              <div key={exp.id} style={{ marginBottom: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
+                                  <span>{exp.role}</span>
+                                  <span style={{ color: 'var(--light-text-muted)' }}>{exp.period}</span>
+                                </div>
+                                <div style={{ fontSize: '10px', color: 'var(--primary)', fontStyle: 'italic' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+                                {exp.desc && <p style={{ fontSize: '10px', color: '#475569', whiteSpace: 'pre-line', marginTop: '3px' }}>{exp.desc}</p>}
+                              </div>
+                            ))}
+                          </>
+                        )}
 
-                        <div className="cv-section-title" style={{ marginTop: '12px' }}>{t("cvSectionFormation", "Formation")}</div>
-                        {cvData.educations.map((edu) => (
-                          <div key={edu.id} style={{ marginBottom: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
-                              <span>{edu.degree}</span>
-                              <span style={{ color: 'var(--light-text-muted)' }}>{edu.period}</span>
-                            </div>
-                            <div style={{ fontSize: '10px', color: '#475569' }}>{edu.school}</div>
-                          </div>
-                        ))}
+                        {cvData.educations.length > 0 && (
+                          <>
+                            <div className="cv-section-title" style={{ marginTop: '12px' }}>{t("cvSectionFormation", "Formation")}</div>
+                            {cvData.educations.map((edu) => (
+                              <div key={edu.id} style={{ marginBottom: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
+                                  <span>{edu.degree}</span>
+                                  <span style={{ color: 'var(--light-text-muted)' }}>{edu.period}</span>
+                                </div>
+                                <div style={{ fontSize: '10px', color: '#475569' }}>{[edu.school, edu.location].filter(Boolean).join(' — ')}</div>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
 
                       {/* Right: Skills & Languages */}
                       <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '15px' }}>
-                        <div className="cv-section-title">{t("cvSectionSkills", "Compétences")}</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                          {cvData.skills.map((skill, index) => (
-                            <span key={index} className="cv-badge">{skill}</span>
-                          ))}
-                        </div>
+                        {(cvData.skills || []).length > 0 && (
+                          <>
+                            <div className="cv-section-title">{t("cvSectionSkills", "Compétences")}</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                              {cvData.skills.map((skill, index) => (
+                                <span key={index} className="cv-badge">{skill}</span>
+                              ))}
+                            </div>
+                          </>
+                        )}
 
-                        <div className="cv-section-title" style={{ marginTop: '15px' }}>{t("cvSectionLanguages", "Langues")}</div>
-                        {cvData.languages.map((lang, index) => (
-                          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
-                            <span>{lang.name}</span>
-                            <span style={{ fontWeight: '600', color: 'var(--light-text-muted)' }}>{lang.level}</span>
-                          </div>
-                        ))}
+                        {(cvData.languages || []).length > 0 && (
+                          <>
+                            <div className="cv-section-title" style={{ marginTop: '15px' }}>{t("cvSectionLanguages", "Langues")}</div>
+                            {cvData.languages.map((lang, index) => (
+                              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
+                                <span>{lang.name}</span>
+                                <span style={{ fontWeight: '600', color: 'var(--light-text-muted)' }}>{lang.level}</span>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
 
                     </div>
@@ -1649,14 +1809,28 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div style={styles.atsCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '700' }}>
                       <span>{t("cvAtsTitle", "🚀 Score • Compatibilité ATS")}</span>
-                      <span style={{ color: 'var(--primary)' }}>{atsScore}%</span>
+                      <span style={{ color: atsScore >= 80 ? 'var(--primary)' : atsScore >= 50 ? '#f59e0b' : '#ef4444' }}>{atsScore}%</span>
                     </div>
                     <div style={styles.atsBarBackground}>
-                      <div style={{...styles.atsBarFill, width: `${atsScore}%`}}></div>
+                      <div style={{...styles.atsBarFill, width: `${atsScore}%`, backgroundColor: atsScore >= 80 ? 'var(--primary)' : atsScore >= 50 ? '#f59e0b' : '#ef4444'}}></div>
                     </div>
-                    <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', marginTop: '8px', margin: 0 }}>
-                      {t("cvAtsFeedback", "✓ Excellent ! Pour atteindre 100%, ajoute 2 certifications ou un projet personnel.")}
+                    <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: '8px 0 12px' }}>
+                      {atsScore >= 80
+                        ? '✅ Excellent ! Ton CV est très bien optimisé pour les logiciels de recrutement (ATS).'
+                        : atsScore >= 50
+                        ? '⚠️ Bon début. Complète les points ci-dessous pour passer les filtres ATS plus facilement.'
+                        : '❌ Ton CV est incomplet. Renseigne les éléments ci-dessous pour être repéré par les recruteurs.'}
                     </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      {(atsChecklist || []).map((it) => (
+                        <div key={it.key} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '11px' }}>
+                          <span style={{ flexShrink: 0, fontWeight: 700, color: it.done ? 'var(--primary)' : '#cbd5e1' }}>{it.done ? '✓' : '○'}</span>
+                          <span style={{ color: it.done ? '#94a3b8' : '#334155', textDecoration: it.done ? 'line-through' : 'none' }}>
+                            {it.done ? it.label : it.advice}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   ) : (
                   <div style={{ ...styles.atsCard, textAlign: 'center' }}>
@@ -1791,11 +1965,21 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {/* Lettre générée */}
               {(generatedLetterContent || isLetterGenerating) && (
                 <div style={{ ...styles.editorSectionCard, marginTop: '30px', backgroundColor: '#fafffe', border: '1.5px solid var(--primary)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                    <strong style={{ color: 'var(--primary)', fontSize: '13px' }}>{t("letGeneratedLetter", "✅ LETTRE GÉNÉRÉE PAR L'IA — Secteur {sector}", { sector: INDUSTRIES.find(i => i.id === letterIndustry)?.label })}</strong>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { navigator.clipboard.writeText(generatedLetterContent); openModal(t('compris', 'Copiée !'), t('dashActivityWaveLetter', 'Le contenu de la lettre a été copié dans le presse-papier.'), 'success'); }}>{t("letCopyBtn", "Copier le texte")}</button>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--primary)', fontSize: '13px' }}>{t("letGeneratedLetter", "✅ TA LETTRE — Secteur {sector}", { sector: INDUSTRIES.find(i => i.id === letterIndustry)?.label })}</strong>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button className="btn btn-secondary btn-sm" disabled={isLetterGenerating || !generatedLetterContent} onClick={improveLetter}>{t("letImproveBtn", "✨ Améliorer")}</button>
+                      <button className="btn btn-secondary btn-sm" disabled={!generatedLetterContent} onClick={() => { navigator.clipboard.writeText(generatedLetterContent); openModal(t('compris', 'Copiée !'), t('dashActivityWaveLetter', 'Le contenu de la lettre a été copié dans le presse-papier.'), 'success'); }}>{t("letCopyBtn", "Copier")}</button>
+                      <button className="btn btn-primary btn-sm" disabled={!generatedLetterContent} onClick={downloadLetter}>{t("letDownloadBtn", "Télécharger PDF ↓")}</button>
+                    </div>
                   </div>
-                  <pre style={styles.letterPreviewArea}>{generatedLetterContent}</pre>
+                  <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: '0 0 12px' }}>{t("letEditHint", "Tu peux modifier le texte ci-dessous avant de le copier ou le télécharger.")}</p>
+                  <textarea
+                    style={styles.letterPreviewArea}
+                    value={generatedLetterContent}
+                    onChange={(e) => setGeneratedLetterContent(e.target.value)}
+                    rows={18}
+                  />
                 </div>
               )}
 
@@ -1841,30 +2025,45 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </p>
                   <button className="btn btn-primary" onClick={() => setCurrentView('pricing')}>Passer au Standard →</button>
                 </div>
+              ) : jobs.length === 0 ? (
+                <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>📭</div>
+                  <h3 style={{ marginBottom: '8px' }}>{t("jobsEmptyTitle", "Aucune offre pour le moment")}</h3>
+                  <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto' }}>
+                    {t("jobsEmptyDesc", "De nouvelles offres d'emploi sont ajoutées automatiquement. Reviens très bientôt !")}
+                  </p>
+                </div>
               ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
                 {jobs.map((job) => (
                   <div key={job.id} style={{...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', padding: '24px', gap: '15px'}}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
                       <div style={{...styles.jobLogo, backgroundColor: job.logoBg}}>{job.logo}</div>
-                      <div>
+                      <div style={{ minWidth: 0 }}>
                         <h4 style={{ margin: 0, fontSize: '16px' }}>{job.role}</h4>
                         <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}>{job.company}</span>
                       </div>
                     </div>
-                    
+
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      <span className="cv-badge">📍 {job.location}</span>
-                      <span className="cv-badge">💼 {job.contract}</span>
-                      <span className="cv-badge">💰 {job.salary}</span>
+                      {job.location && <span className="cv-badge">📍 {job.location}</span>}
+                      {job.contract && <span className="cv-badge">💼 {job.contract}</span>}
+                      {job.salary && <span className="cv-badge">💰 {job.salary}</span>}
                     </div>
 
-                    <button 
-                      className="btn btn-primary btn-sm" 
-                      style={{ width: '100%', marginTop: '10px' }}
-                      onClick={() => { applyJob(job); openModal(t('compris', 'Félicitations !'), t('jobsDesc', `Ta candidature (CV & Lettre) a été transmise à l'équipe RH de ${job.company}.`), 'success'); }}
+                    {job.description && (
+                      <p style={{ fontSize: '12px', color: '#475569', margin: 0, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {job.description}
+                      </p>
+                    )}
+
+                    <button
+                      className="btn btn-primary btn-sm"
+                      style={{ width: '100%', marginTop: 'auto' }}
+                      disabled={!job.url}
+                      onClick={() => { if (job.url) window.open(job.url, '_blank', 'noopener,noreferrer'); }}
                     >
-                      {t("jobsApplyBtn", "Postuler en 1 clic")}
+                      {job.url ? t("jobsApplyBtn", "Postuler") : t("jobsApplyBtnSoon", "Lien bientôt disponible")}
                     </button>
                   </div>
                 ))}
@@ -1977,6 +2176,78 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* VIEW: SUPPORT (messagerie — Standard / Premium) */}
+          {currentView === 'support' && (
+            <div className="animate-fade-in" style={{ maxWidth: '760px', margin: '0 auto' }}>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+                {t("supportTitle", "Support")}
+              </h2>
+              <p style={{ color: 'var(--light-text-muted)', marginBottom: '24px' }}>
+                {t("supportDesc", "Une question, un blocage, une suggestion ? Écris-nous, notre équipe te répond directement ici.")}
+              </p>
+
+              {!canUseProFeatures ? (
+                <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div>
+                  <h3 style={{ marginBottom: '8px' }}>{t("supportLockedTitle", "Le support est inclus dans les plans Standard et Premium")}</h3>
+                  <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto 20px' }}>
+                    {t("supportLockedDesc", "Passe au plan Standard pour échanger directement avec notre équipe.")}
+                  </p>
+                  <button className="btn btn-primary" onClick={() => setCurrentView('pricing')}>{t("supportLockedBtn", "Passer au Standard →")}</button>
+                </div>
+              ) : (
+                <div style={styles.editorSectionCard}>
+                  <div style={styles.supportThread}>
+                    {supportLoading ? (
+                      <p style={{ color: 'var(--light-text-muted)', fontSize: '13px', textAlign: 'center', margin: '20px 0' }}>{t("supportLoading", "Chargement...")}</p>
+                    ) : supportMessages.length === 0 ? (
+                      <div style={{ textAlign: 'center', color: 'var(--light-text-muted)', fontSize: '13px', padding: '24px 8px' }}>
+                        {t("supportEmpty", "Aucun message pour l'instant. Pose ta première question ci-dessous 👇")}
+                      </div>
+                    ) : (
+                      supportMessages.map((m) => (
+                        <div key={m.id} style={{ display: 'flex', justifyContent: m.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+                          <div style={{
+                            maxWidth: '78%',
+                            padding: '10px 14px',
+                            borderRadius: '14px',
+                            fontSize: '13px',
+                            lineHeight: 1.5,
+                            whiteSpace: 'pre-wrap',
+                            backgroundColor: m.sender === 'user' ? 'var(--primary)' : '#f1f5f9',
+                            color: m.sender === 'user' ? '#fff' : '#1f2937',
+                            borderBottomRightRadius: m.sender === 'user' ? '4px' : '14px',
+                            borderBottomLeftRadius: m.sender === 'user' ? '14px' : '4px',
+                          }}>
+                            {m.sender === 'admin' && <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--primary)', marginBottom: '3px' }}>MonFuturBoulot · Équipe</div>}
+                            {m.body}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <form onSubmit={sendSupportMessage} style={{ display: 'flex', gap: '10px', marginTop: '16px', alignItems: 'flex-end' }}>
+                    <textarea
+                      className="form-input"
+                      placeholder={t("supportPlaceholder", "Écris ton message...")}
+                      value={supportInput}
+                      onChange={(e) => setSupportInput(e.target.value)}
+                      rows={2}
+                      style={{ flex: 1, resize: 'vertical', padding: '10px 12px' }}
+                    />
+                    <button type="submit" className="btn btn-primary" disabled={supportSending || !supportInput.trim()} style={{ flexShrink: 0 }}>
+                      {supportSending ? t("supportSending", "Envoi...") : t("supportSend", "Envoyer")}
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           )}
 
@@ -2335,7 +2606,7 @@ const styles = {
     fontWeight: '500',
     fontSize: '14px',
     border: 'none',
-    background: 'none',
+    backgroundColor: 'transparent',
     width: '100%',
     textAlign: 'left',
     cursor: 'pointer',
@@ -2806,13 +3077,18 @@ const styles = {
     marginBottom: '8px'
   },
   letterPreviewArea: {
-    fontFamily: 'monospace',
+    fontFamily: 'inherit',
     whiteSpace: 'pre-wrap',
     fontSize: '13px',
     color: '#334155',
-    lineHeight: '1.5',
-    maxHeight: '400px',
-    overflowY: 'auto'
+    lineHeight: '1.6',
+    width: '100%',
+    minHeight: '320px',
+    padding: '14px 16px',
+    border: '1px solid var(--light-border)',
+    borderRadius: 'var(--radius-md)',
+    background: '#fff',
+    resize: 'vertical'
   },
   priceCard: {
     backgroundColor: 'var(--dark-card)',
@@ -2899,6 +3175,14 @@ const styles = {
   rowInputs: {
     display: 'flex',
     gap: '16px'
+  },
+  supportThread: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    maxHeight: '440px',
+    overflowY: 'auto',
+    padding: '4px',
   },
   renewBanner: {
     display: 'flex',

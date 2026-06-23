@@ -6,6 +6,50 @@ import { createClient } from '@/lib/supabase/client';
 
 export const AppContext = createContext();
 
+// Analyse ATS réelle, basée sur le contenu effectif du CV.
+// Retourne un score /100 + une checklist d'actions concrètes.
+export const computeAts = (cv = {}) => {
+  const skills = cv.skills || [];
+  const langs = cv.languages || [];
+  const exps = cv.experiences || [];
+  const edus = cv.educations || [];
+  const hasDetailedExp = exps.some((e) => (e.desc || '').trim().length >= 40);
+  const hasQuantified = [...exps.map((e) => e.desc || ''), cv.summary || ''].some((txt) => /\d/.test(txt));
+
+  const items = [
+    { key: 'title', label: 'Titre professionnel clair', points: 10,
+      done: !!(cv.title && cv.title.trim().length > 2),
+      advice: 'Ajoute un titre de poste précis (ex : « Développeur web junior »).' },
+    { key: 'contact', label: 'Coordonnées complètes (email + téléphone)', points: 10,
+      done: !!(cv.email && cv.phone),
+      advice: 'Renseigne ton email et ton téléphone dans la section Coordonnées.' },
+    { key: 'summary', label: 'Résumé professionnel percutant', points: 15,
+      done: !!(cv.summary && cv.summary.trim().length >= 60),
+      advice: "Rédige un résumé d'au moins 2 phrases (60 caractères ou plus)." },
+    { key: 'exp', label: 'Au moins une expérience', points: 15,
+      done: exps.length >= 1,
+      advice: 'Ajoute une expérience : stage, projet, job étudiant ou bénévolat.' },
+    { key: 'expDetail', label: 'Expérience décrite en détail', points: 10,
+      done: hasDetailedExp,
+      advice: 'Décris tes missions et résultats (40 caractères min.) sur au moins une expérience.' },
+    { key: 'quantified', label: 'Résultats chiffrés', points: 10,
+      done: hasQuantified,
+      advice: 'Ajoute des chiffres concrets (ex : « +20% de ventes », « 50 clients gérés »).' },
+    { key: 'edu', label: 'Formation renseignée', points: 10,
+      done: edus.length >= 1,
+      advice: 'Ajoute au moins un diplôme ou une formation.' },
+    { key: 'skills', label: 'Au moins 5 compétences', points: 10,
+      done: skills.length >= 5,
+      advice: `Ajoute tes compétences clés (${skills.length}/5).` },
+    { key: 'langs', label: 'Au moins 2 langues', points: 10,
+      done: langs.length >= 2,
+      advice: `Indique les langues que tu parles (${langs.length}/2).` },
+  ];
+
+  const score = items.reduce((s, i) => s + (i.done ? i.points : 0), 0);
+  return { score, checklist: items };
+};
+
 export const AppProvider = ({ children }) => {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -39,6 +83,7 @@ export const AppProvider = ({ children }) => {
   const [accessPlan, setAccessPlan] = useState(null); // plan effectif côté serveur (abonnement réel)
   const [accessExpiresAt, setAccessExpiresAt] = useState(null); // fin d'accès (null = illimité)
   const [atsScore, setAtsScore] = useState(0);
+  const [atsChecklist, setAtsChecklist] = useState([]);
   const [stats, setStats] = useState({
     cvsCreated: 0,
     lettersGenerated: 0,
@@ -224,20 +269,18 @@ export const AppProvider = ({ children }) => {
     saveState('mfb_cv_v2', updated);
   };
 
-  // ATS Score Calculator
+  // ATS Score Calculator — analyse réelle du contenu du CV
   const recalculateATS = (cv) => {
-    let score = 50; // base score
-    if (cv.summary && cv.summary.length > 50) score += 10;
-    if (cv.experiences && cv.experiences.length > 0) score += 15;
-    if (cv.experiences && cv.experiences.length > 1) score += 5;
-    if (cv.educations && cv.educations.length > 0) score += 10;
-    if (cv.skills && cv.skills.length > 4) score += 5;
-    if (cv.skills && cv.skills.length > 7) score += 5;
-    
-    // Random fluctuation to make it feel "computed" by an AI engine
-    const finalScore = Math.min(100, score);
-    setAtsScore(finalScore);
+    const { score, checklist } = computeAts(cv);
+    setAtsScore(score);
+    setAtsChecklist(checklist);
   };
+
+  // Recalcule le score ATS à chaque changement du CV (y compris au chargement initial)
+  useEffect(() => {
+    recalculateATS(cvData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvData]);
 
   // Cover Letter Operations
   const createCoverLetter = (letterData) => {
@@ -320,7 +363,9 @@ export const AppProvider = ({ children }) => {
       letters,
       plan,
       atsScore,
+      atsChecklist,
       stats,
+      supabase,
       registerUser,
       loginUser,
       logout,
