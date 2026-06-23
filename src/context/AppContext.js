@@ -96,12 +96,25 @@ export const AppProvider = ({ children }) => {
     const savedCV = localStorage.getItem('mfb_cv_v2');
     const savedApps = localStorage.getItem('mfb_apps_v2');
     const savedLetters = localStorage.getItem('mfb_letters_v2');
-    const savedJobs = localStorage.getItem('mfb_jobs_v2');
     if (savedCV) setCvData(JSON.parse(savedCV));
     if (savedApps) setApplications(JSON.parse(savedApps));
     if (savedLetters) setLetters(JSON.parse(savedLetters));
-    if (savedJobs) setJobs(JSON.parse(savedJobs));
   }, []);
+
+  // Offres d'emploi réelles depuis Supabase (alimentées par le cron JSearch)
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    supabase
+      .from('jobs')
+      .select('id, role, company, location, contract, salary, logo, logo_bg, url, description, created_at')
+      .order('created_at', { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (active && data) setJobs(data.map((j) => ({ ...j, logoBg: j.logo_bg })));
+      });
+    return () => { active = false; };
+  }, [user, supabase]);
 
   // Session réelle Supabase (auth) + plan effectif + CV du compte
   useEffect(() => {
