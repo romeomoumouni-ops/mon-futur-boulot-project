@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 
 export default function RegisterPage() {
   const { registerUser, loginUser } = useContext(AppContext);
   const [isLoginMode, setIsLoginMode] = useState(false);
+
+  // Ouvre directement le mode connexion si ?mode=login (depuis "Me connecter")
+  useEffect(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'login') {
+      setIsLoginMode(true);
+    }
+  }, []);
 
   // Form fields
   const [firstName, setFirstName] = useState('');

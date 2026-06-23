@@ -91,11 +91,16 @@ export default function LandingPage() {
             Des CV performants prêts à l'emploi, des lettres de motivation percutantes et des offres d'emploi exclusives — basés sur ce qui marche vraiment sur le marché pour maximiser tes chances de décrocher un poste.
           </p>
 
-          <div style={styles.heroActions} className="hero-actions-row">
-            <Link href="/register" className="btn btn-primary" style={{ padding: '14px 32px' }}>
-              Créer mon compte →
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '40px', width: '100%', maxWidth: '360px', marginLeft: 'auto', marginRight: 'auto' }}>
+            <Link href="/register" className="btn btn-primary" style={{ width: '100%', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
+              <span style={{ fontWeight: 700 }}>Créer mon compte →</span>
+              <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.9 }}>C'est ma première fois ici</span>
             </Link>
-            <Link href="/pricing" className="btn btn-secondary" style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--dark-border)' }}>
+            <Link href="/register?mode=login" className="btn btn-secondary" style={{ width: '100%', padding: '12px 24px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--dark-border)', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
+              <span style={{ fontWeight: 700 }}>Me connecter</span>
+              <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.8 }}>(J'ai déjà un compte)</span>
+            </Link>
+            <Link href="/pricing" style={{ color: 'var(--dark-text-muted)', fontSize: '14px', textDecoration: 'underline', marginTop: '4px' }}>
               Voir les tarifs
             </Link>
           </div>
