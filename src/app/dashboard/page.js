@@ -21,6 +21,23 @@ const INDUSTRIES = [
   { id: 'industrie', icon: '🏭', label: 'Industrie & Ingénierie', tip: 'Langage technique attendu : qualité, performance, ISO, maintenance préventive, lean management. Sois précis sur tes compétences techniques et tes certifications.' },
 ];
 
+// Classe une offre dans un domaine à partir de son intitulé (pour le filtre)
+function jobDomain(role = '') {
+  const t = role.toLowerCase();
+  if (/d[ée]velopp|software|data|informat|r[ée]seau|web|devops|programm|\bit\b|cyber|tech/.test(t)) return 'Informatique & Tech';
+  if (/market|communicat|community|digital|content|brand|seo/.test(t)) return 'Marketing & Com';
+  if (/commerc|vente|sales|business|client[èe]le/.test(t)) return 'Commerce & Vente';
+  if (/financ|comptab|account|audit|banqu/.test(t)) return 'Finance & Compta';
+  if (/sant|m[ée]dic|infirm|pharma|soin/.test(t)) return 'Santé';
+  if (/enseign|professeur|[ée]ducat|formation|teacher/.test(t)) return 'Éducation';
+  if (/ing[ée]nieur|technicien|maintenance|[ée]lectro|m[ée]cani|btp|chantier|construction/.test(t)) return 'Technique & BTP';
+  if (/logisti|transport|chauffeur|magasin|supply|entrep/.test(t)) return 'Logistique';
+  if (/ressources humaines|\brh\b|recrut|talent/.test(t)) return 'RH';
+  if (/assistant|secr[ée]taire|administ|direction|gestion/.test(t)) return 'Administration';
+  if (/ouvrier|man[œo]euvre|emball|agent|nettoy|s[ée]curit|gardien/.test(t)) return 'Opérations & Terrain';
+  return 'Autre';
+}
+
 const TRANSLATIONS = {
   fr: {
     // Sidebar
@@ -749,6 +766,23 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
   // Search query in top bar
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Filtres de la vue Offres
+  const [jobSearch, setJobSearch] = useState('');
+  const [jobCountry, setJobCountry] = useState('all');
+  const [jobDomainFilter, setJobDomainFilter] = useState('all');
+  const jobCountries = Array.from(new Set((jobs || []).map((j) => j.country).filter(Boolean))).sort();
+  const jobDomainsList = Array.from(new Set((jobs || []).map((j) => jobDomain(j.role)))).sort();
+  const filteredJobs = (jobs || []).filter((j) => {
+    if (jobCountry !== 'all' && j.country !== jobCountry) return false;
+    if (jobDomainFilter !== 'all' && jobDomain(j.role) !== jobDomainFilter) return false;
+    if (jobSearch.trim()) {
+      const q = jobSearch.toLowerCase();
+      const hay = `${j.role || ''} ${j.company || ''} ${j.location || ''} ${j.description || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
   
   // Local states for inputs / forms
   const [activeStep, setActiveStep] = useState(2); // Step 2 (Expérience & Formation)
@@ -2034,8 +2068,40 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </p>
                 </div>
               ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                {jobs.map((job) => (
+              <>
+                {/* Barre de recherche + filtres */}
+                <div style={styles.jobsFilters} className="db-jobs-filters">
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder={t("jobsSearchPlaceholder", "🔍 Rechercher un poste, une entreprise...")}
+                    value={jobSearch}
+                    onChange={(e) => setJobSearch(e.target.value)}
+                    style={{ flex: 2, minWidth: '180px' }}
+                  />
+                  <select className="form-input" value={jobCountry} onChange={(e) => setJobCountry(e.target.value)} style={{ flex: 1, minWidth: '130px' }}>
+                    <option value="all">{t("jobsAllCountries", "Tous les pays")}</option>
+                    {jobCountries.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <select className="form-input" value={jobDomainFilter} onChange={(e) => setJobDomainFilter(e.target.value)} style={{ flex: 1, minWidth: '150px' }}>
+                    <option value="all">{t("jobsAllDomains", "Tous les domaines")}</option>
+                    {jobDomainsList.map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+
+                <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', margin: '0 0 16px' }}>
+                  {filteredJobs.length} {filteredJobs.length > 1 ? t("jobsCountPlural", "offres") : t("jobsCountSingular", "offre")}
+                  {(jobCountry !== 'all' || jobDomainFilter !== 'all' || jobSearch.trim()) ? t("jobsFiltered", " (filtré)") : ''}
+                </p>
+
+                {filteredJobs.length === 0 ? (
+                  <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '32px 24px' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔍</div>
+                    <p style={{ color: 'var(--light-text-muted)', margin: 0 }}>{t("jobsNoMatch", "Aucune offre ne correspond à ta recherche. Essaie d'autres filtres.")}</p>
+                  </div>
+                ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+                {filteredJobs.map((job) => (
                   <div key={job.id} style={{...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', padding: '24px', gap: '15px'}}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
                       <div style={{...styles.jobLogo, backgroundColor: job.logoBg}}>{job.logo}</div>
@@ -2067,7 +2133,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     </button>
                   </div>
                 ))}
-              </div>
+                </div>
+                )}
+              </>
               )}
             </div>
           )}
@@ -3175,6 +3243,12 @@ const styles = {
   rowInputs: {
     display: 'flex',
     gap: '16px'
+  },
+  jobsFilters: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    marginBottom: '14px',
   },
   supportThread: {
     display: 'flex',

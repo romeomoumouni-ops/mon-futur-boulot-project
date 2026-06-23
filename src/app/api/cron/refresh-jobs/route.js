@@ -6,17 +6,26 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Pays francophones d'Afrique ciblés (requêtes JSearch)
-const COUNTRY_QUERIES = [
-  { code: 'CI', query: "emploi à Abidjan Côte d'Ivoire" },
-  { code: 'SN', query: 'emploi à Dakar Sénégal' },
-  { code: 'CM', query: 'emploi à Douala Cameroun' },
-  { code: 'BJ', query: 'emploi à Cotonou Bénin' },
-  { code: 'TG', query: 'emploi à Lomé Togo' },
-  { code: 'BF', query: 'emploi à Ouagadougou Burkina Faso' },
+// Pays francophones d'Afrique (ville principale pour de meilleurs résultats JSearch)
+const COUNTRIES = [
+  { code: 'CI', query: "emploi Abidjan Côte d'Ivoire" },
+  { code: 'SN', query: 'emploi Dakar Sénégal' },
+  { code: 'CM', query: 'emploi Douala Cameroun' },
+  { code: 'BJ', query: 'emploi Cotonou Bénin' },
+  { code: 'TG', query: 'emploi Lomé Togo' },
+  { code: 'BF', query: 'emploi Ouagadougou Burkina Faso' },
+  { code: 'ML', query: 'emploi Bamako Mali' },
+  { code: 'GA', query: 'emploi Libreville Gabon' },
+  { code: 'GN', query: 'emploi Conakry Guinée' },
+  { code: 'CD', query: 'emploi Kinshasa RD Congo' },
+  { code: 'NE', query: 'emploi Niamey Niger' },
+  { code: 'CG', query: 'emploi Brazzaville Congo' },
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const TARGET_NEW = 3;   // 1 à 3 nouvelles offres par jour
+const MAX_CALLS = 6;    // garde-fou quota JSearch (free ~200/mois)
+const PURGE_DAYS = 60;  // une offre reste 60 jours puis est retirée
 
 export async function GET(request) {
   const secret = process.env.CRON_SECRET;
@@ -29,63 +38,75 @@ export async function GET(request) {
 
   const url = new URL(request.url);
   const dryRun = url.searchParams.get('dry') === '1';
-  // Nombre d'offres à récupérer par pays (defaut 4)
-  const perCountry = Math.min(parseInt(url.searchParams.get('per') || '4', 10) || 4, 10);
 
-  // Rotation : 3 pays par jour (alterne entre 2 groupes selon la parité du jour)
+  // Ordre tournant : un pays différent "démarre" chaque jour pour couvrir tout le continent
   const dayIndex = Math.floor(Date.now() / DAY_MS);
-  const group = dayIndex % 2 === 0 ? COUNTRY_QUERIES.slice(0, 3) : COUNTRY_QUERIES.slice(3);
+  const start = dayIndex % COUNTRIES.length;
+  const ordered = [...COUNTRIES.slice(start), ...COUNTRIES.slice(0, start)];
 
-  // Récupération JSearch (en parallèle)
-  const batches = await Promise.all(
-    group.map((c) =>
-      fetchJSearchJobs({ query: c.query, limit: perCountry })
-        .then((rows) => rows.map((r) => ({ ...r, country: r.country || c.code })))
-        .catch(() => [])
-    )
-  );
-  const fetched = batches.flat();
-
-  // Dédoublonnage par external_id dans le lot
-  const byId = new Map();
-  for (const r of fetched) if (r.external_id && !byId.has(r.external_id)) byId.set(r.external_id, r);
-  const candidates = [...byId.values()];
-
-  if (dryRun) {
-    return NextResponse.json({
-      ok: true, dryRun: true, group: group.map((c) => c.code),
-      fetched: fetched.length, unique: candidates.length,
-      sample: candidates.slice(0, 3).map((c) => ({ role: c.role, company: c.company, location: c.location, url: c.url?.slice(0, 60) })),
-    });
-  }
-
-  let supabase;
+  // Client admin (service role) — nécessaire pour dédoublonner et insérer
+  let supabase = null;
   try {
     supabase = createAdminClient();
   } catch (e) {
-    return NextResponse.json({ error: 'service_role_missing', detail: String(e?.message || e) }, { status: 500 });
-  }
-
-  // N'insère que les offres pas encore en base
-  let inserted = 0;
-  if (candidates.length) {
-    const ids = candidates.map((c) => c.external_id);
-    const { data: existing } = await supabase.from('jobs').select('external_id').in('external_id', ids);
-    const existingIds = new Set((existing || []).map((e) => e.external_id));
-    const toInsert = candidates.filter((c) => !existingIds.has(c.external_id));
-    if (toInsert.length) {
-      const { error } = await supabase.from('jobs').insert(toInsert);
-      if (error) return NextResponse.json({ error: 'insert_failed', detail: error.message }, { status: 500 });
-      inserted = toInsert.length;
+    if (!dryRun) {
+      return NextResponse.json({ error: 'service_role_missing', detail: String(e?.message || e) }, { status: 500 });
     }
   }
 
-  // Purge des offres auto trop anciennes (> 30 jours) pour garder des annonces fraîches
-  const cutoff = new Date(Date.now() - 30 * DAY_MS).toISOString();
-  await supabase.from('jobs').delete().eq('source', 'jsearch').lt('created_at', cutoff);
+  const collected = [];
+  const tried = [];
+  let calls = 0;
+
+  for (const c of ordered) {
+    if (collected.length >= TARGET_NEW || calls >= MAX_CALLS) break;
+    calls++;
+    tried.push(c.code);
+
+    const rows = await fetchJSearchJobs({ query: c.query, limit: 10, datePosted: 'week' })
+      .then((r) => r.map((x) => ({ ...x, country: x.country || c.code })))
+      .catch(() => []);
+    if (!rows.length) continue;
+
+    // Lesquelles existent déjà en base ?
+    let existingIds = new Set();
+    if (supabase) {
+      const ids = rows.map((r) => r.external_id).filter(Boolean);
+      if (ids.length) {
+        const { data: existing } = await supabase.from('jobs').select('external_id').in('external_id', ids);
+        existingIds = new Set((existing || []).map((e) => e.external_id));
+      }
+    }
+
+    for (const r of rows) {
+      if (collected.length >= TARGET_NEW) break;
+      if (!r.external_id || existingIds.has(r.external_id)) continue;
+      if (collected.some((x) => x.external_id === r.external_id)) continue;
+      collected.push(r);
+    }
+  }
+
+  if (dryRun) {
+    return NextResponse.json({
+      ok: true, dryRun: true, tried, calls, found: collected.length,
+      sample: collected.map((c) => ({ role: c.role, company: c.company, location: c.location })),
+    });
+  }
+
+  // Insertion des nouvelles offres (1 à 3). Si le marché est vide ce jour-là -> 0, on n'invente rien.
+  let inserted = 0;
+  if (collected.length) {
+    const { error } = await supabase.from('jobs').insert(collected);
+    if (error) return NextResponse.json({ error: 'insert_failed', detail: error.message }, { status: 500 });
+    inserted = collected.length;
+  }
+
+  // Purge des offres de +60 jours (par date d'ajout)
+  const cutoff = new Date(Date.now() - PURGE_DAYS * DAY_MS).toISOString();
+  const { data: purged } = await supabase
+    .from('jobs').delete().eq('source', 'jsearch').lt('created_at', cutoff).select('id');
 
   return NextResponse.json({
-    ok: true, group: group.map((c) => c.code),
-    fetched: fetched.length, unique: candidates.length, inserted,
+    ok: true, tried, calls, inserted, purged: (purged || []).length,
   });
 }

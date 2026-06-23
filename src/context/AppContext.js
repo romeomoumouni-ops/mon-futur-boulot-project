@@ -107,7 +107,7 @@ export const AppProvider = ({ children }) => {
     let active = true;
     supabase
       .from('jobs')
-      .select('id, role, company, location, contract, salary, logo, logo_bg, url, description, created_at')
+      .select('id, role, company, location, contract, salary, logo, logo_bg, url, description, country, created_at')
       .order('created_at', { ascending: false })
       .limit(30)
       .then(({ data }) => {
