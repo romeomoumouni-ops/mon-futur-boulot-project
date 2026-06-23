@@ -76,10 +76,8 @@ export default function PricingPage() {
               🔒 Ton compte est créé ! Choisis un abonnement ci-dessous pour accéder à ton espace et commencer.
             </div>
           )}
-          <span style={styles.greenBadge}>✨ INVESTIS DANS TON AVENIR, PAS DANS DES FRAIS CACHÉS</span>
           <h1 style={styles.title} className="hero-title-responsive">
-            Un job en Afrique, ça vaut <br />
-            bien <span style={{color: 'var(--primary)'}}>un café par semaine</span>.
+            Tes études t'ont coûté cher. Maintenant tu es en concurrence avec des milliers de diplômés. Il est temps de <span style={{color: 'var(--primary)'}}>maximiser tes chances</span>.
           </h1>
           <p style={styles.subtitle}>
             Sans engagement de durée — annule quand tu veux. <br />
