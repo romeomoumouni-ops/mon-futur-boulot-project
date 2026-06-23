@@ -96,9 +96,9 @@ export default function LandingPage() {
               <span style={{ fontWeight: 700 }}>Créer mon compte →</span>
               <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.9 }}>C'est ma première fois ici</span>
             </Link>
-            <Link href={user ? '/dashboard' : '/register?mode=login'} className="btn btn-secondary" style={{ width: '100%', padding: '12px 24px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--dark-border)', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
+            <Link href="/register?mode=login" className="btn btn-secondary" style={{ width: '100%', padding: '12px 24px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--dark-border)', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
               <span style={{ fontWeight: 700 }}>Me connecter</span>
-              <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.8 }}>{user ? "(Accès direct à mon espace)" : "(J'ai déjà un compte)"}</span>
+              <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.8 }}>(J'ai déjà un compte)</span>
             </Link>
             <Link href="/pricing" style={{ color: 'var(--dark-text-muted)', fontSize: '14px', textDecoration: 'underline', marginTop: '4px' }}>
               Voir les tarifs

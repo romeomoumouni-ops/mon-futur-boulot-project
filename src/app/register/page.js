@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
 
 export default function RegisterPage() {
-  const { registerUser, loginUser, user } = useContext(AppContext);
+  const { registerUser, loginUser, user, accessPlan } = useContext(AppContext);
   const router = useRouter();
   const [isLoginMode, setIsLoginMode] = useState(false);
 
@@ -17,15 +17,17 @@ export default function RegisterPage() {
     }
   }, []);
 
-  // Si une session est déjà active et qu'on arrive en mode connexion (clic "Me connecter"),
-  // on ramène directement au dashboard sans redemander les identifiants.
+  // Si une session est déjà active ET qu'elle a un accès valide (abonnement actif / propriétaire),
+  // on raccourcit directement vers le dashboard. Si la session n'a PAS d'accès, on laisse le
+  // formulaire de connexion s'afficher (pour se connecter avec un autre compte) — surtout pas
+  // de redirection vers les tarifs depuis "Me connecter".
   useEffect(() => {
-    if (!user) return;
+    if (!user || !accessPlan) return;
     if (typeof window === 'undefined') return;
     if (new URLSearchParams(window.location.search).get('mode') === 'login') {
       router.replace('/dashboard');
     }
-  }, [user, router]);
+  }, [user, accessPlan, router]);
 
   // Form fields
   const [firstName, setFirstName] = useState('');
