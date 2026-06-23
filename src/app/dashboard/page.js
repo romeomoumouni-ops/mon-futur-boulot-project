@@ -1063,9 +1063,31 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const base64 = ev.target.result;
-      setProfilePhoto(base64);
-      updateCV('photo', base64);
+      const dataUrl = ev.target.result;
+      // Redimensionne/compresse la photo (max 320px, JPEG) avant de la stocker :
+      // une photo brute (plusieurs Mo en base64) dépasse le quota localStorage sur mobile
+      // et ne se sauvegardait pas. Un thumbnail léger (~20-40 Ko) persiste partout.
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const MAX = 320;
+          let { width, height } = img;
+          if (width >= height && width > MAX) { height = Math.round((height * MAX) / width); width = MAX; }
+          else if (height > width && height > MAX) { width = Math.round((width * MAX) / height); height = MAX; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.82);
+          setProfilePhoto(compressed);
+          updateCV('photo', compressed);
+        } catch (err) {
+          // En cas d'échec (canvas non dispo, etc.) on retombe sur l'image d'origine
+          setProfilePhoto(dataUrl);
+          updateCV('photo', dataUrl);
+        }
+      };
+      img.onerror = () => { setProfilePhoto(dataUrl); updateCV('photo', dataUrl); };
+      img.src = dataUrl;
     };
     reader.readAsDataURL(file);
   };

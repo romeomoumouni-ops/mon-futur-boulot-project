@@ -181,9 +181,14 @@ export const AppProvider = ({ children }) => {
     return () => clearTimeout(t);
   }, [cvData, user, supabase]);
 
-  // Save changes to localStorage helper
+  // Save changes to localStorage helper (résilient : un quota dépassé ne doit pas
+  // casser la mise à jour ni bloquer la sauvegarde Supabase).
   const saveState = (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.warn('[localStorage] sauvegarde ignorée (quota ?)', key);
+    }
   };
 
   // Auth réelle (Supabase). Retournent { error } | { ok, needsConfirmation? }.
