@@ -692,6 +692,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     accessPlan,
     accessExpiresAt,
     canUseProFeatures,
+    isAdmin,
     supabase
   } = useContext(AppContext);
 
@@ -1241,7 +1242,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           >
             {t("navSettings", "⚙️ Paramètres")}
           </button>
-          <button 
+          {isAdmin && (
+            <Link href="/admin" style={{ ...styles.sidebarLink, display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#a855f7', fontWeight: 700 }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/><path d="M9 12l2 2 4-4"/>
+              </svg>
+              Espace admin
+            </Link>
+          )}
+          <button
             style={styles.sidebarLink}
             onClick={logout}
           >
