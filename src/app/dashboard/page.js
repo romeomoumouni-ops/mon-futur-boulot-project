@@ -2835,5 +2835,55 @@ const styles = {
   rowInputs: {
     display: 'flex',
     gap: '16px'
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '20px',
+    zIndex: 3000
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: '16px',
+    width: '100%',
+    maxWidth: '420px',
+    boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
+    overflow: 'hidden'
+  },
+  modalHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+    padding: '18px 20px',
+    borderBottom: '2px solid var(--primary)'
+  },
+  modalCloseBtn: {
+    background: 'none',
+    border: 'none',
+    fontSize: '18px',
+    lineHeight: 1,
+    cursor: 'pointer',
+    color: '#94a3b8',
+    padding: '4px',
+    flexShrink: 0
+  },
+  modalBody: {
+    padding: '20px',
+    fontSize: '14px',
+    lineHeight: 1.55,
+    color: '#475569'
+  },
+  modalFooter: {
+    padding: '14px 20px 18px',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    flexWrap: 'wrap',
+    gap: '8px',
+    borderTop: '1px solid #eef2f7'
   }
 };

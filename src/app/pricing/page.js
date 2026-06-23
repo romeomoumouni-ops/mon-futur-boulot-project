@@ -458,6 +458,7 @@ const styles = {
   },
   table: {
     width: '100%',
+    minWidth: '560px',
     borderCollapse: 'collapse',
     textAlign: 'left',
     marginTop: '20px'

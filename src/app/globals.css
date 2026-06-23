@@ -495,7 +495,9 @@ h1, h2, h3, h4, h5, h6 {
   .hero-title-responsive { font-size: 28px !important; line-height: 1.2 !important; }
   .hero-actions-row { flex-direction: column !important; align-items: stretch !important; }
   .hero-actions-row a, .hero-actions-row button { width: 100% !important; text-align: center !important; }
-  .footer-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+  .footer-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 24px 16px !important; }
+  .footer-grid-responsive > div { min-width: 0 !important; }
+  .footer-grid-responsive > div:first-child { grid-column: 1 / -1 !important; padding-right: 0 !important; }
   .footer-bottom-responsive { flex-direction: column !important; gap: 10px !important; text-align: center !important; }
 
   /* Landing: Show/hide nav */
