@@ -152,9 +152,7 @@ export default function LandingPage() {
           <div style={styles.gridFeatures}>
             {/* Feature 1 */}
             <div style={styles.featureCard}>
-              <div style={{...styles.featureIcon, color: 'var(--primary)', backgroundColor: 'rgba(0,184,124,0.1)'}}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M8 9h2"/></svg>
-              </div>
+              <div style={{...styles.featureIcon, color: 'var(--primary)', backgroundColor: 'rgba(0,184,124,0.1)'}}>📄</div>
               <h3>CV performants prêts à l'emploi</h3>
               <p>Obtiens un CV structuré selon les modèles qui décrochent le plus d'entretiens sur le marché africain — optimisé pour les recruteurs.</p>
               <Link href="/register" style={styles.featureLink}>Créer mon CV →</Link>
@@ -162,9 +160,7 @@ export default function LandingPage() {
 
             {/* Feature 2 */}
             <div style={styles.featureCard}>
-              <div style={{...styles.featureIcon, color: 'var(--primary)', backgroundColor: 'rgba(0,184,124,0.1)'}}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-              </div>
+              <div style={{...styles.featureIcon, color: '#00aa50', backgroundColor: 'rgba(0,170,80,0.1)'}}>✉️</div>
               <h3>Lettres de motivation qui convertissent</h3>
               <p>Des lettres ciblées et percutantes, calquées sur ce qui fonctionne réellement auprès des recruteurs.</p>
               <Link href="/register" style={styles.featureLink}>Générer une lettre →</Link>
