@@ -1103,8 +1103,12 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
             <button style={styles.iconBtn} onClick={() => setCurrentView('settings')}>⚙️</button>
             
             <div style={styles.userProfilePill} onClick={() => setCurrentView('profile')}>
-              <div style={styles.userAvatarSmall}>
-                {((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'}
+              <div style={{ ...styles.userAvatarSmall, overflow: 'hidden', padding: 0 }}>
+                {(profilePhoto || cvData.photo) ? (
+                  <img src={profilePhoto || cvData.photo} alt="Profil" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                ) : (
+                  ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'
+                )}
               </div>
             <div style={styles.userProfileMeta} className="db-user-meta">
                 <span style={styles.userName}>{firstName || userEmail || 'Mon compte'}{lastName ? ` ${lastName[0]}.` : ''}</span>
