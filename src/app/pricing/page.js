@@ -74,9 +74,7 @@ export default function PricingPage() {
         <div className="container" style={{ textAlign: 'center' }}>
           {banner && (
             <div style={{ maxWidth: '640px', margin: '0 auto 24px', padding: '14px 18px', backgroundColor: 'rgba(0,184,124,0.12)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '14px', fontWeight: 500 }}>
-              {banner === 'welcome'
-                ? '🎉 Ton compte est créé ! Choisis ton abonnement ci-dessous pour accéder à ton espace et commencer.'
-                : '🔒 Choisis ton abonnement ci-dessous pour accéder à ton espace MonFuturBoulot.'}
+              🎉 Ton compte est créé ! Choisis ton abonnement ci-dessous pour accéder à ton espace et commencer.
             </div>
           )}
           <h1 style={styles.title} className="hero-title-responsive">

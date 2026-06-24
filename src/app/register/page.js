@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
 
 export default function RegisterPage() {
-  const { registerUser, loginUser, user } = useContext(AppContext);
+  const { registerUser, loginUser, user, accessPlan } = useContext(AppContext);
   const router = useRouter();
   const [isLoginMode, setIsLoginMode] = useState(false);
 
@@ -17,16 +17,17 @@ export default function RegisterPage() {
     }
   }, []);
 
-  // Si une session est déjà active (peu importe l'abonnement), "Me connecter" entre
-  // directement dans la plateforme. Si la session n'a pas d'accès, c'est la plateforme
-  // (middleware) qui orientera vers les tarifs. Pas de session -> le formulaire reste affiché.
+  // "Me connecter" : on entre directement dans la plateforme UNIQUEMENT si la session
+  // a un accès valide (abonnement actif / propriétaire). Sinon (déconnecté OU compte sans
+  // abonnement), le formulaire de connexion reste affiché ; après connexion, le middleware
+  // orientera un compte sans abo vers les tarifs.
   useEffect(() => {
-    if (!user) return;
+    if (!user || !accessPlan) return;
     if (typeof window === 'undefined') return;
     if (new URLSearchParams(window.location.search).get('mode') === 'login') {
       router.replace('/dashboard');
     }
-  }, [user, router]);
+  }, [user, accessPlan, router]);
 
   // Form fields
   const [firstName, setFirstName] = useState('');
