@@ -80,8 +80,21 @@ export default function PricingPage() {
           <h1 style={styles.title} className="hero-title-responsive">
             Tes études t'ont coûté cher. Maintenant tu es en concurrence avec des milliers de diplômés. Il est temps de <span style={{color: 'var(--primary)'}}>maximiser tes chances</span>.
           </h1>
+
+          {/* Vidéo de découverte de la plateforme */}
+          <div style={{ maxWidth: '760px', margin: '28px auto 24px' }}>
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              style={{ width: '100%', borderRadius: 'var(--radius-lg)', border: '1px solid var(--dark-border)', backgroundColor: '#000', display: 'block' }}
+            >
+              <source src="/video-decouverte.mp4" type="video/mp4" />
+              Ton navigateur ne peut pas lire cette vidéo.
+            </video>
+          </div>
+
           <p style={styles.subtitle}>
-            Sans engagement de durée — annule quand tu veux. <br />
             Choisis le plan qui correspond à ta recherche d'emploi et accède à tout, sans limite.
           </p>
         </div>
