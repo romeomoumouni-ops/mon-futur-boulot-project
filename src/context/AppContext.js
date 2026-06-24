@@ -229,8 +229,8 @@ export const AppProvider = ({ children }) => {
     saveState('mfb_cv_v2', updatedCV);
 
     if (data.session) {
-      // Connecté immédiatement -> doit choisir un plan d'abonnement
-      router.push('/pricing?access=required');
+      // Compte créé + connecté immédiatement -> doit choisir un plan (bandeau de bienvenue)
+      router.push('/pricing?welcome=1');
       return { ok: true };
     }
     // Confirmation e-mail requise par Supabase

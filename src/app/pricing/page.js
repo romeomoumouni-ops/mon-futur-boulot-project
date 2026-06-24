@@ -8,15 +8,15 @@ import CheckoutButton from '@/components/CheckoutButton';
 export default function PricingPage() {
   const { plan, selectPlan } = useContext(AppContext);
 
-  // Bandeau "abonnement requis" : UNIQUEMENT si on a été redirigé ici explicitement
-  // (?access=required, posé par le middleware ou après inscription).
+  // Bandeau : 'welcome' (après inscription) ou 'access' (connexion sans abonnement).
   // On ne se base PAS sur accessPlan côté client (chargé en différé) pour éviter
   // d'afficher le bandeau à tort à un utilisateur déjà abonné.
-  const [accessRequired, setAccessRequired] = useState(false);
+  const [banner, setBanner] = useState(null);
   useEffect(() => {
-    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('access') === 'required') {
-      setAccessRequired(true);
-    }
+    if (typeof window === 'undefined') return;
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('welcome') === '1') setBanner('welcome');
+    else if (p.get('access') === 'required') setBanner('access');
   }, []);
 
   // Accordion active state tracker
@@ -72,9 +72,11 @@ export default function PricingPage() {
       {/* HERO / HEADER SECTION */}
       <section style={styles.heroSection}>
         <div className="container" style={{ textAlign: 'center' }}>
-          {accessRequired && (
+          {banner && (
             <div style={{ maxWidth: '640px', margin: '0 auto 24px', padding: '14px 18px', backgroundColor: 'rgba(0,184,124,0.12)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '14px', fontWeight: 500 }}>
-              🔒 Choisis ton abonnement ci-dessous pour accéder à ton espace MonFuturBoulot.
+              {banner === 'welcome'
+                ? '🎉 Ton compte est créé ! Choisis ton abonnement ci-dessous pour accéder à ton espace et commencer.'
+                : '🔒 Choisis ton abonnement ci-dessous pour accéder à ton espace MonFuturBoulot.'}
             </div>
           )}
           <h1 style={styles.title} className="hero-title-responsive">
