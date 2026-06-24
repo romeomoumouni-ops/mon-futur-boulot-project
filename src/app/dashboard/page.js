@@ -1383,20 +1383,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   <div style={styles.statNumber}>{stats.lettersGenerated}</div>
                 </div>
-
-                <div style={styles.statCard}>
-                  <div style={styles.statHeader}>
-                    <span>{t("statApps", "Candidatures envoyées")}</span>
-                  </div>
-                  <div style={styles.statNumber}>{stats.applicationsSent}</div>
-                </div>
-
-                <div style={styles.statCard}>
-                  <div style={styles.statHeader}>
-                    <span>{t("statInterviews", "Entretiens obtenus")}</span>
-                  </div>
-                  <div style={styles.statNumber}>{stats.interviewsObtained}</div>
-                </div>
               </div>
 
               {/* Dashboard Layout: 2 Columns */}
