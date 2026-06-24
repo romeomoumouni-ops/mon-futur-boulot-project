@@ -77,10 +77,6 @@ export default function LandingPage() {
       {/* HERO SECTION */}
       <section style={styles.heroSection}>
         <div className="container" style={styles.heroContainer}>
-          <div style={styles.badgeContainer}>
-            <span style={styles.greenBadge}>🚀 Spécialement conçu pour les jeunes diplômés d'Afrique</span>
-          </div>
-          
           <h1 style={styles.heroTitle} className="hero-title-responsive">
             De diplômé à <span style={{color: 'var(--primary)'}}>embauché</span>. <br />
             En quelques jours.
