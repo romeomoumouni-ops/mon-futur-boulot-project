@@ -240,8 +240,14 @@ export const AppProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
-    // Le middleware redirige vers /pricing si aucun abonnement actif
-    router.push('/dashboard');
+    // Navigation COMPLÈTE (pas router.push) pour garantir que le cookie de session
+    // fraîchement posé est transmis au middleware (sinon il peut rejeter la session
+    // — fréquent sur Safari/iOS). Le middleware orientera vers /dashboard ou /pricing.
+    if (typeof window !== 'undefined') {
+      window.location.assign('/dashboard');
+    } else {
+      router.push('/dashboard');
+    }
     return { ok: true };
   };
 
