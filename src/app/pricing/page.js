@@ -87,6 +87,7 @@ export default function PricingPage() {
               controls
               playsInline
               preload="metadata"
+              poster="/video-poster.jpg"
               style={{ width: '100%', borderRadius: 'var(--radius-lg)', border: '1px solid var(--dark-border)', backgroundColor: '#000', display: 'block' }}
             >
               <source src="/video-decouverte.mp4" type="video/mp4" />
