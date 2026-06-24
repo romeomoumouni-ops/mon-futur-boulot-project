@@ -805,6 +805,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   const [newLangName, setNewLangName] = useState('');
   const [newLangLevel, setNewLangLevel] = useState('Courant');
 
+  // Édition d'une entrée existante (null = ajout d'une nouvelle)
+  const [editingExpId, setEditingExpId] = useState(null);
+  const [editingEduId, setEditingEduId] = useState(null);
+  const [editingLangIndex, setEditingLangIndex] = useState(null);
+
   // Admin form inputs states
   const [adminJobRole, setAdminJobRole] = useState('');
   const [adminJobCompany, setAdminJobCompany] = useState('');
@@ -1094,30 +1099,38 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   };
 
   // CV editor sub-actions
+  const resetExpForm = () => { setNewExpRole(''); setNewExpCompany(''); setNewExpPeriod(''); setNewExpLocation(''); setNewExpDesc(''); setEditingExpId(null); };
+  const startEditExperience = (exp) => {
+    setNewExpRole(exp.role || ''); setNewExpCompany(exp.company || ''); setNewExpPeriod(exp.period || '');
+    setNewExpLocation(exp.location || ''); setNewExpDesc(exp.desc || ''); setEditingExpId(exp.id);
+  };
   const handleAddExperience = (e) => {
     e.preventDefault();
     if (!newExpRole || !newExpCompany) return;
-    addCVItem('experiences', {
-      role: newExpRole.trim(),
-      company: newExpCompany.trim(),
-      period: newExpPeriod.trim(),
-      location: newExpLocation.trim(),
-      desc: newExpDesc.trim()
-    });
-    setNewExpRole(''); setNewExpCompany(''); setNewExpPeriod(''); setNewExpLocation(''); setNewExpDesc('');
+    const payload = {
+      role: newExpRole.trim(), company: newExpCompany.trim(), period: newExpPeriod.trim(),
+      location: newExpLocation.trim(), desc: newExpDesc.trim(),
+    };
+    if (editingExpId != null) updateCVItem('experiences', editingExpId, payload);
+    else addCVItem('experiences', payload);
+    resetExpForm();
   };
 
+  const resetEduForm = () => { setNewEduDegree(''); setNewEduSchool(''); setNewEduPeriod(''); setNewEduLocation(''); setEditingEduId(null); };
+  const startEditEducation = (edu) => {
+    setNewEduDegree(edu.degree || ''); setNewEduSchool(edu.school || ''); setNewEduPeriod(edu.period || '');
+    setNewEduLocation(edu.location || ''); setEditingEduId(edu.id);
+  };
   const handleAddEducation = (e) => {
     e.preventDefault();
     if (!newEduDegree || !newEduSchool) return;
-    addCVItem('educations', {
-      degree: newEduDegree.trim(),
-      school: newEduSchool.trim(),
-      period: newEduPeriod.trim(),
-      location: newEduLocation.trim(),
-      desc: ''
-    });
-    setNewEduDegree(''); setNewEduSchool(''); setNewEduPeriod(''); setNewEduLocation('');
+    const payload = {
+      degree: newEduDegree.trim(), school: newEduSchool.trim(),
+      period: newEduPeriod.trim(), location: newEduLocation.trim(), desc: '',
+    };
+    if (editingEduId != null) updateCVItem('educations', editingEduId, payload);
+    else addCVItem('educations', payload);
+    resetEduForm();
   };
 
   // Compétences (tableau de chaînes) — ajout/suppression directe
@@ -1135,16 +1148,27 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   };
 
   // Langues (tableau d'objets {name, level})
+  const resetLangForm = () => { setNewLangName(''); setNewLangLevel('Courant'); setEditingLangIndex(null); };
+  const startEditLanguage = (index) => {
+    const l = (cvData.languages || [])[index];
+    if (!l) return;
+    setNewLangName(l.name || ''); setNewLangLevel(l.level || 'Courant'); setEditingLangIndex(index);
+  };
   const handleAddLanguage = (e) => {
     e.preventDefault();
     const name = newLangName.trim();
     if (!name) return;
     const current = cvData.languages || [];
-    if (current.some((l) => l.name.toLowerCase() === name.toLowerCase())) { setNewLangName(''); return; }
-    updateCV('languages', [...current, { name, level: newLangLevel }]);
-    setNewLangName(''); setNewLangLevel('Courant');
+    if (editingLangIndex != null) {
+      updateCV('languages', current.map((l, i) => i === editingLangIndex ? { name, level: newLangLevel } : l));
+    } else {
+      if (current.some((l) => l.name.toLowerCase() === name.toLowerCase())) { setNewLangName(''); return; }
+      updateCV('languages', [...current, { name, level: newLangLevel }]);
+    }
+    resetLangForm();
   };
   const handleRemoveLanguage = (index) => {
+    if (editingLangIndex === index) resetLangForm();
     updateCV('languages', (cvData.languages || []).filter((_, i) => i !== index));
   };
 
@@ -1639,18 +1663,22 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                     {/* Experiences Items List */}
                     {cvData.experiences.map((exp) => (
-                      <div key={exp.id} style={styles.editorListItem}>
+                      <div key={exp.id} style={{ ...styles.editorListItem, ...(editingExpId === exp.id ? { background: 'var(--primary-light)', borderRadius: 'var(--radius-md)' } : {}) }}>
                         <div style={{ flex: 1 }}>
                           <strong style={{ color: '#0f172a' }}>{exp.role} — {exp.company}</strong>
-                          <p style={{ fontSize: '11px', color: 'var(--light-text-muted)' }}>{exp.period} • {exp.location}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--light-text-muted)' }}>{[exp.period, exp.location].filter(Boolean).join(' • ')}</p>
                           <p style={{ fontSize: '12px', color: '#475569', marginTop: '6px', whiteSpace: 'pre-line' }}>{exp.desc}</p>
                         </div>
-                        <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => deleteCVItem('experiences', exp.id)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
+                          <button style={{ border: 'none', background: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }} onClick={() => startEditExperience(exp)}>{t("cvEditBtn", "Modifier")}</button>
+                          <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => deleteCVItem('experiences', exp.id)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        </div>
                       </div>
                     ))}
 
-                    {/* Add Experience inline Form */}
+                    {/* Add/Edit Experience inline Form */}
                     <form onSubmit={handleAddExperience} style={styles.inlineForm}>
+                      {editingExpId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditExpHint", "✏️ Modification de l'expérience")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddExpTitle", "Poste (ex: Stage Marketing)")} className="form-input" value={newExpRole} onChange={(e) => setNewExpRole(e.target.value)} style={{ padding: '8px 12px' }} required />
                         <input type="text" placeholder={t("cvAddExpCompany", "Entreprise")} className="form-input" value={newExpCompany} onChange={(e) => setNewExpCompany(e.target.value)} style={{ padding: '8px 12px' }} required />
@@ -1660,7 +1688,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         <input type="text" placeholder={t("cvAddExpLocation", "Lieu (ex: Abidjan)")} className="form-input" value={newExpLocation} onChange={(e) => setNewExpLocation(e.target.value)} style={{ padding: '8px 12px' }} />
                       </div>
                       <textarea placeholder={t("cvAddExpDesc", "Décris tes missions et résultats (ex: gestion des réseaux, +20% d'engagement...)")} className="form-input" rows={2} value={newExpDesc} onChange={(e) => setNewExpDesc(e.target.value)} style={{ padding: '8px 12px', resize: 'vertical' }} />
-                      <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddExpBtn", "Ajouter cette expérience")}</button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button type="submit" className="btn btn-primary btn-sm" style={{ flex: 1 }}>{editingExpId != null ? t("cvSaveBtn", "Enregistrer les modifications") : t("cvAddExpBtn", "Ajouter cette expérience")}</button>
+                        {editingExpId != null && <button type="button" className="btn btn-secondary btn-sm" onClick={resetExpForm}>{t("annuler", "Annuler")}</button>}
+                      </div>
                     </form>
                   </div>
 
@@ -1671,17 +1702,21 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     </div>
 
                     {cvData.educations.map((edu) => (
-                      <div key={edu.id} style={styles.editorListItem}>
+                      <div key={edu.id} style={{ ...styles.editorListItem, ...(editingEduId === edu.id ? { background: 'var(--primary-light)', borderRadius: 'var(--radius-md)' } : {}) }}>
                         <div style={{ flex: 1 }}>
                           <strong style={{ color: '#0f172a' }}>{edu.degree}</strong>
                           <p style={{ fontSize: '11px', color: 'var(--light-text-muted)' }}>{[edu.school, edu.period, edu.location].filter(Boolean).join(' • ')}</p>
                         </div>
-                        <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => deleteCVItem('educations', edu.id)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
+                          <button style={{ border: 'none', background: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }} onClick={() => startEditEducation(edu)}>{t("cvEditBtn", "Modifier")}</button>
+                          <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => deleteCVItem('educations', edu.id)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        </div>
                       </div>
                     ))}
 
-                    {/* Add Education inline Form */}
+                    {/* Add/Edit Education inline Form */}
                     <form onSubmit={handleAddEducation} style={styles.inlineForm}>
+                      {editingEduId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditEduHint", "✏️ Modification de la formation")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddEduDegree", "Diplôme (ex: Licence)")} className="form-input" value={newEduDegree} onChange={(e) => setNewEduDegree(e.target.value)} style={{ padding: '8px 12px' }} required />
                         <input type="text" placeholder={t("cvAddEduSchool", "Établissement")} className="form-input" value={newEduSchool} onChange={(e) => setNewEduSchool(e.target.value)} style={{ padding: '8px 12px' }} required />
@@ -1690,7 +1725,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         <input type="text" placeholder={t("cvAddEduPeriod", "Période (ex: 2022 - 2025)")} className="form-input" value={newEduPeriod} onChange={(e) => setNewEduPeriod(e.target.value)} style={{ padding: '8px 12px' }} />
                         <input type="text" placeholder={t("cvAddEduLocation", "Lieu (ex: Dakar)")} className="form-input" value={newEduLocation} onChange={(e) => setNewEduLocation(e.target.value)} style={{ padding: '8px 12px' }} />
                       </div>
-                      <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddEduBtn", "Ajouter cette formation")}</button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button type="submit" className="btn btn-primary btn-sm" style={{ flex: 1 }}>{editingEduId != null ? t("cvSaveBtn", "Enregistrer les modifications") : t("cvAddEduBtn", "Ajouter cette formation")}</button>
+                        {editingEduId != null && <button type="button" className="btn btn-secondary btn-sm" onClick={resetEduForm}>{t("annuler", "Annuler")}</button>}
+                      </div>
                     </form>
                   </div>
 
@@ -1717,15 +1755,19 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div style={styles.editorSectionCard}>
                     <h3 style={{ margin: '0 0 12px' }}>{t("cvLanguagesTitle", "Langues")}</h3>
                     {(cvData.languages || []).map((lang, index) => (
-                      <div key={index} style={styles.editorListItem}>
+                      <div key={index} style={{ ...styles.editorListItem, ...(editingLangIndex === index ? { background: 'var(--primary-light)', borderRadius: 'var(--radius-md)' } : {}) }}>
                         <div style={{ flex: 1 }}>
                           <strong style={{ color: '#0f172a' }}>{lang.name}</strong>
                           <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}> — {lang.level}</span>
                         </div>
-                        <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => handleRemoveLanguage(index)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
+                          <button style={{ border: 'none', background: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }} onClick={() => startEditLanguage(index)}>{t("cvEditBtn", "Modifier")}</button>
+                          <button style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => handleRemoveLanguage(index)}>{t("cvDeleteBtn", "Supprimer")}</button>
+                        </div>
                       </div>
                     ))}
                     <form onSubmit={handleAddLanguage} style={styles.inlineForm}>
+                      {editingLangIndex != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditLangHint", "✏️ Modification de la langue")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddLangName", "Langue (ex: Anglais)")} className="form-input" value={newLangName} onChange={(e) => setNewLangName(e.target.value)} style={{ padding: '8px 12px' }} />
                         <select className="form-input" value={newLangLevel} onChange={(e) => setNewLangLevel(e.target.value)} style={{ padding: '8px 12px' }}>
@@ -1736,7 +1778,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                           <option value="Langue maternelle">{t("cvLangNative", "Langue maternelle")}</option>
                         </select>
                       </div>
-                      <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>{t("cvAddLangBtn", "Ajouter cette langue")}</button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button type="submit" className="btn btn-primary btn-sm" style={{ flex: 1 }}>{editingLangIndex != null ? t("cvSaveBtn", "Enregistrer les modifications") : t("cvAddLangBtn", "Ajouter cette langue")}</button>
+                        {editingLangIndex != null && <button type="button" className="btn btn-secondary btn-sm" onClick={resetLangForm}>{t("annuler", "Annuler")}</button>}
+                      </div>
                     </form>
                   </div>
 
