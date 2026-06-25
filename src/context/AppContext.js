@@ -85,21 +85,18 @@ export const AppProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [atsScore, setAtsScore] = useState(0);
   const [atsChecklist, setAtsChecklist] = useState([]);
-  const [stats, setStats] = useState({
-    cvsCreated: 0,
-    lettersGenerated: 0,
-    applicationsSent: 0,
-    interviewsObtained: 0,
-  });
+  // Les statistiques du tableau de bord sont DÉRIVÉES des données réelles (voir plus bas),
+  // pour qu'elles reflètent en temps réel ce que l'utilisateur a réellement fait et
+  // qu'elles survivent à un rechargement (plus de compteurs en mémoire remis à zéro).
 
   // Données locales (CV, lettres, candidatures) — conservées par navigateur pour le MVP.
   useEffect(() => {
+    // Le CV garde un cache local pour un affichage instantané (puis le compte fait foi).
+    // Les lettres et candidatures NE sont PAS chargées depuis le localStorage partagé :
+    // elles proviennent uniquement du compte (table user_activity), pour que l'historique
+    // soit réellement celui de l'utilisateur connecté et jamais des données d'un autre.
     const savedCV = localStorage.getItem('mfb_cv_v2');
-    const savedApps = localStorage.getItem('mfb_apps_v2');
-    const savedLetters = localStorage.getItem('mfb_letters_v2');
     if (savedCV) setCvData(JSON.parse(savedCV));
-    if (savedApps) setApplications(JSON.parse(savedApps));
-    if (savedLetters) setLetters(JSON.parse(savedLetters));
   }, []);
 
   // Offres d'emploi réelles depuis Supabase (alimentées par le cron JSearch)
@@ -126,6 +123,9 @@ export const AppProvider = ({ children }) => {
         setAccessPlan(null);
         setAccessExpiresAt(null);
         setIsAdmin(false);
+        setLetters([]);
+        setApplications([]);
+        activityLoadedRef.current = false;
         return;
       }
       const meta = u.user_metadata || {};
@@ -170,9 +170,28 @@ export const AppProvider = ({ children }) => {
         }
         cvLoadedRef.current = true;
       } catch { cvLoadedRef.current = true; }
+
+      // Historique réel du compte : lettres + candidatures (lié à l'utilisateur,
+      // synchronisé multi-appareils, jamais partagé entre comptes sur un même navigateur)
+      try {
+        const { data: act } = await supabase
+          .from('user_activity')
+          .select('letters, applications')
+          .eq('user_id', u.id)
+          .maybeSingle();
+        setLetters(Array.isArray(act?.letters) ? act.letters : []);
+        setApplications(Array.isArray(act?.applications) ? act.applications : []);
+        activityLoadedRef.current = true;
+      } catch { activityLoadedRef.current = true; }
     };
     supabase.auth.getSession().then(({ data }) => applySession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => applySession(session));
+    // IMPORTANT : on diffère le traitement hors du callback. Appeler des fonctions
+    // async de Supabase (rpc, from…) directement dans onAuthStateChange peut bloquer
+    // le verrou interne de GoTrue posé par signInWithPassword → connexion qui « patiente »
+    // indéfiniment (il fallait actualiser). setTimeout libère le verrou avant les appels.
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setTimeout(() => applySession(session), 0);
+    });
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
 
@@ -188,6 +207,19 @@ export const AppProvider = ({ children }) => {
     }, 1200);
     return () => clearTimeout(t);
   }, [cvData, user, supabase]);
+
+  // Sauvegarde de l'historique (lettres + candidatures) dans le compte, anti-rebond.
+  const activityLoadedRef = React.useRef(false);
+  useEffect(() => {
+    if (!user?.id || !activityLoadedRef.current) return;
+    const t = setTimeout(() => {
+      supabase
+        .from('user_activity')
+        .upsert({ user_id: user.id, letters, applications, updated_at: new Date().toISOString() })
+        .then(() => {});
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [letters, applications, user, supabase]);
 
   // Save changes to localStorage helper (résilient : un quota dépassé ne doit pas
   // casser la mise à jour ni bloquer la sauvegarde Supabase).
@@ -324,11 +356,7 @@ export const AppProvider = ({ children }) => {
       content: letterData.content
     };
     const updated = [newLetter, ...letters];
-    setLetters(updated);
-    saveState('mfb_letters_v2', updated);
-    
-    // Increment letter stats
-    setStats(prev => ({ ...prev, lettersGenerated: prev.lettersGenerated + 1 }));
+    setLetters(updated); // persisté dans le compte (user_activity) via l'effet anti-rebond
   };
 
   // Job Application
@@ -342,11 +370,7 @@ export const AppProvider = ({ children }) => {
       status: 'Envoyée'
     };
     const updated = [newApp, ...applications];
-    setApplications(updated);
-    saveState('mfb_apps_v2', updated);
-    
-    // Increment application stats
-    setStats(prev => ({ ...prev, applicationsSent: prev.applicationsSent + 1 }));
+    setApplications(updated); // persisté dans le compte (user_activity) via l'effet anti-rebond
   };
 
   // Admin Job Operations
@@ -385,6 +409,23 @@ export const AppProvider = ({ children }) => {
   const canUse = () => true;
   const remaining = () => Infinity;
   const consume = () => true;
+
+  // Statistiques dérivées en temps réel des données réelles du compte.
+  const cvHasContent = !!(
+    cvData && (
+      (cvData.title && cvData.title.trim()) ||
+      (cvData.summary && cvData.summary.trim()) ||
+      (cvData.experiences && cvData.experiences.length) ||
+      (cvData.educations && cvData.educations.length) ||
+      (cvData.skills && cvData.skills.length)
+    )
+  );
+  const stats = {
+    cvsCreated: cvHasContent ? 1 : 0,
+    lettersGenerated: letters.length,
+    applicationsSent: applications.length,
+    interviewsObtained: 0,
+  };
 
   return (
     <AppContext.Provider value={{
