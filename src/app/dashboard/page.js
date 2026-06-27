@@ -720,6 +720,30 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
     try { localStorage.setItem(`mfb_renew_dismissed_${new Date().toISOString().slice(0, 10)}`, '1'); } catch {}
   };
 
+  // ---- Notification quotidienne : nouvelles offres du jour (tous les abonnés) ----
+  const newOffersToday = React.useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return (jobs || []).filter((j) => {
+      const c = j.created_at || j.posted_at;
+      return c && String(c).slice(0, 10) === today;
+    });
+  }, [jobs]);
+  const newOffersCount = newOffersToday.length;
+  const [offersNotifDismissed, setOffersNotifDismissed] = useState(false);
+  useEffect(() => {
+    try {
+      const key = `mfb_offers_notif_${new Date().toISOString().slice(0, 10)}`;
+      setOffersNotifDismissed(localStorage.getItem(key) === '1');
+    } catch {}
+  }, []);
+  const dismissOffersNotif = () => {
+    setOffersNotifDismissed(true);
+    try { localStorage.setItem(`mfb_offers_notif_${new Date().toISOString().slice(0, 10)}`, '1'); } catch {}
+  };
+  // Clic sur la notif → page offres. Les utilisateurs Basique y verront l'écran
+  // « Passe au Standard » (géré dans la vue 'jobs'), exactement comme demandé.
+  const openOffersFromNotif = () => { setCurrentView('jobs'); };
+
   // ---- Messagerie support (Standard / Premium) ----
   // Réutilise le client Supabase du contexte (ne PAS créer un 2e client : conflit d'auth)
   const supabaseClient = supabase;
@@ -1233,17 +1257,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           >
             {t("navJobs", "💼 Offres d'emploi")}
           </button>
-          {canUseProFeatures && (
-            <button
-              style={{...styles.sidebarLink, ...(currentView === 'support' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
-              onClick={() => setCurrentView('support')}
-            >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-              </svg>
-              {t("navSupport", "Support")}
-            </button>
-          )}
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'support' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
+            onClick={() => setCurrentView('support')}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            {t("navSupport", "Support")}
+          </button>
         </nav>
 
         <div style={styles.sidebarSectionLabel}>{t("navMyAccount", "MON COMPTE")}</div>
@@ -1319,8 +1341,15 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           </div>
           
           <div style={styles.topbarActions}>
-            <button style={styles.iconBtn} aria-label="Notifications" onClick={() => openModal('Notifications', 'Aucune notification pour le moment.', 'info')}>
+            <button
+              style={{ ...styles.iconBtn, position: 'relative' }}
+              aria-label="Notifications"
+              onClick={() => newOffersCount > 0 ? openOffersFromNotif() : openModal('Notifications', 'Aucune notification pour le moment.', 'info')}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              {newOffersCount > 0 && (
+                <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '16px', height: '16px', padding: '0 4px', borderRadius: '9999px', background: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>{newOffersCount}</span>
+              )}
             </button>
             <button style={styles.iconBtn} aria-label="Paramètres" onClick={() => setCurrentView('settings')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1366,7 +1395,26 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           {/* VIEW: MAIN DASHBOARD */}
           {currentView === 'dashboard' && (
             <div className="animate-fade-in">
-              
+
+              {/* Notification quotidienne : nouvelles offres du jour (tous les abonnés) */}
+              {newOffersCount > 0 && !offersNotifDismissed && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'var(--primary-light)', border: '1px solid var(--primary)', borderRadius: '14px', padding: '14px 16px', marginBottom: '20px' }}>
+                  <div style={{ flexShrink: 0, width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>
+                      {newOffersCount === 1 ? '1 nouvelle offre d\'emploi vient d\'apparaître' : `${newOffersCount} nouvelles offres d'emploi viennent d'apparaître`}
+                    </strong>
+                    <span style={{ fontSize: '12.5px', color: 'var(--light-text-muted)' }}>Clique pour les découvrir dès maintenant.</span>
+                  </div>
+                  <button className="btn btn-primary btn-sm" style={{ flexShrink: 0 }} onClick={openOffersFromNotif}>Voir les offres →</button>
+                  <button onClick={dismissOffersNotif} aria-label="Fermer" style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--light-text-muted)', padding: '4px', display: 'flex' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              )}
+
               {/* Welcome Alert Card */}
               <div style={styles.welcomeCard}>
                 <div style={{ flex: 1 }}>
@@ -2565,16 +2613,6 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <option value="fr">{lang === 'en' ? 'French' : 'Français'}</option>
                     <option value="en">{lang === 'en' ? 'English' : 'Anglais'}</option>
                   </select>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                  <div>
-                    <strong style={{ display: 'block', fontSize: '14px' }}>{t("settingsDarkMode", "Mode Sombre")}</strong>
-                    <span style={{ fontSize: '12px', color: 'var(--light-text-muted)' }}>{t("settingsDarkModeDesc", "Activer le thème sombre sur le tableau de bord")}</span>
-                  </div>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setIsDarkMode(!isDarkMode)}>
-                    {isDarkMode ? t("settingsDarkModeDisable", "Désactiver") : t("settingsDarkModeEnable", "Activer")}
-                  </button>
                 </div>
               </div>
 
