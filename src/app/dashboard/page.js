@@ -7,18 +7,18 @@ import { generateCvPdf, generateLetterPdf } from '@/lib/pdf';
 import CheckoutButton from '@/components/CheckoutButton';
 
 const INDUSTRIES = [
-  { id: 'marketing', icon: '📈', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
-  { id: 'tech', icon: '💻', label: 'Tech & Digital', tip: 'Mise en avant : agilité, esprit startup, veille technologique. Termes valorisés : data-driven, UX, MVP, scalable, API. Montre ta curiosité et ta capacité à apprendre vite.' },
-  { id: 'finance', icon: '🏦', label: 'Finance & Banque', tip: 'Codes : rigueur, conformité, gestion des risques, confidentialité. Ton très formel et précis. Cite des chiffres et des métriques financières pour crédibiliser ton profil.' },
-  { id: 'sante', icon: '🏥', label: 'Santé & Médical', tip: "Valeurs clés : éthique, empathie, rigueur clinique. Mettre en avant le sens du service, le respect des protocoles et la capacité à travailler sous pression." },
-  { id: 'education', icon: '🎓', label: 'Éducation & Formation', tip: "Compétences valorisées : pédagogie, transmission, patience, adaptabilité. Montre ta passion pour l'apprentissage et ta capacité à rendre les savoirs accessibles." },
-  { id: 'commerce', icon: '🛒', label: 'Commerce & Vente', tip: "Mots clés : chiffre d'affaires, fidélisation, relation client, objectifs, prospection. Ton accrocheur et orienté performance. Cite tes résultats commerciaux concrets." },
-  { id: 'ong', icon: '🌍', label: 'ONG & Humanitaire', tip: 'Valeurs attendues : engagement, terrain, impact social, résilience. Parler en termes de mission, de communautés et de changement systémique. Sincérité primordiale.' },
-  { id: 'juridique', icon: '⚖️', label: 'Juridique & Conseil', tip: 'Termes importants : conformité, déontologie, conseil stratégique, confidentialité. Ton neutre, extrêmement précis et très professionnel. Évite les formules trop commerciales.' },
-  { id: 'creatif', icon: '🎨', label: 'Créatif & Design', tip: "Miser sur : portfolio, vision artistique, storytelling, créativité. Ton passionné mais professionnel. Mentionne tes outils et ta sensibilité aux tendances visuelles." },
-  { id: 'btp', icon: '🏗️', label: 'BTP & Construction', tip: "Mettre en avant : normes de sécurité, gestion de chantier, respect des délais et des coûts, coordination d'équipes terrain. Valorise tes certifications techniques." },
-  { id: 'agro', icon: '🌾', label: 'Agriculture & Agro', tip: 'Compétences valorisées : connaissance des filières, durabilité, optimisation des rendements, gestion de la chaîne de valeur. Terrain et pragmatisme sont essentiels.' },
-  { id: 'industrie', icon: '🏭', label: 'Industrie & Ingénierie', tip: 'Langage technique attendu : qualité, performance, ISO, maintenance préventive, lean management. Sois précis sur tes compétences techniques et tes certifications.' },
+  { id: 'marketing', icon: '', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
+  { id: 'tech', icon: '', label: 'Tech & Digital', tip: 'Mise en avant : agilité, esprit startup, veille technologique. Termes valorisés : data-driven, UX, MVP, scalable, API. Montre ta curiosité et ta capacité à apprendre vite.' },
+  { id: 'finance', icon: '', label: 'Finance & Banque', tip: 'Codes : rigueur, conformité, gestion des risques, confidentialité. Ton très formel et précis. Cite des chiffres et des métriques financières pour crédibiliser ton profil.' },
+  { id: 'sante', icon: '', label: 'Santé & Médical', tip: "Valeurs clés : éthique, empathie, rigueur clinique. Mettre en avant le sens du service, le respect des protocoles et la capacité à travailler sous pression." },
+  { id: 'education', icon: '', label: 'Éducation & Formation', tip: "Compétences valorisées : pédagogie, transmission, patience, adaptabilité. Montre ta passion pour l'apprentissage et ta capacité à rendre les savoirs accessibles." },
+  { id: 'commerce', icon: '', label: 'Commerce & Vente', tip: "Mots clés : chiffre d'affaires, fidélisation, relation client, objectifs, prospection. Ton accrocheur et orienté performance. Cite tes résultats commerciaux concrets." },
+  { id: 'ong', icon: '', label: 'ONG & Humanitaire', tip: 'Valeurs attendues : engagement, terrain, impact social, résilience. Parler en termes de mission, de communautés et de changement systémique. Sincérité primordiale.' },
+  { id: 'juridique', icon: '', label: 'Juridique & Conseil', tip: 'Termes importants : conformité, déontologie, conseil stratégique, confidentialité. Ton neutre, extrêmement précis et très professionnel. Évite les formules trop commerciales.' },
+  { id: 'creatif', icon: '', label: 'Créatif & Design', tip: "Miser sur : portfolio, vision artistique, storytelling, créativité. Ton passionné mais professionnel. Mentionne tes outils et ta sensibilité aux tendances visuelles." },
+  { id: 'btp', icon: '', label: 'BTP & Construction', tip: "Mettre en avant : normes de sécurité, gestion de chantier, respect des délais et des coûts, coordination d'équipes terrain. Valorise tes certifications techniques." },
+  { id: 'agro', icon: '', label: 'Agriculture & Agro', tip: 'Compétences valorisées : connaissance des filières, durabilité, optimisation des rendements, gestion de la chaîne de valeur. Terrain et pragmatisme sont essentiels.' },
+  { id: 'industrie', icon: '', label: 'Industrie & Ingénierie', tip: 'Langage technique attendu : qualité, performance, ISO, maintenance préventive, lean management. Sois précis sur tes compétences techniques et tes certifications.' },
 ];
 
 // Classe une offre dans un domaine à partir de son intitulé (pour le filtre)
@@ -42,15 +42,15 @@ const TRANSLATIONS = {
   fr: {
     // Sidebar
     navPrincipal: "PRINCIPAL",
-    navDashboard: "📊 Tableau de Bord",
-    navCV: "📄 Mon CV",
-    navLetters: "✉️ Lettres de motivation",
-    navJobs: "💼 Offres d'emploi",
+    navDashboard: "Tableau de Bord",
+    navCV: "Mon CV",
+    navLetters: "Lettres de motivation",
+    navJobs: "Offres d'emploi",
     navMyAccount: "MON COMPTE",
-    navProfile: "👤 Profil",
-    navApplications: "📥 Candidatures",
-    navSettings: "⚙️ Paramètres",
-    navLogout: "🚪 Déconnexion",
+    navProfile: "Profil",
+    navApplications: "Candidatures",
+    navSettings: "Paramètres",
+    navLogout: "Déconnexion",
     navUpgradeTitle: "Passe au Premium",
     navUpgradeDesc: "CV et lettres illimités, modifications illimitées, toutes les offres de ta niche dès 5 000 FCFA/mois.",
     navUpgradeBtn: "Voir les plans →",
@@ -103,7 +103,7 @@ const TRANSLATIONS = {
 
     // CV Builder Step Bar & Stepper
     cvTopBarTitle: "Mon CV / Marketing Junior - {name}",
-    cvAutoSave: "💾 Sauvegarde automatique",
+    cvAutoSave: "Sauvegarde automatique",
     cvPreviewBtn: "Aperçu",
     cvDownloadPDF: "Télécharger PDF ↓",
     cvStep1: "ÉTAPE 1",
@@ -118,20 +118,20 @@ const TRANSLATIONS = {
     // CV Builder Form Left
     cvFormStep2Title: "Complète ton CV",
     cvFormStep2Desc: "Remplis chaque section ci-dessous : coordonnées, résumé, expériences, formation, compétences et langues. L'aperçu à droite se met à jour en direct.",
-    cvAiHelperTitle: "✨ Optimise ton CV pour le marché",
+    cvAiHelperTitle: "Optimise ton CV pour le marché",
     cvAiHelperDesc: "Décris tes expériences en quelques mots, on les reformule selon les modèles qui décrochent le plus d'entretiens.",
     cvAiHelperBtn: "Optimiser mon CV",
     cvAiLoading: "Traitement...",
-    cvAiTipSuccess: "CV optimisé selon les modèles qui performent ! ✨",
+    cvAiTipSuccess: "CV optimisé selon les modèles qui performent !",
     cvPhotoTitle: "Photo de profil",
-    cvPhotoChange: "📷 Changer la photo",
+    cvPhotoChange: "Changer la photo",
     cvPhotoDelete: "Supprimer",
     cvLabelFirstName: "Prénom",
     cvLabelLastName: "Nom",
     cvLabelTitle: "Titre professionnel",
     cvLabelSummary: "Résumé professionnel",
-    cvAiSuggestTitle: "✨ Suggestion : \"Spécialiste Marketing Digital & Réseaux Sociaux\"",
-    cvAiSuggestSummary: "✨ Générer un résumé d'impact",
+    cvAiSuggestTitle: "Suggestion : \"Spécialiste Marketing Digital & Réseaux Sociaux\"",
+    cvAiSuggestSummary: "Générer un résumé d'impact",
     cvExperiencesTitle: "Expériences professionnelles",
     cvAddBtn: "+ Ajouter",
     cvDeleteBtn: "Supprimer",
@@ -164,8 +164,8 @@ const TRANSLATIONS = {
     cvBrandColorDesc: "Choisis la couleur dominante de ton CV.",
     cvDownloadTitle: "Options de téléchargement",
     cvDownloadDesc: "Exportez votre document au format universel. Votre mise en page est optimisée pour tenir sur une seule page.",
-    cvPrintBtn: "👁️ Imprimer le CV",
-    cvDownloadBtn: "📥 Télécharger le PDF ↓",
+    cvPrintBtn: "Imprimer le CV",
+    cvDownloadBtn: "Télécharger le PDF ↓",
 
     // Preview
     cvPreviewTitle: "APERÇU EN DIRECT",
@@ -174,34 +174,34 @@ const TRANSLATIONS = {
     cvSectionFormation: "Formation",
     cvSectionSkills: "Compétences",
     cvSectionLanguages: "Langues",
-    cvAtsTitle: "🚀 Score • Compatibilité ATS",
+    cvAtsTitle: "Score • Compatibilité ATS",
     cvAtsFeedback: "✓ Excellent ! Pour atteindre 100%, ajoute 2 certifications ou un projet personnel.",
 
     // Cover Letters
     letTitle: "Génère une lettre sur-mesure adaptée à ton secteur",
     letDesc: "Sélectionne ton industrie, renseigne 3 infos clés, et obtiens une lettre adaptée aux codes de ton secteur — vocabulaire, ton et attentes inclus.",
-    letStep1Title: "🏢 Étape 1 — Choisis ton secteur d'activité",
+    letStep1Title: "Étape 1 — Choisis ton secteur d'activité",
     letStep1Desc: "Chaque secteur a ses propres codes et son vocabulaire. Sélectionne le tien pour une lettre réellement différenciante.",
     letCodesTitle: "Codes de l'industrie — {label}",
-    letStep2Title: "✍️ Étape 2 — Personnalise ta lettre",
+    letStep2Title: "Étape 2 — Personnalise ta lettre",
     letStep2Desc: "Plus tu donnes de détails, plus ta lettre sera unique et convaincante.",
     letPostLabel: "Titre du poste ciblé *",
     letCompanyLabel: "Nom de l'entreprise *",
     letHrLabel: "Nom du/de la responsable RH (optionnel)",
-    letHrTip: "💡 Personnaliser l'en-tête augmente le taux de réponse de +40%",
+    letHrTip: "Personnaliser l'en-tête augmente le taux de réponse de +40%",
     letAchievementLabel: "Une réalisation clé à mettre en avant",
-    letAchievementTip: "💡 Un chiffre concret rend ta lettre 3× plus mémorable",
+    letAchievementTip: "Un chiffre concret rend ta lettre 3× plus mémorable",
     letWhyLabel: "Pourquoi cette entreprise spécifiquement ?",
     letToneLabel: "Ton de la lettre",
-    letToneProfessional: "💼 Professionnel & Formel",
-    letToneConfident: "🔥 Confiant & Déterminé",
-    letTonePassionate: "❤️ Passionné & Créatif",
-    letSubmitBtn: "✨ Rédiger ma lettre personnalisée",
-    letSubmitBtnGenerating: "⏳ Génération en cours...",
-    letSubmitBtnSelectSector: "⬆️ Sélectionne d'abord ton secteur (Étape 1)",
-    letGeneratedLetter: "✅ LETTRE GÉNÉRÉE — Secteur {sector}",
+    letToneProfessional: "Professionnel & Formel",
+    letToneConfident: "Confiant & Déterminé",
+    letTonePassionate: "Passionné & Créatif",
+    letSubmitBtn: "Rédiger ma lettre personnalisée",
+    letSubmitBtnGenerating: "Génération en cours...",
+    letSubmitBtnSelectSector: "Sélectionne d'abord ton secteur (Étape 1)",
+    letGeneratedLetter: "LETTRE GÉNÉRÉE — Secteur {sector}",
     letCopyBtn: "Copier le texte",
-    letPreviousLetters: "📁 Lettres précédemment générées",
+    letPreviousLetters: "Lettres précédemment générées",
     letReviewBtn: "Revoir cette lettre",
 
     // Jobs Explorer
@@ -230,9 +230,9 @@ const TRANSLATIONS = {
     profileCountryLabel: "Pays",
     profilePhoneLabel: "Téléphone",
     profilePlanLabel: "Plan d'abonnement actuel",
-    profilePlanFree: "🆓 Plan Gratuit",
-    profilePlanMonthly: "⭐ Plan Mensuel Premium",
-    profilePlanVIP: "👑 Plan Semestriel VIP (6 mois)",
+    profilePlanFree: "Plan Gratuit",
+    profilePlanMonthly: "Plan Mensuel Premium",
+    profilePlanVIP: "Plan Semestriel VIP (6 mois)",
     profileChangePlanBtn: "Changer de plan",
 
     // Applications Tracker
@@ -250,7 +250,7 @@ const TRANSLATIONS = {
     priceFreeBtnActive: "✓ Plan Actuel",
     priceMonthlyBtn: "S'abonner maintenant",
     priceSemestrielBtn: "S'abonner — Économise 50%",
-    priceSavingsTip: "💡 Conseil : Le plan Semestriel te fait économiser 15 000 FCFA sur 6 mois vs le mensuel.",
+    priceSavingsTip: "Conseil : Le plan Semestriel te fait économiser 15 000 FCFA sur 6 mois vs le mensuel.",
 
     // Admin Layout
     adminTitle: "Gestion de la Plateforme",
@@ -258,24 +258,24 @@ const TRANSLATIONS = {
     adminJobsActive: "Offres d'emploi actives",
     adminFormationsPublished: "Formations publiées",
     adminApplicationsReceived: "Candidatures reçues",
-    adminPublishJob: "➕ Publier une nouvelle offre d'emploi",
+    adminPublishJob: "Publier une nouvelle offre d'emploi",
     adminJobRole: "Titre du poste *",
     adminJobCompany: "Entreprise *",
     adminJobCity: "Ville (ex: Abidjan)",
     adminJobSalary: "Salaire (ex: 250k FCFA)",
     adminJobLogoBgLabel: "Couleur logo :",
     adminPublishBtn: "Publier l'offre →",
-    adminPublishedJobs: "📋 Offres publiées ({count})",
-    adminAddFormation: "➕ Ajouter une nouvelle formation",
+    adminPublishedJobs: "Offres publiées ({count})",
+    adminAddFormation: "Ajouter une nouvelle formation",
     adminCourseTitle: "Titre de la formation *",
     adminCourseDuration: "Durée (ex: 6h)",
     adminCourseLevelLabel: "Niveau",
     adminCourseCategoryLabel: "Catégorie",
     adminPublishCourseBtn: "Publier la formation →",
-    adminPublishedCourses: "📚 Formations publiées ({count})",
+    adminPublishedCourses: "Formations publiées ({count})",
 
     // Settings
-    settingsTitle: "⚙️ Paramètres du compte",
+    settingsTitle: "Paramètres du compte",
     settingsDesc: "Gère tes préférences, abonnements et sécurité.",
     settingsGeneral: "Général",
     settingsLang: "Langue",
@@ -306,9 +306,9 @@ const TRANSLATIONS = {
     priceSemestrielTitle: "SEMESTRIEL",
     pricePopular: "POPULAIRE",
     priceBestValue: "BEST VALUE",
-    priceFreeFeature1: "📄 1 CV performant (1 modification)",
-    priceFreeFeature2: "✉️ 1 lettre de motivation (1 modification)",
-    priceFreeFeature3: "🔍 Consultation des offres d'emploi",
+    priceFreeFeature1: "1 CV performant (1 modification)",
+    priceFreeFeature2: "1 lettre de motivation (1 modification)",
+    priceFreeFeature3: "Consultation des offres d'emploi",
     priceFreeFeature4: "Modifications illimitées",
     priceFreeFeature5: "Opportunités de ta niche",
     priceFreeFeature6: "Score ATS avancé",
@@ -319,11 +319,11 @@ const TRANSLATIONS = {
     pricePremiumFeature5: "✓ Nouvelles opportunités de ta niche",
     pricePremiumFeature6: "✓ Candidatures en 1 clic",
     priceVipFeature1: "✓ Tout ce qu'inclut le plan Mensuel",
-    priceVipFeature2: "⭐ Accès prioritaire aux opportunités de ta niche",
-    priceVipFeature3: "⭐ Analyse ATS avancée du CV (Score)",
-    priceVipFeature4: "⭐ Relecture humaine du CV",
-    priceVipFeature5: "⭐ Support prioritaire par WhatsApp",
-    priceVipFeature6: "⭐ Badges & certificats pro",
+    priceVipFeature2: "Accès prioritaire aux opportunités de ta niche",
+    priceVipFeature3: "Analyse ATS avancée du CV (Score)",
+    priceVipFeature4: "Relecture humaine du CV",
+    priceVipFeature5: "Support prioritaire par WhatsApp",
+    priceVipFeature6: "Badges & certificats pro",
 
     // Admin additional
     adminSectionLabel: "ESPACE ADMINISTRATEUR",
@@ -352,15 +352,15 @@ const TRANSLATIONS = {
   en: {
     // Sidebar
     navPrincipal: "MAIN",
-    navDashboard: "📊 Dashboard",
-    navCV: "📄 My CV",
-    navLetters: "✉️ Cover Letters",
-    navJobs: "💼 Job Offers",
+    navDashboard: "Dashboard",
+    navCV: "My CV",
+    navLetters: "Cover Letters",
+    navJobs: "Job Offers",
     navMyAccount: "MY ACCOUNT",
-    navProfile: "👤 Profile",
-    navApplications: "📥 Applications",
-    navSettings: "⚙️ Settings",
-    navLogout: "🚪 Logout",
+    navProfile: "Profile",
+    navApplications: "Applications",
+    navSettings: "Settings",
+    navLogout: "Logout",
     navUpgradeTitle: "Upgrade to Premium",
     navUpgradeDesc: "Unlimited CVs, AI letters, access to all jobs from 5,000 FCFA/month.",
     navUpgradeBtn: "See plans →",
@@ -413,7 +413,7 @@ const TRANSLATIONS = {
 
     // CV Builder Step Bar & Stepper
     cvTopBarTitle: "My CV / Junior Marketing - {name}",
-    cvAutoSave: "💾 Auto-saved",
+    cvAutoSave: "Auto-saved",
     cvPreviewBtn: "Preview",
     cvDownloadPDF: "Download PDF ↓",
     cvStep1: "STEP 1",
@@ -428,20 +428,20 @@ const TRANSLATIONS = {
     // CV Builder Form Left
     cvFormStep2Title: "Complete your CV",
     cvFormStep2Desc: "Fill in each section below: contact details, summary, experience, education, skills and languages. The preview on the right updates live.",
-    cvAiHelperTitle: "✨ Optimize your CV for the market",
+    cvAiHelperTitle: "Optimize your CV for the market",
     cvAiHelperDesc: "Describe your experiences in a few words, we'll rephrase them like a pro.",
     cvAiHelperBtn: "Optimize my CV",
     cvAiLoading: "Processing...",
-    cvAiTipSuccess: "CV optimized to match what performs on the market! ✨",
+    cvAiTipSuccess: "CV optimized to match what performs on the market!",
     cvPhotoTitle: "Profile picture",
-    cvPhotoChange: "📷 Change photo",
+    cvPhotoChange: "Change photo",
     cvPhotoDelete: "Delete",
     cvLabelFirstName: "First name",
     cvLabelLastName: "Last name",
     cvLabelTitle: "Professional title",
     cvLabelSummary: "Professional summary",
-    cvAiSuggestTitle: "✨ Suggestion: \"Digital Marketing & Social Media Specialist\"",
-    cvAiSuggestSummary: "✨ Generate an impactful summary",
+    cvAiSuggestTitle: "Suggestion: \"Digital Marketing & Social Media Specialist\"",
+    cvAiSuggestSummary: "Generate an impactful summary",
     cvExperiencesTitle: "Professional experiences",
     cvAddBtn: "+ Add",
     cvDeleteBtn: "Delete",
@@ -474,8 +474,8 @@ const TRANSLATIONS = {
     cvBrandColorDesc: "Choose the dominant color of your CV.",
     cvDownloadTitle: "Download options",
     cvDownloadDesc: "Export your document to universal format. Your layout is optimized to fit on a single page.",
-    cvPrintBtn: "👁️ Print CV",
-    cvDownloadBtn: "📥 Download PDF ↓",
+    cvPrintBtn: "Print CV",
+    cvDownloadBtn: "Download PDF ↓",
 
     // Preview
     cvPreviewTitle: "LIVE PREVIEW",
@@ -484,34 +484,34 @@ const TRANSLATIONS = {
     cvSectionFormation: "Education",
     cvSectionSkills: "Skills",
     cvSectionLanguages: "Languages",
-    cvAtsTitle: "🚀 Score • ATS Compatibility",
+    cvAtsTitle: "Score • ATS Compatibility",
     cvAtsFeedback: "✓ Excellent! To reach 100%, add 2 certifications or a personal project.",
 
     // Cover Letters
     letTitle: "Generate a custom letter adapted to your sector",
     letDesc: "Select your industry, enter 3 key pieces of information, and get a letter tailored to the codes of your sector — vocabulary, tone, and expectations included.",
-    letStep1Title: "🏢 Step 1 — Choose your sector of activity",
+    letStep1Title: "Step 1 — Choose your sector of activity",
     letStep1Desc: "Each sector has its own codes and vocabulary. Select yours for a truly stand-out letter.",
     letCodesTitle: "Industry codes — {label}",
-    letStep2Title: "✍️ Step 2 — Personalize your letter",
+    letStep2Title: "Step 2 — Personalize your letter",
     letStep2Desc: "The more details you provide, the more unique and convincing your letter will be.",
     letPostLabel: "Target job title *",
     letCompanyLabel: "Company name *",
     letHrLabel: "RH manager name (optional)",
-    letHrTip: "💡 Personalizing the header increases the response rate by +40%",
+    letHrTip: "Personalizing the header increases the response rate by +40%",
     letAchievementLabel: "A key achievement to highlight",
-    letAchievementTip: "💡 A concrete figure makes your letter 3× more memorable",
+    letAchievementTip: "A concrete figure makes your letter 3× more memorable",
     letWhyLabel: "Why this company specifically?",
     letToneLabel: "Tone of the letter",
-    letToneProfessional: "💼 Professional & Formal",
-    letToneConfident: "🔥 Confident & Determined",
-    letTonePassionate: "❤️ Passionate & Creative",
-    letSubmitBtn: "✨ Write my personalized letter",
-    letSubmitBtnGenerating: "⏳ Generating...",
-    letSubmitBtnSelectSector: "⬆️ Select your sector first (Step 1)",
-    letGeneratedLetter: "✅ LETTER GENERATED — Sector {sector}",
+    letToneProfessional: "Professional & Formal",
+    letToneConfident: "Confident & Determined",
+    letTonePassionate: "Passionate & Creative",
+    letSubmitBtn: "Write my personalized letter",
+    letSubmitBtnGenerating: "Generating...",
+    letSubmitBtnSelectSector: "Select your sector first (Step 1)",
+    letGeneratedLetter: "LETTER GENERATED — Sector {sector}",
     letCopyBtn: "Copy text",
-    letPreviousLetters: "📁 Previously generated letters",
+    letPreviousLetters: "Previously generated letters",
     letReviewBtn: "Review this letter",
 
     // Jobs Explorer
@@ -540,9 +540,9 @@ const TRANSLATIONS = {
     profileCountryLabel: "Country",
     profilePhoneLabel: "Phone",
     profilePlanLabel: "Current subscription plan",
-    profilePlanFree: "🆓 Free Plan",
-    profilePlanMonthly: "⭐ Premium Monthly Plan",
-    profilePlanVIP: "👑 VIP Semestriel Plan (6 months)",
+    profilePlanFree: "Free Plan",
+    profilePlanMonthly: "Premium Monthly Plan",
+    profilePlanVIP: "VIP Semestriel Plan (6 months)",
     profileChangePlanBtn: "Change plan",
 
     // Applications Tracker
@@ -560,7 +560,7 @@ const TRANSLATIONS = {
     priceFreeBtnActive: "✓ Current Plan",
     priceMonthlyBtn: "Subscribe now",
     priceSemestrielBtn: "Subscribe — Save 50%",
-    priceSavingsTip: "💡 Tip: The Semestriel plan saves you 15,000 FCFA over 6 months vs monthly.",
+    priceSavingsTip: "Tip: The Semestriel plan saves you 15,000 FCFA over 6 months vs monthly.",
 
     // Admin Layout
     adminTitle: "Platform Management",
@@ -568,24 +568,24 @@ const TRANSLATIONS = {
     adminJobsActive: "Active job offers",
     adminFormationsPublished: "Published courses",
     adminApplicationsReceived: "Applications received",
-    adminPublishJob: "➕ Publish a new job offer",
+    adminPublishJob: "Publish a new job offer",
     adminJobRole: "Job title *",
     adminJobCompany: "Company *",
     adminJobCity: "City (e.g., Abidjan)",
     adminJobSalary: "Salary (e.g., 250k FCFA)",
     adminJobLogoBgLabel: "Logo color:",
     adminPublishBtn: "Publish job →",
-    adminPublishedJobs: "📋 Published job offers ({count})",
-    adminAddFormation: "➕ Add a new course",
+    adminPublishedJobs: "Published job offers ({count})",
+    adminAddFormation: "Add a new course",
     adminCourseTitle: "Course title *",
     adminCourseDuration: "Duration (e.g., 6h)",
     adminCourseLevelLabel: "Level",
     adminCourseCategoryLabel: "Category",
     adminPublishCourseBtn: "Publish course →",
-    adminPublishedCourses: "📚 Published courses ({count})",
+    adminPublishedCourses: "Published courses ({count})",
 
     // Settings
-    settingsTitle: "⚙️ Account settings",
+    settingsTitle: "Account settings",
     settingsDesc: "Manage your preferences, subscriptions, and security.",
     settingsGeneral: "General",
     settingsLang: "Language",
@@ -616,9 +616,9 @@ const TRANSLATIONS = {
     priceSemestrielTitle: "SEMESTRIEL",
     pricePopular: "POPULAR",
     priceBestValue: "BEST VALUE",
-    priceFreeFeature1: "📄 1 high-performing CV (1 edit)",
-    priceFreeFeature2: "✉️ 1 cover letter (1 edit)",
-    priceFreeFeature3: "🔍 Browse job offers",
+    priceFreeFeature1: "1 high-performing CV (1 edit)",
+    priceFreeFeature2: "1 cover letter (1 edit)",
+    priceFreeFeature3: "Browse job offers",
     priceFreeFeature4: "Unlimited edits",
     priceFreeFeature5: "Opportunities in your niche",
     priceFreeFeature6: "Advanced ATS Score",
@@ -629,11 +629,11 @@ const TRANSLATIONS = {
     pricePremiumFeature5: "✓ New opportunities in your niche",
     pricePremiumFeature6: "✓ 1-click applications",
     priceVipFeature1: "✓ Everything included in Monthly plan",
-    priceVipFeature2: "⭐ Priority access to opportunities in your niche",
-    priceVipFeature3: "⭐ Advanced CV ATS analysis (Score)",
-    priceVipFeature4: "⭐ Human CV review",
-    priceVipFeature5: "⭐ Priority WhatsApp support",
-    priceVipFeature6: "⭐ Badges & pro certificates",
+    priceVipFeature2: "Priority access to opportunities in your niche",
+    priceVipFeature3: "Advanced CV ATS analysis (Score)",
+    priceVipFeature4: "Human CV review",
+    priceVipFeature5: "Priority WhatsApp support",
+    priceVipFeature6: "Badges & pro certificates",
 
     // Admin additional
     adminSectionLabel: "ADMIN PANEL",
@@ -985,7 +985,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
       }
       consume('cvEdits');
       setIsAiLoading(false);
-      setAiTip('CV optimisé selon les modèles qui performent ! ✨');
+      setAiTip('CV optimisé selon les modèles qui performent !');
       setTimeout(() => setAiTip(''), 3000);
     }, 1200);
   };
@@ -1047,7 +1047,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
       ? `Je serais ravi(e) d'échanger avec vous lors d'un entretien afin de vous démontrer concrètement comment je peux ${vocab.closing}. Je vous remercie par avance de l'attention portée à ma candidature.`
       : `Je suis disponible pour un entretien à votre convenance et reste à votre entière disposition pour tout complément d'information.`;
 
-    return `Objet : Candidature au poste de ${letterRole} — ${firstName} ${lastName}\n\n${recipientOpening}\n\n${toneOpening} pour le poste de ${letterRole} au sein de ${letterCompany}.${hook}\n\n${expPhrase} ${skillsLine}${extraValue}${achievementPhrase}${motivationPhrase}\n\n${cta}\n\nVeuillez agréer, ${recipientClosing}, l'expression de mes salutations distinguées.\n\n${firstName} ${lastName}${cvData.phone ? `\n📞 ${cvData.phone}` : ''}${cvData.email ? `\n✉️ ${cvData.email}` : ''}`;
+    return `Objet : Candidature au poste de ${letterRole} — ${firstName} ${lastName}\n\n${recipientOpening}\n\n${toneOpening} pour le poste de ${letterRole} au sein de ${letterCompany}.${hook}\n\n${expPhrase} ${skillsLine}${extraValue}${achievementPhrase}${motivationPhrase}\n\n${cta}\n\nVeuillez agréer, ${recipientClosing}, l'expression de mes salutations distinguées.\n\n${firstName} ${lastName}${cvData.phone ? `\n${cvData.phone}` : ''}${cvData.email ? `\n${cvData.email}` : ''}`;
   };
 
   // Génère la lettre (animation de frappe) et l'enregistre dans l'historique
@@ -1224,7 +1224,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
       {/* SIDEBAR */}
       <aside style={styles.sidebar} className={`db-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         {/* Close button (mobile only) */}
-        <button className="db-sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
+        <button className="db-sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
 
         <div style={styles.sidebarBrand}>
           <span style={styles.logoDot}>M</span>
@@ -1233,29 +1233,33 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
         <div style={styles.sidebarSectionLabel}>{t("navPrincipal", "PRINCIPAL")}</div>
         <nav style={styles.sidebarNav}>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'dashboard' ? styles.sidebarLinkActive : {})}}
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'dashboard' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={() => setCurrentView('dashboard')}
           >
-            {t("navDashboard", "📊 Tableau de Bord")}
-          </button>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'cv' ? styles.sidebarLinkActive : {})}}
-            onClick={() => setCurrentView('cv')}
-          >
-            {t("navCV", "📄 Mon CV")}
-          </button>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'letters' ? styles.sidebarLinkActive : {})}}
-            onClick={() => setCurrentView('letters')}
-          >
-            {t("navLetters", "✉️ Lettres de motivation")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            {t("navDashboard", "Tableau de Bord")}
           </button>
           <button
-            style={{...styles.sidebarLink, ...(currentView === 'jobs' ? styles.sidebarLinkActive : {})}}
+            style={{...styles.sidebarLink, ...(currentView === 'cv' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
+            onClick={() => setCurrentView('cv')}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            {t("navCV", "Mon CV")}
+          </button>
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'letters' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
+            onClick={() => setCurrentView('letters')}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            {t("navLetters", "Lettres de motivation")}
+          </button>
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'jobs' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={() => setCurrentView('jobs')}
           >
-            {t("navJobs", "💼 Offres d'emploi")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            {t("navJobs", "Offres d'emploi")}
           </button>
           <button
             style={{...styles.sidebarLink, ...(currentView === 'support' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
@@ -1270,23 +1274,26 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
         <div style={styles.sidebarSectionLabel}>{t("navMyAccount", "MON COMPTE")}</div>
         <nav style={styles.sidebarNav}>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'profile' ? styles.sidebarLinkActive : {})}}
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'profile' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={() => setCurrentView('profile')}
           >
-            {t("navProfile", "👤 Profil")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {t("navProfile", "Profil")}
           </button>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'applications' ? styles.sidebarLinkActive : {})}}
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'applications' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={() => setCurrentView('applications')}
           >
-            {t("navApplications", "📥 Candidatures")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            {t("navApplications", "Candidatures")}
           </button>
-          <button 
-            style={{...styles.sidebarLink, ...(currentView === 'settings' ? styles.sidebarLinkActive : {})}}
+          <button
+            style={{...styles.sidebarLink, ...(currentView === 'settings' ? styles.sidebarLinkActive : {}), display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={() => setCurrentView('settings')}
           >
-            {t("navSettings", "⚙️ Paramètres")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            {t("navSettings", "Paramètres")}
           </button>
           {isAdmin && (
             <Link href="/admin" style={{ ...styles.sidebarLink, display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#a855f7', fontWeight: 700 }}>
@@ -1297,17 +1304,17 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
             </Link>
           )}
           <button
-            style={styles.sidebarLink}
+            style={{...styles.sidebarLink, display: 'flex', alignItems: 'center', gap: '10px'}}
             onClick={logout}
           >
-            {t("navLogout", "🚪 Déconnexion")}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            {t("navLogout", "Déconnexion")}
           </button>
         </nav>
 
         {/* Upgrade Banner */}
         {!isPremium && (
           <div style={styles.upgradeBanner}>
-            <div style={{ fontSize: '20px', marginBottom: '6px' }}>🚀</div>
             <h4 style={{ color: '#fff', fontSize: '13px', marginBottom: '6px', fontWeight: '700' }}>{t("navUpgradeTitle", "Passe au Premium")}</h4>
             <p style={{ color: 'var(--dark-text-muted)', fontSize: '11px', lineHeight: '1.5', marginBottom: '12px' }}>
               {t("navUpgradeDesc", "CV et lettres illimités, modifications illimitées, toutes les offres de ta niche dès 5 000 FCFA/mois.")}
@@ -1329,10 +1336,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
         {/* TOP BAR */}
         <header style={styles.topbar}>
           {/* Hamburger (mobile only) */}
-          <button className="db-hamburger" onClick={() => setSidebarOpen(true)}>☰</button>
+          <button className="db-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
           <div style={styles.topbarSearch} className="db-topbar-search">
-            🔍 <input 
-              type="text" 
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.6 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              type="text"
               placeholder={t("topSearchPlaceholder", "Rechercher une offre, une formation, un secteur...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -1360,7 +1368,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 {(profilePhoto || cvData.photo) ? (
                   <img src={profilePhoto || cvData.photo} alt="Profil" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                 ) : (
-                  ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'
+                  ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || ''
                 )}
               </div>
             <div style={styles.userProfileMeta} className="db-user-meta">
@@ -1377,7 +1385,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           {/* Bandeau de renouvellement (J-3 / J-2) — visible sur toutes les vues */}
           {renewActive && (
             <div style={styles.renewBanner}>
-              <span style={{ fontSize: '20px', flexShrink: 0 }}>⏳</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <strong style={{ display: 'block', fontSize: '14px', color: '#7c2d12' }}>
                   Ton abonnement se termine {renewDaysLeft <= 1 ? "demain" : `dans ${renewDaysLeft} jours`}.
@@ -1419,7 +1427,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               <div style={styles.welcomeCard}>
                 <div style={{ flex: 1 }}>
                   <h2 style={{ fontSize: '28px', color: '#0f172a', marginBottom: '8px' }}>
-                    {firstName ? `Bonjour ${firstName}, prêt à décrocher ton job ?` : 'Bienvenue sur ton espace 👋'}
+                    {firstName ? `Bonjour ${firstName}, prêt à décrocher ton job ?` : 'Bienvenue sur ton espace'}
                   </h2>
                   <p style={{ color: 'var(--light-text-muted)', fontSize: '15px', marginBottom: '20px' }}>
                     {t("dashWelcomeText", "Crée ton CV performant, génère tes lettres de motivation et explore les offres d'emploi. Commence dès maintenant !")}
@@ -1436,7 +1444,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <span style={{ fontSize: '26px', fontWeight: '800', color: 'var(--primary)' }}>{profileCompletion}%</span>
                   </div>
                   <p style={{ fontSize: '12px', fontWeight: '700', color: '#0f172a', marginTop: '10px' }}>{t("dashProfileCompleted", "Profil complété")}</p>
-                  <p style={{ fontSize: '10px', color: 'var(--light-text-muted)' }}>{profileCompletion < 100 ? 'Complète ton CV' : 'Profil complet ✅'}</p>
+                  <p style={{ fontSize: '10px', color: 'var(--light-text-muted)' }}>{profileCompletion < 100 ? 'Complète ton CV' : 'Profil complet'}</p>
                 </div>
               </div>
 
@@ -1470,7 +1478,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   {canUseProFeatures ? (
                   jobs.length === 0 ? (
                   <div style={{ ...styles.jobItemCard, padding: '24px', color: 'var(--light-text-muted)', fontSize: '13px', justifyContent: 'center' }}>
-                    Aucune offre disponible pour le moment. Reviens bientôt 👀
+                    Aucune offre disponible pour le moment. Reviens bientôt
                   </div>
                   ) : (
                   <div style={styles.jobsList}>
@@ -1492,7 +1500,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   )
                   ) : (
                   <div style={{ ...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', gap: '10px', padding: '24px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700 }}>🔒 Offres réservées aux plans Standard &amp; Premium</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      Offres réservées aux plans Standard &amp; Premium
+                    </div>
                     <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', margin: 0 }}>
                       Le plan Basique te donne le CV et les lettres de motivation. Passe au Standard pour débloquer les offres d'emploi et les opportunités de ta niche.
                     </p>
@@ -1517,7 +1528,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       <>
                         {letters.slice(0, 3).map((l) => (
                           <div key={`l-${l.id}`} style={styles.feedItem}>
-                            <span style={styles.feedCheckIcon}>✉️</span>
+                            <span style={styles.feedCheckIcon}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></span>
                             <div>
                               <p style={styles.feedText}>Lettre de motivation générée{l.company ? ` pour ${l.company}` : ''}.</p>
                               <span style={styles.feedTime}>{translateDate(l.date)}</span>
@@ -1543,25 +1554,25 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {/* Bottom Quick Actions Grid */}
               <div style={styles.bottomActionsGrid}>
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('cv')}>
-                  <span style={styles.actionIcon}>✨</span>
+                  <span style={styles.actionIcon}><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
                   <h4>{t("actionCreateCVTitle", "Créer un nouveau CV")}</h4>
                   <p>{t("actionCreateCVDesc", "Un CV performant prêt à l'emploi en 2 minutes")}</p>
                 </div>
 
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('letters')}>
-                  <span style={styles.actionIcon}>✉️</span>
+                  <span style={styles.actionIcon}><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></span>
                   <h4>{t("actionLetterTitle", "Lettre de motivation")}</h4>
                   <p>{t("actionLetterDesc", "Personnalisée par secteur d'activité")}</p>
                 </div>
 
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('jobs')}>
-                  <span style={styles.actionIcon}>💼</span>
+                  <span style={styles.actionIcon}><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></span>
                   <h4>{t("actionExploreJobsTitle", "Explorer les offres")}</h4>
                   <p>{t("actionExploreJobsDesc", "De nouvelles offres ajoutées automatiquement")}</p>
                 </div>
 
                 <div style={styles.bottomActionCard} onClick={() => setCurrentView('applications')}>
-                  <span style={styles.actionIcon}>📥</span>
+                  <span style={styles.actionIcon}><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
                   <h4>{t("actionApplicationsTitle", "Mes candidatures")}</h4>
                   <p>{t("actionApplicationsDesc", "Suis l'état de tes candidatures envoyées")}</p>
                 </div>
@@ -1615,11 +1626,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         />
                       ) : (
                         <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || '👤'}
+                          {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || ''}
                         </div>
                       )}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <button className="btn btn-secondary btn-sm" onClick={() => photoInputRef.current?.click()}>{t("cvPhotoChange", "📷 Changer la photo")}</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => photoInputRef.current?.click()}>{t("cvPhotoChange", "Changer la photo")}</button>
                         {(profilePhoto || cvData.photo) && (
                           <button className="btn btn-secondary btn-sm" style={{ border: 'none', color: '#ef4444' }} onClick={() => { setProfilePhoto(null); updateCV('photo', null); }}>{t("cvPhotoDelete", "Supprimer")}</button>
                         )}
@@ -1673,7 +1684,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         onClick={() => triggerAiCVHelp('summary')}
                         disabled={isAiLoading}
                       >
-                        {isAiLoading ? '⏳ Génération...' : '✨ Générer un résumé à partir de mes infos'}
+                        {isAiLoading ? 'Génération...' : 'Générer un résumé à partir de mes infos'}
                       </button>
                     </div>
                   </div>
@@ -1726,7 +1737,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                     {/* Add/Edit Experience inline Form */}
                     <form onSubmit={handleAddExperience} style={styles.inlineForm}>
-                      {editingExpId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditExpHint", "✏️ Modification de l'expérience")}</div>}
+                      {editingExpId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditExpHint", "Modification de l'expérience")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddExpTitle", "Poste (ex: Stage Marketing)")} className="form-input" value={newExpRole} onChange={(e) => setNewExpRole(e.target.value)} style={{ padding: '8px 12px' }} required />
                         <input type="text" placeholder={t("cvAddExpCompany", "Entreprise")} className="form-input" value={newExpCompany} onChange={(e) => setNewExpCompany(e.target.value)} style={{ padding: '8px 12px' }} required />
@@ -1764,7 +1775,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                     {/* Add/Edit Education inline Form */}
                     <form onSubmit={handleAddEducation} style={styles.inlineForm}>
-                      {editingEduId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditEduHint", "✏️ Modification de la formation")}</div>}
+                      {editingEduId != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditEduHint", "Modification de la formation")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddEduDegree", "Diplôme (ex: Licence)")} className="form-input" value={newEduDegree} onChange={(e) => setNewEduDegree(e.target.value)} style={{ padding: '8px 12px' }} required />
                         <input type="text" placeholder={t("cvAddEduSchool", "Établissement")} className="form-input" value={newEduSchool} onChange={(e) => setNewEduSchool(e.target.value)} style={{ padding: '8px 12px' }} required />
@@ -1815,7 +1826,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       </div>
                     ))}
                     <form onSubmit={handleAddLanguage} style={styles.inlineForm}>
-                      {editingLangIndex != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditLangHint", "✏️ Modification de la langue")}</div>}
+                      {editingLangIndex != null && <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>{t("cvEditLangHint", "Modification de la langue")}</div>}
                       <div style={styles.rowInputs}>
                         <input type="text" placeholder={t("cvAddLangName", "Langue (ex: Anglais)")} className="form-input" value={newLangName} onChange={(e) => setNewLangName(e.target.value)} style={{ padding: '8px 12px' }} />
                         <select className="form-input" value={newLangLevel} onChange={(e) => setNewLangLevel(e.target.value)} style={{ padding: '8px 12px' }}>
@@ -1857,7 +1868,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                           <img src={profilePhoto || cvData.photo} alt="Photo" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)', flexShrink: 0 }} />
                         ) : (
                           <div style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || '👤'}
+                            {((cvData.firstName?.[0] || '') + (cvData.lastName?.[0] || '')).toUpperCase() || ''}
                           </div>
                         )}
                         <div>
@@ -1866,10 +1877,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', fontSize: '10px', color: '#475569' }}>
-                        {cvData.email && <div>📧 {cvData.email}</div>}
-                        {cvData.phone && <div>📞 {cvData.phone}</div>}
-                        {cvData.address && <div>📍 {cvData.address}</div>}
-                        {cvData.linkedin && <div>🔗 {cvData.linkedin}</div>}
+                        {cvData.email && <div>{cvData.email}</div>}
+                        {cvData.phone && <div>{cvData.phone}</div>}
+                        {cvData.address && <div>{cvData.address}</div>}
+                        {cvData.linkedin && <div>{cvData.linkedin}</div>}
                       </div>
                     </div>
 
@@ -1952,7 +1963,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   {canUseProFeatures ? (
                   <div style={styles.atsCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '700' }}>
-                      <span>{t("cvAtsTitle", "🚀 Score • Compatibilité ATS")}</span>
+                      <span>{t("cvAtsTitle", "Score • Compatibilité ATS")}</span>
                       <span style={{ color: atsScore >= 80 ? 'var(--primary)' : atsScore >= 50 ? '#f59e0b' : '#ef4444' }}>{atsScore}%</span>
                     </div>
                     <div style={styles.atsBarBackground}>
@@ -1960,10 +1971,10 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     </div>
                     <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: '8px 0 12px' }}>
                       {atsScore >= 80
-                        ? '✅ Excellent ! Ton CV est très bien optimisé pour les logiciels de recrutement (ATS).'
+                        ? 'Excellent ! Ton CV est très bien optimisé pour les logiciels de recrutement (ATS).'
                         : atsScore >= 50
-                        ? '⚠️ Bon début. Complète les points ci-dessous pour passer les filtres ATS plus facilement.'
-                        : '❌ Ton CV est incomplet. Renseigne les éléments ci-dessous pour être repéré par les recruteurs.'}
+                        ? 'Bon début. Complète les points ci-dessous pour passer les filtres ATS plus facilement.'
+                        : 'Ton CV est incomplet. Renseigne les éléments ci-dessous pour être repéré par les recruteurs.'}
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                       {(atsChecklist || []).map((it) => (
@@ -1978,7 +1989,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   ) : (
                   <div style={{ ...styles.atsCard, textAlign: 'center' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>🔒 Score ATS — Standard &amp; Premium</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>Score ATS — Standard &amp; Premium</div>
                     <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: 0 }}>
                       L'analyse ATS avancée n'est pas incluse dans le plan Basique.{' '}
                       <span onClick={() => setCurrentView('pricing')} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Passer au Standard →</span>
@@ -2007,7 +2018,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
               {/* ÉTAPE 1 : Sélecteur d'industrie */}
               <div style={styles.editorSectionCard}>
-                <h3 style={{ fontSize: '15px', marginBottom: '6px', color: '#0f172a' }}>{t("letStep1Title", "🏢 Étape 1 — Choisis ton secteur d'activité")}</h3>
+                <h3 style={{ fontSize: '15px', marginBottom: '6px', color: '#0f172a' }}>{t("letStep1Title", "Étape 1 — Choisis ton secteur d'activité")}</h3>
                 <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', marginBottom: '20px' }}>
                   {t("letStep1Desc", "Chaque secteur a ses propres codes et son vocabulaire. Sélectionne le tien pour une lettre réellement différenciante.")}
                 </p>
@@ -2046,7 +2057,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   const ind = INDUSTRIES.find(i => i.id === letterIndustry);
                   return (
                     <div style={{ marginTop: '20px', padding: '16px 20px', backgroundColor: '#e8f9f3', border: '1.5px solid var(--primary)', borderRadius: 'var(--radius-md)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '22px', marginTop: '1px', flexShrink: 0 }}>💡</span>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '1px', flexShrink: 0 }}><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
                       <div>
                         <strong style={{ fontSize: '13px', color: 'var(--primary)', display: 'block', marginBottom: '5px' }}>{t("letCodesTitle", "Codes de l'industrie — {label}", { label: ind.label })}</strong>
                         <p style={{ fontSize: '12px', color: '#334155', margin: 0, lineHeight: '1.65' }}>{ind.tip}</p>
@@ -2058,7 +2069,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
               {/* ÉTAPE 2 : Formulaire de personnalisation */}
               <div style={{ ...styles.editorSectionCard, marginTop: '24px' }}>
-                <h3 style={{ fontSize: '15px', marginBottom: '6px', color: '#0f172a' }}>{t("letStep2Title", "✍️ Étape 2 — Personnalise ta lettre")}</h3>
+                <h3 style={{ fontSize: '15px', marginBottom: '6px', color: '#0f172a' }}>{t("letStep2Title", "Étape 2 — Personnalise ta lettre")}</h3>
                 <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', marginBottom: '20px' }}>
                   {t("letStep2Desc", "Plus tu donnes de détails, plus ta lettre sera unique et convaincante.")}
                 </p>
@@ -2077,13 +2088,13 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div className="form-group">
                     <label className="form-label">{t("letHrLabel", "Nom du/de la responsable RH (optionnel)")}</label>
                     <input type="text" className="form-input" value={letterRecipientName} onChange={(e) => setLetterRecipientName(e.target.value)} placeholder="ex: Monsieur Koné, Madame Diallo" />
-                    <span style={{ fontSize: '11px', color: 'var(--primary)', marginTop: '5px', display: 'block', fontWeight: '600' }}>{t("letHrTip", "💡 Personnaliser l'en-tête augmente le taux de réponse de +40%")}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)', marginTop: '5px', display: 'block', fontWeight: '600' }}>{t("letHrTip", "Personnaliser l'en-tête augmente le taux de réponse de +40%")}</span>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">{t("letAchievementLabel", "Une réalisation clé à mettre en avant")}</label>
                     <input type="text" className="form-input" value={letterKeyAchievement} onChange={(e) => setLetterKeyAchievement(e.target.value)} placeholder="ex: +15k followers en 3 mois, hausse de 22% de l'engagement" />
-                    <span style={{ fontSize: '11px', color: 'var(--primary)', marginTop: '5px', display: 'block', fontWeight: '600' }}>{t("letAchievementTip", "💡 Un chiffre concret rend ta lettre 3× plus mémorable")}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)', marginTop: '5px', display: 'block', fontWeight: '600' }}>{t("letAchievementTip", "Un chiffre concret rend ta lettre 3× plus mémorable")}</span>
                   </div>
 
                   <div className="form-group">
@@ -2094,14 +2105,14 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div className="form-group">
                     <label className="form-label">{t("letToneLabel", "Ton de la lettre")}</label>
                     <select className="form-input" value={letterTone} onChange={(e) => setLetterTone(e.target.value)}>
-                      <option value="Professionnel">{t("letToneProfessional", "💼 Professionnel & Formel")}</option>
-                      <option value="Confiant">{t("letToneConfident", "🔥 Confiant & Déterminé")}</option>
-                      <option value="Passionné">{t("letTonePassionate", "❤️ Passionné & Créatif")}</option>
+                      <option value="Professionnel">{t("letToneProfessional", "Professionnel & Formel")}</option>
+                      <option value="Confiant">{t("letToneConfident", "Confiant & Déterminé")}</option>
+                      <option value="Passionné">{t("letTonePassionate", "Passionné & Créatif")}</option>
                     </select>
                   </div>
 
                   <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px' }} disabled={isLetterGenerating || !letterIndustry}>
-                    {isLetterGenerating ? t("letSubmitBtnGenerating", "⏳ Génération en cours...") : !letterIndustry ? t("letSubmitBtnSelectSector", "⬆️ Sélectionne d'abord ton secteur (Étape 1)") : t("letSubmitBtn", "✨ Rédiger ma lettre personnalisée")}
+                    {isLetterGenerating ? t("letSubmitBtnGenerating", "Génération en cours...") : !letterIndustry ? t("letSubmitBtnSelectSector", "Sélectionne d'abord ton secteur (Étape 1)") : t("letSubmitBtn", "Rédiger ma lettre personnalisée")}
                   </button>
                 </form>
               </div>
@@ -2110,9 +2121,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {(generatedLetterContent || isLetterGenerating) && (
                 <div style={{ ...styles.editorSectionCard, marginTop: '30px', backgroundColor: '#fafffe', border: '1.5px solid var(--primary)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
-                    <strong style={{ color: 'var(--primary)', fontSize: '13px' }}>{t("letGeneratedLetter", "✅ TA LETTRE — Secteur {sector}", { sector: INDUSTRIES.find(i => i.id === letterIndustry)?.label })}</strong>
+                    <strong style={{ color: 'var(--primary)', fontSize: '13px' }}>{t("letGeneratedLetter", "TA LETTRE — Secteur {sector}", { sector: INDUSTRIES.find(i => i.id === letterIndustry)?.label })}</strong>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <button className="btn btn-secondary btn-sm" disabled={isLetterGenerating || !generatedLetterContent} onClick={improveLetter}>{t("letImproveBtn", "✨ Améliorer")}</button>
+                      <button className="btn btn-secondary btn-sm" disabled={isLetterGenerating || !generatedLetterContent} onClick={improveLetter}>{t("letImproveBtn", "Améliorer")}</button>
                       <button className="btn btn-secondary btn-sm" disabled={!generatedLetterContent} onClick={() => { navigator.clipboard.writeText(generatedLetterContent); openModal(t('compris', 'Copiée !'), t('dashActivityWaveLetter', 'Le contenu de la lettre a été copié dans le presse-papier.'), 'success'); }}>{t("letCopyBtn", "Copier")}</button>
                       <button className="btn btn-primary btn-sm" disabled={!generatedLetterContent} onClick={downloadLetter}>{t("letDownloadBtn", "Télécharger PDF ↓")}</button>
                     </div>
@@ -2130,7 +2141,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {/* Lettres sauvegardées */}
               {letters.length > 0 && (
                 <div style={{ marginTop: '40px' }}>
-                  <h3 style={{ marginBottom: '16px' }}>{t("letPreviousLetters", "📁 Lettres précédemment générées")}</h3>
+                  <h3 style={{ marginBottom: '16px' }}>{t("letPreviousLetters", "Lettres précédemment générées")}</h3>
                   <div style={styles.jobsList}>
                     {letters.map((letItem) => (
                       <div key={letItem.id} style={{ ...styles.jobItemCard, flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
@@ -2162,7 +2173,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               {/* Jobs List grid — réservé aux plans Standard / Premium */}
               {!canUseProFeatures ? (
                 <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div>
+                  <div style={{ marginBottom: '12px' }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                   <h3 style={{ marginBottom: '8px' }}>Réservé aux plans Standard et Premium</h3>
                   <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto 20px' }}>
                     Les offres d'emploi en temps réel et les opportunités de ta niche ne sont pas incluses dans le plan Basique. Passe au Standard pour y accéder.
@@ -2171,7 +2182,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 </div>
               ) : jobs.length === 0 ? (
                 <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>📭</div>
+                  <div style={{ marginBottom: '12px' }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--light-text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
                   <h3 style={{ marginBottom: '8px' }}>{t("jobsEmptyTitle", "Aucune offre pour le moment")}</h3>
                   <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto' }}>
                     {t("jobsEmptyDesc", "De nouvelles offres d'emploi sont ajoutées automatiquement. Reviens très bientôt !")}
@@ -2184,7 +2195,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder={t("jobsSearchPlaceholder", "🔍 Rechercher un poste, une entreprise...")}
+                    placeholder={t("jobsSearchPlaceholder", "Rechercher un poste, une entreprise...")}
                     value={jobSearch}
                     onChange={(e) => setJobSearch(e.target.value)}
                     style={{ flex: 2, minWidth: '180px' }}
@@ -2206,7 +2217,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
                 {filteredJobs.length === 0 ? (
                   <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '32px 24px' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔍</div>
+                    <div style={{ marginBottom: '10px' }}><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--light-text-muted)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
                     <p style={{ color: 'var(--light-text-muted)', margin: 0 }}>{t("jobsNoMatch", "Aucune offre ne correspond à ta recherche. Essaie d'autres filtres.")}</p>
                   </div>
                 ) : (
@@ -2222,9 +2233,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     </div>
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {job.location && <span className="cv-badge">📍 {job.location}</span>}
-                      {job.contract && <span className="cv-badge">💼 {job.contract}</span>}
-                      {job.salary && <span className="cv-badge">💰 {job.salary}</span>}
+                      {job.location && <span className="cv-badge">{job.location}</span>}
+                      {job.contract && <span className="cv-badge">{job.contract}</span>}
+                      {job.salary && <span className="cv-badge">{job.salary}</span>}
                     </div>
 
                     {job.description && (
@@ -2278,11 +2289,11 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       />
                     ) : (
                       <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: '800', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        {((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '👤'}
+                        {((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || ''}
                       </div>
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => photoInputRef.current?.click()}>📷 Changer la photo</button>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => photoInputRef.current?.click()}>Changer la photo</button>
                       {(profilePhoto || cvData.photo) && (
                         <button type="button" className="btn btn-secondary btn-sm" style={{ border: 'none', color: '#ef4444' }} onClick={() => { setProfilePhoto(null); updateCV('photo', null); }}>Supprimer</button>
                       )}
@@ -2314,7 +2325,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <label className="form-label">{t("profilePlanLabel", "Plan d'abonnement actuel")}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
                     <span className="cv-badge" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 'bold', fontSize: '12px', padding: '6px 12px' }}>
-                      {plan === 'basique' ? '🥉 Plan Basique' : plan === 'standard' ? '⭐ Plan Standard' : '👑 Plan Premium (6 mois)'}
+                      {plan === 'basique' ? 'Plan Basique' : plan === 'standard' ? 'Plan Standard' : 'Plan Premium (6 mois)'}
                     </span>
                     <button className="btn btn-secondary btn-sm" onClick={() => setCurrentView('pricing')}>{t("profileChangePlanBtn", "Changer de plan")}</button>
                   </div>
@@ -2337,7 +2348,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <div style={{ flex: 1 }}>
                       <h4 style={{ margin: 0 }}>{app.role} chez {app.company}</h4>
                       <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', margin: '4px 0 0 0' }}>
-                        📍 {app.location} • {t("appsSentOn", "Envoyé le {date}", { date: translateDate(app.date) })}
+                        {app.location} • {t("appsSentOn", "Envoyé le {date}", { date: translateDate(app.date) })}
                       </p>
                     </div>
                     <span 
@@ -2372,7 +2383,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
               {!canUseProFeatures ? (
                 <div style={{ ...styles.editorSectionCard, textAlign: 'center', padding: '40px 24px' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div>
+                  <div style={{ marginBottom: '12px' }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                   <h3 style={{ marginBottom: '8px' }}>{t("supportLockedTitle", "Le support est inclus dans les plans Standard et Premium")}</h3>
                   <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto 20px' }}>
                     {t("supportLockedDesc", "Passe au plan Standard pour échanger directement avec notre équipe.")}
@@ -2386,7 +2397,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       <p style={{ color: 'var(--light-text-muted)', fontSize: '13px', textAlign: 'center', margin: '20px 0' }}>{t("supportLoading", "Chargement...")}</p>
                     ) : supportMessages.length === 0 ? (
                       <div style={{ textAlign: 'center', color: 'var(--light-text-muted)', fontSize: '13px', padding: '24px 8px' }}>
-                        {t("supportEmpty", "Aucun message pour l'instant. Pose ta première question ci-dessous 👇")}
+                        {t("supportEmpty", "Aucun message pour l'instant. Pose ta première question ci-dessous")}
                       </div>
                     ) : (
                       supportMessages.map((m) => (
@@ -2499,9 +2510,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: '#fff' }}>✓ Tout ce qu'inclut le plan Standard</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Engagement 6 mois — 2 500 FCFA/mois</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Accès prioritaire aux opportunités de ta niche</li>
-                    <li style={{ color: '#c084fc', fontWeight: '700' }}>⭐ Relecture humaine du CV</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>Engagement 6 mois — 2 500 FCFA/mois</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>Accès prioritaire aux opportunités de ta niche</li>
+                    <li style={{ color: '#c084fc', fontWeight: '700' }}>Relecture humaine du CV</li>
                   </ul>
                 </div>
 
@@ -2511,7 +2522,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               <div style={{ textAlign: 'center', marginTop: '40px' }}>
                 <div style={{ display: 'inline-block', padding: '16px 28px', backgroundColor: 'var(--dark-card)', border: '1px solid #a855f7', borderRadius: 'var(--radius-lg)' }}>
                   <p style={{ color: 'var(--dark-text-muted)', fontSize: '13px', margin: 0 }}>
-                    💡 Conseil : le plan Premium (6 mois) revient à 2 500 FCFA/mois, soit le prix du Basique mais avec tout l'accès du Standard.
+                    Conseil : le plan Premium (6 mois) revient à 2 500 FCFA/mois, soit le prix du Basique mais avec tout l'accès du Standard.
                   </p>
                 </div>
               </div>
@@ -2544,7 +2555,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                 {/* Jobs Management */}
                 <div>
                   <div style={styles.editorSectionCard}>
-                    <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>{t("adminPublishJob", "➕ Publier une nouvelle offre d'emploi")}</h3>
+                    <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>{t("adminPublishJob", "Publier une nouvelle offre d'emploi")}</h3>
                     <form onSubmit={handleAdminAddJob} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <input type="text" placeholder={t("adminJobRole", "Titre du poste *")} className="form-input" value={adminJobRole} onChange={e => setAdminJobRole(e.target.value)} required />
@@ -2573,7 +2584,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   </div>
 
                   <div style={{ marginTop: '24px' }}>
-                    <h3 style={{ marginBottom: '15px', fontSize: '15px' }}>{t("adminPublishedJobs", "📋 Offres publiées ({count})", { count: jobs.length })}</h3>
+                    <h3 style={{ marginBottom: '15px', fontSize: '15px' }}>{t("adminPublishedJobs", "Offres publiées ({count})", { count: jobs.length })}</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {jobs.map(job => (
                         <div key={job.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', border: '1px solid var(--light-border)', borderRadius: 'var(--radius-md)', backgroundColor: '#fff' }}>
@@ -2597,7 +2608,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           {currentView === 'settings' && (
             <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
               <div style={{ marginBottom: '30px' }}>
-                <h2 style={{ fontSize: '24px', color: '#0f172a', marginBottom: '4px' }}>{t("settingsTitle", "⚙️ Paramètres du compte")}</h2>
+                <h2 style={{ fontSize: '24px', color: '#0f172a', marginBottom: '4px' }}>{t("settingsTitle", "Paramètres du compte")}</h2>
                 <p style={{ color: 'var(--light-text-muted)', fontSize: '14px' }}>{t("settingsDesc", "Gère tes préférences, abonnements et sécurité.")}</p>
               </div>
 
@@ -2656,12 +2667,12 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               borderBottomColor: modalConfig.type === 'success' ? 'var(--success)' : modalConfig.type === 'warning' ? 'var(--warning)' : 'var(--primary)'
             }}>
               <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {modalConfig.type === 'success' && '✅'}
-                {modalConfig.type === 'warning' && '⚠️'}
-                {modalConfig.type === 'info' && 'ℹ️'}
+                {modalConfig.type === 'success' && ''}
+                {modalConfig.type === 'warning' && ''}
+                {modalConfig.type === 'info' && 'ℹ'}
                 {modalConfig.title}
               </h3>
-              <button onClick={closeModal} style={styles.modalCloseBtn}>✕</button>
+              <button onClick={closeModal} style={styles.modalCloseBtn} aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             <div style={styles.modalBody}>
               <p>{modalConfig.message}</p>
@@ -2691,9 +2702,9 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
           <div style={styles.modalContent}>
             <div style={{ ...styles.modalHeader, borderBottomColor: 'var(--warning)' }}>
               <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                ⏳ {renewDaysLeft <= 1 ? 'Ton abonnement expire demain' : `Plus que ${renewDaysLeft} jours d'accès`}
+                {renewDaysLeft <= 1 ? 'Ton abonnement expire demain' : `Plus que ${renewDaysLeft} jours d'accès`}
               </h3>
-              <button onClick={dismissRenewModal} style={styles.modalCloseBtn}>✕</button>
+              <button onClick={dismissRenewModal} style={styles.modalCloseBtn} aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             <div style={styles.modalBody}>
               <p style={{ margin: 0 }}>
