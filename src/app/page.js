@@ -247,7 +247,7 @@ export default function LandingPage() {
           <div style={styles.footerCol}>
             <h4>Entreprise</h4>
             <Link href="#" style={styles.footerLink}>À propos</Link>
-            <Link href="#" style={styles.footerLink}>Contact</Link>
+            <Link href="/contact" style={styles.footerLink}>Contact</Link>
             <Link href="#" style={styles.footerLink}>Blog</Link>
             <Link href="#" style={styles.footerLink}>Carrières</Link>
           </div>

@@ -6,7 +6,7 @@
 //   RESEND_API_KEY = re_xxx               (clé API Resend)
 //   EMAIL_FROM     = MonFuturBoulot <noreply@monfuturboulot.com>  (domaine vérifié)
 
-export async function sendEmail({ to, subject, html }) {
+export async function sendEmail({ to, subject, html, replyTo }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 
@@ -16,13 +16,15 @@ export async function sendEmail({ to, subject, html }) {
   }
 
   try {
+    const payload = { from, to, subject, html };
+    if (replyTo) payload.reply_to = replyTo;
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
