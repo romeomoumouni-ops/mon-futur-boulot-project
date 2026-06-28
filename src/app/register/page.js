@@ -5,6 +5,24 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
 
+// Pays proposés + indicatif et exemple de numéro (sert au pré-remplissage automatique
+// selon le pays détecté par l'IP, et au placeholder dynamique du champ téléphone).
+const COUNTRY_INFO = {
+  "Côte d'Ivoire": { iso: 'CI', dial: '+225', placeholder: '+225 07 12 34 56 78' },
+  'Sénégal': { iso: 'SN', dial: '+221', placeholder: '+221 77 123 45 67' },
+  'Cameroun': { iso: 'CM', dial: '+237', placeholder: '+237 6 71 23 45 67' },
+  'Bénin': { iso: 'BJ', dial: '+229', placeholder: '+229 01 23 45 67 89' },
+  'Togo': { iso: 'TG', dial: '+228', placeholder: '+228 90 12 34 56' },
+  'Mali': { iso: 'ML', dial: '+223', placeholder: '+223 70 12 34 56' },
+  'Burkina Faso': { iso: 'BF', dial: '+226', placeholder: '+226 70 12 34 56' },
+  'Gabon': { iso: 'GA', dial: '+241', placeholder: '+241 06 12 34 56' },
+};
+// ISO2 -> nom du pays (pour mapper le résultat de la géolocalisation IP)
+const ISO_TO_COUNTRY = Object.fromEntries(
+  Object.entries(COUNTRY_INFO).map(([name, info]) => [info.iso, name])
+);
+const DIAL_CODES = Object.values(COUNTRY_INFO).map((c) => c.dial);
+
 export default function RegisterPage() {
   const { registerUser, loginUser, user, accessPlan } = useContext(AppContext);
   const router = useRouter();
@@ -41,6 +59,40 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Applique un pays : met à jour le sélecteur et pré-remplit l'indicatif dans le
+  // champ téléphone, SANS écraser un numéro déjà saisi (on ne remplace que si le
+  // champ est vide ou ne contient qu'un indicatif).
+  const applyCountry = (name) => {
+    if (!COUNTRY_INFO[name]) return;
+    setCountry(name);
+    const dial = COUNTRY_INFO[name].dial;
+    setPhone((prev) => {
+      const p = (prev || '').trim();
+      const isEmptyOrDialOnly = p === '' || DIAL_CODES.includes(p) || /^\+\d{1,4}$/.test(p);
+      return isEmptyOrDialOnly ? dial + ' ' : prev;
+    });
+  };
+
+  // Détection automatique du pays via l'IP (géolocalisation), au chargement.
+  // Si le pays détecté fait partie de la liste, on le pré-sélectionne. Sinon, on
+  // garde la valeur par défaut. Échec réseau => aucun impact (valeur par défaut).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('https://get.geojs.io/v1/ip/country.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        const iso = (data?.country || '').toUpperCase();
+        const name = ISO_TO_COUNTRY[iso];
+        if (!cancelled && name) applyCountry(name);
+      } catch {
+        // silencieux : on reste sur le pays par défaut
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleToggleMode = (mode) => {
     setIsLoginMode(mode);
@@ -171,7 +223,7 @@ export default function RegisterPage() {
                     className="form-input" 
                     style={{ appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center', backgroundSize: '16px' }}
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
+                    onChange={(e) => applyCountry(e.target.value)}
                   >
                     <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
                     <option value="Sénégal">🇸🇳 Sénégal</option>
@@ -185,10 +237,10 @@ export default function RegisterPage() {
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label">Téléphone</label>
-                  <input 
-                    type="tel" 
-                    className="form-input" 
-                    placeholder="+225 07 12 34 56 78" 
+                  <input
+                    type="tel"
+                    className="form-input"
+                    placeholder={COUNTRY_INFO[country]?.placeholder || '+225 07 12 34 56 78'}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
