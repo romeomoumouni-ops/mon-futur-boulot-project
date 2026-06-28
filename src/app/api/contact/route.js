@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,6 +58,16 @@ export async function POST(request) {
   </div>
 </body></html>`;
 
+  // 1) Enregistre le message en base (service role : bypass RLS pour un visiteur anonyme)
+  //    → visible dans l'onglet « Messagerie » de l'espace admin.
+  try {
+    const admin = createAdminClient();
+    await admin.from('contact_messages').insert({ name, email, subject, message });
+  } catch (e) {
+    console.error('[contact] insert skipped', e?.message || e);
+  }
+
+  // 2) Notification e-mail vers la boîte support (avec reply-to = visiteur)
   const res = await sendEmail({
     to: supportInbox(),
     subject: `[Contact] ${subject} — ${name}`,

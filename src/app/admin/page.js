@@ -35,7 +35,7 @@ export default function AdminPage() {
     let active = true;
     (async () => {
       setLoading(true);
-      const [profiles, subs, letters, apps, cvs, support, jobs] = await Promise.all([
+      const [profiles, subs, letters, apps, cvs, support, jobs, messages] = await Promise.all([
         supabase.from('profiles').select('id, first_name, last_name, email, country, phone, created_at').order('created_at', { ascending: false }),
         supabase.from('subscriptions').select('user_id, email, plan, status, amount, expires_at, created_at'),
         supabase.from('cover_letters').select('user_id'),
@@ -43,6 +43,7 @@ export default function AdminPage() {
         supabase.from('user_cvs').select('user_id, updated_at'),
         supabase.from('support_messages').select('user_id, sender'),
         supabase.from('jobs').select('id, role, company, location, country, contract, url, source, created_at').order('created_at', { ascending: false }),
+        supabase.from('contact_messages').select('id, name, email, subject, message, status, reply, replied_at, created_at').order('created_at', { ascending: false }),
       ]);
       if (!active) return;
       setData({
@@ -53,6 +54,7 @@ export default function AdminPage() {
         cvs: cvs.data || [],
         support: support.data || [],
         jobs: jobs.data || [],
+        messages: messages.data || [],
       });
       setLoading(false);
     })();
@@ -127,7 +129,10 @@ export default function AdminPage() {
     const newJobs = data.jobs.filter((j) => dayKey(j.created_at) === todayKey);
     const oldJobs = data.jobs.filter((j) => dayKey(j.created_at) !== todayKey);
 
-    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, newJobs, oldJobs };
+    const messages = data.messages || [];
+    const unreadMessages = messages.filter((m) => m.status === 'unread').length;
+
+    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, newJobs, oldJobs, messages, unreadMessages };
   }, [data]);
 
   // --- Accès refusé (si jamais on arrive ici sans être admin) ---
@@ -160,8 +165,13 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div style={s.tabs}>
-          {[['overview', "Vue d'ensemble"], ['users', 'Utilisateurs'], ['comm', 'Communication'], ['jobs', 'Offres du jour']].map(([k, label]) => (
-            <button key={k} onClick={() => setTab(k)} style={{ ...s.tab, ...(tab === k ? s.tabActive : {}) }}>{label}</button>
+          {[['overview', "Vue d'ensemble"], ['users', 'Utilisateurs'], ['messagerie', 'Messagerie'], ['comm', 'Communication'], ['jobs', 'Offres du jour']].map(([k, label]) => (
+            <button key={k} onClick={() => setTab(k)} style={{ ...s.tab, ...(tab === k ? s.tabActive : {}) }}>
+              {label}
+              {k === 'messagerie' && computed?.unreadMessages > 0 && (
+                <span style={{ marginLeft: 7, background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 700, borderRadius: 9999, padding: '1px 7px' }}>{computed.unreadMessages}</span>
+              )}
+            </button>
           ))}
         </div>
 
@@ -171,6 +181,7 @@ export default function AdminPage() {
           <>
             {tab === 'overview' && <Overview c={computed} />}
             {tab === 'users' && <Users c={computed} />}
+            {tab === 'messagerie' && <Messagerie c={computed} supabase={supabase} />}
             {tab === 'comm' && <Communication c={computed} supabase={supabase} />}
             {tab === 'jobs' && <Jobs c={computed} />}
           </>
@@ -329,6 +340,111 @@ function Communication({ c, supabase }) {
           {result.error ? `❌ ${result.error}` : `✅ Envoyé. Destinataires : ${result.recipients} · Réussis : ${result.sent} · Ignorés : ${result.skipped} · Échecs : ${result.failed}${result.note ? ` — ${result.note}` : ''}`}
         </div>
       )}
+    </div>
+  );
+}
+
+function Messagerie({ c, supabase }) {
+  const [items, setItems] = useState(c.messages || []);
+  const [openId, setOpenId] = useState(null);
+  const [replies, setReplies] = useState({});
+  const [sendingId, setSendingId] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const statusBadge = (status) => {
+    const map = {
+      unread: ['Non lu', '#ef4444'],
+      read: ['Lu', '#64748b'],
+      replied: ['Répondu', PRIMARY],
+    };
+    const [label, color] = map[status] || map.read;
+    return <span style={{ fontSize: 11, fontWeight: 700, color, background: color + '1a', padding: '3px 8px', borderRadius: 999 }}>{label}</span>;
+  };
+
+  const openMessage = async (m) => {
+    const next = openId === m.id ? null : m.id;
+    setOpenId(next);
+    if (next && m.status === 'unread') {
+      setItems((prev) => prev.map((x) => x.id === m.id ? { ...x, status: 'read' } : x));
+      try { await supabase.from('contact_messages').update({ status: 'read' }).eq('id', m.id); } catch {}
+    }
+  };
+
+  const sendReply = async (m) => {
+    const reply = (replies[m.id] || '').trim();
+    if (!reply) { setFeedback({ id: m.id, error: 'Écris une réponse.' }); return; }
+    setSendingId(m.id); setFeedback(null);
+    try {
+      const r = await fetch('/api/admin/contact-reply', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: m.id, reply }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'Erreur');
+      setItems((prev) => prev.map((x) => x.id === m.id ? { ...x, status: 'replied', reply, replied_at: new Date().toISOString() } : x));
+      setFeedback({ id: m.id, ok: j.delivered === false ? 'Réponse enregistrée (e-mail non configuré sur le serveur).' : 'Réponse envoyée à ' + m.email });
+    } catch (e) {
+      setFeedback({ id: m.id, error: String(e.message || e) });
+    }
+    setSendingId(null);
+  };
+
+  if (!items.length) {
+    return <div style={{ ...s.card, textAlign: 'center', color: '#64748b' }}>Aucun message de contact pour le moment.</div>;
+  }
+
+  return (
+    <div style={s.card}>
+      <h3 style={s.h3}>Messages reçus ({items.length})</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {items.map((m) => (
+          <div key={m.id} style={{ border: '1px solid #eef2f7', borderRadius: 12, overflow: 'hidden', background: m.status === 'unread' ? '#fffdf5' : '#fff' }}>
+            <button onClick={() => openMessage(m)} style={{ width: '100%', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <strong style={{ fontSize: 14 }}>{m.subject}</strong>
+                  {statusBadge(m.status)}
+                </div>
+                <div style={{ fontSize: 12.5, color: '#64748b', marginTop: 2 }}>{m.name} · {m.email}</div>
+              </div>
+              <span style={{ fontSize: 11, color: '#94a3b8', flexShrink: 0 }}>{fmtDate(m.created_at)}</span>
+            </button>
+
+            {openId === m.id && (
+              <div style={{ padding: '0 16px 16px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 14, lineHeight: 1.6, color: '#334155', whiteSpace: 'pre-wrap', margin: '14px 0 16px' }}>{m.message}</div>
+
+                {m.status === 'replied' && m.reply && (
+                  <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#065f46', marginBottom: 4 }}>Ta réponse</div>
+                    <div style={{ fontSize: 13, color: '#065f46', whiteSpace: 'pre-wrap' }}>{m.reply}</div>
+                  </div>
+                )}
+
+                <label style={s.label}>{m.status === 'replied' ? 'Répondre à nouveau' : 'Répondre'}</label>
+                <textarea
+                  className="form-input"
+                  rows={4}
+                  value={replies[m.id] || ''}
+                  onChange={(e) => setReplies((p) => ({ ...p, [m.id]: e.target.value }))}
+                  placeholder={`Réponse à ${m.name}… (envoyée par e-mail)`}
+                  style={{ resize: 'vertical', marginBottom: 12 }}
+                />
+                <button className="btn btn-primary" disabled={sendingId === m.id} onClick={() => sendReply(m)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  {sendingId === m.id ? 'Envoi…' : 'Envoyer la réponse'}
+                </button>
+
+                {feedback && feedback.id === m.id && (
+                  <div style={{ marginTop: 12, padding: 12, borderRadius: 10, fontSize: 13, background: feedback.error ? '#fef2f2' : '#ecfdf5', border: `1px solid ${feedback.error ? '#fecaca' : '#a7f3d0'}`, color: feedback.error ? '#b91c1c' : '#065f46' }}>
+                    {feedback.error || feedback.ok}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
