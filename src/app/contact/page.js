@@ -64,45 +64,7 @@ export default function ContactPage() {
         </div>
 
         <div style={styles.grid}>
-          {/* Colonne gauche : infos de contact */}
-          <div style={styles.leftCol}>
-            <h2 style={styles.colTitle}>Informations de contact</h2>
-            <p style={styles.colDesc}>Choisis le moyen le plus adapté à ton besoin.</p>
-
-            <div style={styles.infoCard}>
-              <span style={styles.infoIcon}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
-              </span>
-              <div>
-                <strong style={styles.infoTitle}>Email support</strong>
-                <a href={`mailto:${SUPPORT_EMAIL}`} style={styles.infoLink}>{SUPPORT_EMAIL}</a>
-                <span style={styles.infoMeta}>Nous répondons généralement sous 24 h.</span>
-              </div>
-            </div>
-
-            <div style={styles.infoCard}>
-              <span style={styles.infoIcon}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </span>
-              <div>
-                <strong style={styles.infoTitle}>Centre d'aide</strong>
-                <span style={styles.infoMeta}>Une question fréquente ? Pose-la directement via le formulaire ci-contre, on te répond sous 24 h.</span>
-              </div>
-            </div>
-
-            <div style={styles.infoCard}>
-              <span style={styles.infoIcon}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              </span>
-              <div>
-                <strong style={styles.infoTitle}>Demandes professionnelles</strong>
-                <span style={styles.infoMeta}>Partenariats, solutions entreprise ou autres demandes : utilise le formulaire ou écris-nous.</span>
-                <a href={`mailto:${SUPPORT_EMAIL}`} style={styles.infoLink}>{SUPPORT_EMAIL}</a>
-              </div>
-            </div>
-          </div>
-
-          {/* Colonne droite : formulaire */}
+          {/* Formulaire (les infos de contact ont été retirées) */}
           <div style={styles.rightCol}>
             {status === 'sent' ? (
               <div style={styles.successBox}>
@@ -176,9 +138,8 @@ const styles = {
   main: { flex: 1, padding: '48px 16px 64px' },
   title: { fontSize: '34px', fontWeight: 800, color: 'var(--light-text)', margin: '0 0 10px' },
   subtitle: { color: 'var(--light-text-muted)', fontSize: '16px', margin: 0 },
-  grid: { display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start', maxWidth: '1040px', margin: '0 auto' },
-  leftCol: { flex: '1 1 300px', minWidth: '280px' },
-  rightCol: { flex: '1.6 1 420px', minWidth: '300px', background: '#fff', border: '1px solid var(--light-border)', borderRadius: '18px', padding: '28px' },
+  grid: { display: 'flex', justifyContent: 'center', maxWidth: '640px', margin: '0 auto' },
+  rightCol: { width: '100%', background: '#fff', border: '1px solid var(--light-border)', borderRadius: '18px', padding: '28px' },
   colTitle: { fontSize: '22px', fontWeight: 800, margin: '0 0 6px' },
   colDesc: { color: 'var(--light-text-muted)', fontSize: '14px', margin: '0 0 20px' },
   infoCard: { display: 'flex', gap: '14px', alignItems: 'flex-start', background: '#fff', border: '1px solid var(--light-border)', borderRadius: '14px', padding: '16px', marginBottom: '14px' },
