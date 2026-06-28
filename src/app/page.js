@@ -265,11 +265,39 @@ export default function LandingPage() {
         </div>
       </footer>
 
+      {/* Bouton flottant Contact — visible en permanence sur la landing (bas à droite) */}
+      <Link
+        href="/contact"
+        aria-label="Une question ? Contacte-nous"
+        title="Une question ? Contacte-nous"
+        style={styles.floatingContact}
+      >
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+      </Link>
+
     </div>
   );
 }
 
 const styles = {
+  floatingContact: {
+    position: 'fixed',
+    bottom: '22px',
+    right: '22px',
+    width: '58px',
+    height: '58px',
+    borderRadius: '50%',
+    background: 'var(--primary)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 10px 24px rgba(0, 184, 124, 0.45)',
+    zIndex: 200,
+    cursor: 'pointer',
+    textDecoration: 'none',
+  },
   header: {
     padding: '20px 0',
     borderBottom: '1px solid var(--dark-border)',
