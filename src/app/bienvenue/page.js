@@ -14,6 +14,25 @@ export default function BienvenuePage() {
   const [note, setNote] = useState('');
   const [entering, setEntering] = useState(false);
 
+  // Suivi de conversion Meta (Pixel) : on déclenche l'événement Purchase UNIQUEMENT
+  // quand l'accès est réellement actif (paiement confirmé par le webhook), et une
+  // SEULE fois par abonnement — la clé localStorage est liée à la date d'expiration,
+  // donc un rafraîchissement / retour sur la page ne recompte jamais l'achat, mais un
+  // vrai renouvellement (nouvelle expiration) compte bien comme un nouvel achat.
+  const trackPurchaseOnce = async () => {
+    try {
+      if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
+      const { data: expiry } = await supabase.rpc('current_access_expiry');
+      if (!expiry) return; // accès illimité (admin/propriétaire) → pas un achat
+      const key = 'mfb_pixel_purchase_' + String(expiry);
+      if (localStorage.getItem(key) === '1') return; // déjà compté pour cet abonnement
+      const { data: plan } = await supabase.rpc('current_access_plan');
+      const value = plan === 'standard' ? 5000 : plan === 'premium' ? 15000 : plan === 'basique' ? 2500 : 0;
+      window.fbq('track', 'Purchase', { value, currency: 'XOF' });
+      localStorage.setItem(key, '1');
+    } catch {}
+  };
+
   // Bouton sûr : ne va au dashboard QUE si l'accès est réellement débloqué
   // (évite d'être renvoyé vers /pricing si le paiement n'est pas encore validé).
   const handleEnter = async () => {
@@ -24,6 +43,7 @@ export default function BienvenuePage() {
     const { data: ok } = await supabase.rpc('has_active_access');
     setEntering(false);
     if (ok === true) {
+      await trackPurchaseOnce();
       router.push('/dashboard');
     } else {
       setNote('⏳ Ton accès finit de s’activer, patiente quelques secondes puis réessaie.');
@@ -45,6 +65,7 @@ export default function BienvenuePage() {
       if (cancelled) return;
       if (ok === true) {
         setStatus('active');
+        trackPurchaseOnce();
         setTimeout(() => router.push('/dashboard'), 1200);
         return;
       }
