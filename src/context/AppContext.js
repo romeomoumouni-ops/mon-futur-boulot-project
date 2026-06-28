@@ -89,15 +89,11 @@ export const AppProvider = ({ children }) => {
   // pour qu'elles reflètent en temps réel ce que l'utilisateur a réellement fait et
   // qu'elles survivent à un rechargement (plus de compteurs en mémoire remis à zéro).
 
-  // Données locales (CV, lettres, candidatures) — conservées par navigateur pour le MVP.
-  useEffect(() => {
-    // Le CV garde un cache local pour un affichage instantané (puis le compte fait foi).
-    // Les lettres et candidatures NE sont PAS chargées depuis le localStorage partagé :
-    // elles proviennent uniquement du compte (table user_activity), pour que l'historique
-    // soit réellement celui de l'utilisateur connecté et jamais des données d'un autre.
-    const savedCV = localStorage.getItem('mfb_cv_v2');
-    if (savedCV) setCvData(JSON.parse(savedCV));
-  }, []);
+  // IMPORTANT : aucune donnée (CV, lettres, candidatures) n'est chargée depuis le
+  // localStorage partagé du navigateur. Tout provient EXCLUSIVEMENT du compte connecté
+  // (tables user_cvs / user_activity). C'est ce qui garantit qu'un nouvel utilisateur
+  // démarre toujours à zéro et n'hérite jamais des données d'un autre compte utilisé
+  // sur le même appareil (ancien bug de fuite du cache mfb_cv_v2).
 
   // Offres d'emploi réelles depuis Supabase (alimentées par le cron JSearch)
   useEffect(() => {
@@ -125,6 +121,8 @@ export const AppProvider = ({ children }) => {
         setIsAdmin(false);
         setLetters([]);
         setApplications([]);
+        setCvData(defaultCV);
+        cvLoadedRef.current = false;
         activityLoadedRef.current = false;
         return;
       }
@@ -164,10 +162,9 @@ export const AppProvider = ({ children }) => {
           .select('data')
           .eq('user_id', u.id)
           .maybeSingle();
-        if (row?.data) {
-          setCvData(row.data);
-          saveState('mfb_cv_v2', row.data);
-        }
+        // Le compte fait foi : s'il a un CV on le charge, sinon on remet à VIDE
+        // (un nouvel utilisateur démarre à zéro, jamais avec les données d'un autre).
+        setCvData(row?.data ? row.data : defaultCV);
         cvLoadedRef.current = true;
       } catch { cvLoadedRef.current = true; }
 
