@@ -4,6 +4,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
+import { track } from '@/lib/track';
 
 // Pays proposés + indicatif et exemple de numéro (sert au pré-remplissage automatique
 // selon le pays détecté par l'IP, et au placeholder dynamique du champ téléphone).
@@ -133,6 +134,7 @@ export default function RegisterPage() {
         return;
       }
 
+      track('signup_attempt', '/register'); // suivi funnel : tentative d'inscription
       setSubmitting(true);
       const res = await registerUser({ firstName, lastName, email, country, phone, password });
       setSubmitting(false);

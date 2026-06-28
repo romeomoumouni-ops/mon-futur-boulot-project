@@ -35,7 +35,8 @@ export default function AdminPage() {
     let active = true;
     (async () => {
       setLoading(true);
-      const [profiles, subs, letters, apps, cvs, support, jobs, messages] = await Promise.all([
+      const sinceAnalytics = new Date(Date.now() - 90 * 86400000).toISOString();
+      const [profiles, subs, letters, apps, cvs, support, jobs, messages, events] = await Promise.all([
         supabase.from('profiles').select('id, first_name, last_name, email, country, phone, created_at').order('created_at', { ascending: false }),
         supabase.from('subscriptions').select('user_id, email, plan, status, amount, expires_at, created_at'),
         supabase.from('cover_letters').select('user_id'),
@@ -44,6 +45,7 @@ export default function AdminPage() {
         supabase.from('support_messages').select('user_id, sender'),
         supabase.from('jobs').select('id, role, company, location, country, contract, url, source, created_at').order('created_at', { ascending: false }),
         supabase.from('contact_messages').select('id, name, email, subject, message, status, reply, replied_at, created_at').order('created_at', { ascending: false }),
+        supabase.from('analytics_events').select('event, anon_id, created_at').gte('created_at', sinceAnalytics),
       ]);
       if (!active) return;
       setData({
@@ -55,6 +57,7 @@ export default function AdminPage() {
         support: support.data || [],
         jobs: jobs.data || [],
         messages: messages.data || [],
+        events: events.data || [],
       });
       setLoading(false);
     })();
@@ -132,7 +135,24 @@ export default function AdminPage() {
     const messages = data.messages || [];
     const unreadMessages = messages.filter((m) => m.status === 'unread').length;
 
-    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, newJobs, oldJobs, messages, unreadMessages };
+    // Funnel d'acquisition (suivi first-party + données réelles du compte)
+    const events = data.events || [];
+    const funnelFor = (windowDays) => {
+      const since = windowDays ? now - windowDays * 86400000 : 0;
+      const inP = (ts) => ts && new Date(ts).getTime() >= since;
+      const evP = events.filter((e) => inP(e.created_at));
+      const uniq = (name) => new Set(evP.filter((e) => e.event === name && e.anon_id).map((e) => e.anon_id)).size;
+      return {
+        visiteurs: uniq('page_view'),
+        scroll: uniq('scroll_bottom'),
+        tentatives: evP.filter((e) => e.event === 'signup_attempt').length,
+        inscriptions: data.profiles.filter((p) => inP(p.created_at)).length,
+        abonnements: data.subs.filter((s) => (s.amount || 0) > 0 && inP(s.created_at)).length,
+      };
+    };
+    const funnel = { 7: funnelFor(7), 30: funnelFor(30), 90: funnelFor(90) };
+
+    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, newJobs, oldJobs, messages, unreadMessages, funnel };
   }, [data]);
 
   // --- Accès refusé (si jamais on arrive ici sans être admin) ---
@@ -165,7 +185,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div style={s.tabs}>
-          {[['overview', "Vue d'ensemble"], ['users', 'Utilisateurs'], ['messagerie', 'Messagerie'], ['comm', 'Communication'], ['jobs', 'Offres du jour']].map(([k, label]) => (
+          {[['overview', "Vue d'ensemble"], ['meta', 'Résultats Pub Meta'], ['users', 'Utilisateurs'], ['messagerie', 'Messagerie'], ['comm', 'Communication'], ['jobs', 'Offres du jour']].map(([k, label]) => (
             <button key={k} onClick={() => setTab(k)} style={{ ...s.tab, ...(tab === k ? s.tabActive : {}) }}>
               {label}
               {k === 'messagerie' && computed?.unreadMessages > 0 && (
@@ -180,6 +200,7 @@ export default function AdminPage() {
         ) : (
           <>
             {tab === 'overview' && <Overview c={computed} />}
+            {tab === 'meta' && <MetaFunnel c={computed} />}
             {tab === 'users' && <Users c={computed} />}
             {tab === 'messagerie' && <Messagerie c={computed} supabase={supabase} />}
             {tab === 'comm' && <Communication c={computed} supabase={supabase} />}
@@ -340,6 +361,86 @@ function Communication({ c, supabase }) {
           {result.error ? `❌ ${result.error}` : `✅ Envoyé. Destinataires : ${result.recipients} · Réussis : ${result.sent} · Ignorés : ${result.skipped} · Échecs : ${result.failed}${result.note ? ` — ${result.note}` : ''}`}
         </div>
       )}
+    </div>
+  );
+}
+
+function MetaFunnel({ c }) {
+  const [days, setDays] = useState(30);
+  const f = (c.funnel && c.funnel[days]) || { visiteurs: 0, scroll: 0, tentatives: 0, inscriptions: 0, abonnements: 0 };
+
+  const steps = [
+    { key: 'visiteurs', label: 'Visiteurs de la page', value: f.visiteurs, color: '#3b82f6' },
+    { key: 'scroll', label: "Ont lu jusqu'en bas", value: f.scroll, color: '#6366f1' },
+    { key: 'tentatives', label: "Ont tenté de s'inscrire", value: f.tentatives, color: '#8b5cf6' },
+    { key: 'inscriptions', label: 'Inscriptions', value: f.inscriptions, color: '#10b981' },
+    { key: 'abonnements', label: 'Abonnements payés', value: f.abonnements, color: PRIMARY },
+  ];
+  const max = Math.max(1, ...steps.map((x) => x.value));
+  const rate = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 10 : 0);
+
+  return (
+    <div>
+      <div style={s.card}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 6 }}>
+          <h3 style={{ ...s.h3, margin: 0 }}>Funnel d'acquisition</h3>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[[7, '7 jours'], [30, '30 jours'], [90, '90 jours']].map(([k, label]) => (
+              <button key={k} onClick={() => setDays(k)} style={{ ...s.segBtn, ...(days === k ? s.segBtnActive : {}) }}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <p style={{ color: '#64748b', fontSize: 13, marginTop: 4, marginBottom: 22 }}>
+          Parcours réel des visiteurs, de l'arrivée sur le site jusqu'à l'abonnement.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {steps.map((st, i) => {
+            const prev = i > 0 ? steps[i - 1].value : null;
+            return (
+              <div key={st.key}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{st.label}</span>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: st.color }}>{st.value}</span>
+                </div>
+                <div style={{ height: 12, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.max(2, (st.value / max) * 100)}%`, height: '100%', background: st.color, borderRadius: 999, transition: 'width .3s' }} />
+                </div>
+                {prev !== null && (
+                  <div style={{ fontSize: 11.5, color: '#94a3b8', marginTop: 4 }}>
+                    {rate(st.value, prev)}% de « {steps[i - 1].label.toLowerCase()} »
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Taux clés */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
+          <MiniRate label="Visiteur → Inscription" value={rate(f.inscriptions, f.visiteurs)} />
+          <MiniRate label="Inscription → Abonnement" value={rate(f.abonnements, f.inscriptions)} />
+          <MiniRate label="Visiteur → Abonnement" value={rate(f.abonnements, f.visiteurs)} />
+        </div>
+      </div>
+
+      <div style={{ ...s.card, marginTop: 16, background: '#f8fafc' }}>
+        <p style={{ fontSize: 12.5, color: '#64748b', margin: 0, lineHeight: 1.6 }}>
+          <strong>D'où viennent ces chiffres ?</strong> Suivi <strong>first-party</strong> de ton site (tes propres données, sans dépendre de Meta) :
+          « Visiteurs » et « Lu jusqu'en bas » sont mesurés sur la page d'accueil ; « Inscriptions » et « Abonnements » viennent de ta base.
+          À recouper avec le <strong>Gestionnaire d'événements Meta</strong> (le Pixel envoie aussi PageView / Purchase à Meta).
+          Le suivi démarre à partir d'aujourd'hui : l'historique se remplit au fil des visites.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MiniRate({ label, value }) {
+  return (
+    <div style={{ flex: '1 1 160px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '12px 14px' }}>
+      <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{value}%</div>
+      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{label}</div>
     </div>
   );
 }

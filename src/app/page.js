@@ -1,14 +1,28 @@
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppContext } from '@/context/AppContext';
+import { track, trackOnce } from '@/lib/track';
 
 export default function LandingPage() {
   const router = useRouter();
   const { user, accessPlan } = useContext(AppContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Suivi funnel : visite de la landing + scroll jusqu'en bas (une fois).
+  useEffect(() => {
+    track('page_view', '/');
+    const onScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 150) {
+        trackOnce('scroll_bottom', '/');
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div className="dark-theme" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
