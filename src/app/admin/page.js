@@ -126,6 +126,7 @@ export default function AdminPage() {
     const segAll = data.profiles.length;
     const segBasique = data.profiles.filter((p) => planOf(p.email) === 'basique').length;
     const segPro = data.profiles.filter((p) => ['standard', 'premium'].includes(planOf(p.email))).length;
+    const segNoSub = data.profiles.filter((p) => !planOf(p.email)).length;
 
     // Offres : nouvelles aujourd'hui vs anciennes
     const todayKey = new Date(now).toISOString().slice(0, 10);
@@ -152,7 +153,7 @@ export default function AdminPage() {
     };
     const funnel = { 7: funnelFor(7), 30: funnelFor(30), 90: funnelFor(90) };
 
-    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, newJobs, oldJobs, messages, unreadMessages, funnel };
+    return { caTotal, caMonth, byPlan, days, maxDay, users, segAll, segBasique, segPro, segNoSub, newJobs, oldJobs, messages, unreadMessages, funnel };
   }, [data]);
 
   // --- Accès refusé (si jamais on arrive ici sans être admin) ---
@@ -314,7 +315,7 @@ function Communication({ c, supabase }) {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
 
-  const counts = { all: c.segAll, basique: c.segBasique, standard_premium: c.segPro };
+  const counts = { all: c.segAll, no_sub: c.segNoSub, basique: c.segBasique, standard_premium: c.segPro };
 
   const send = async (test) => {
     if (!subject.trim() || !message.trim()) { setResult({ error: 'Renseigne un objet et un message.' }); return; }
@@ -336,7 +337,7 @@ function Communication({ c, supabase }) {
 
       <label style={s.label}>Segment de destinataires</label>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
-        {[['all', 'Tous les utilisateurs'], ['basique', 'Basique uniquement'], ['standard_premium', 'Standard + Premium']].map(([k, label]) => (
+        {[['all', 'Tous les utilisateurs'], ['no_sub', 'Sans abonnement'], ['basique', 'Basique uniquement'], ['standard_premium', 'Standard + Premium']].map(([k, label]) => (
           <button key={k} onClick={() => setSegment(k)} style={{ ...s.segBtn, ...(segment === k ? s.segBtnActive : {}) }}>
             {label} <span style={{ opacity: 0.7 }}>({counts[k]})</span>
           </button>

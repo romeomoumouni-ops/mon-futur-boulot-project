@@ -38,7 +38,7 @@ export async function POST(request) {
   // 2) Paramètres
   let body;
   try { body = await request.json(); } catch { body = {}; }
-  const segment = ['all', 'basique', 'standard_premium'].includes(body?.segment) ? body.segment : 'all';
+  const segment = ['all', 'no_sub', 'basique', 'standard_premium'].includes(body?.segment) ? body.segment : 'all';
   const subject = String(body?.subject || '').trim();
   const message = String(body?.message || '').trim();
   const test = body?.test === true; // envoi de test : uniquement à l'admin
@@ -51,6 +51,20 @@ export async function POST(request) {
   } else if (segment === 'all') {
     const { data } = await supabase.from('profiles').select('email');
     emails = (data || []).map((p) => p.email).filter(Boolean);
+  } else if (segment === 'no_sub') {
+    // Inscrits SANS abonnement actif : tous les profils, moins ceux ayant un
+    // abonnement actif non expiré (et moins le propriétaire/admin).
+    const [{ data: profs }, { data: actives }] = await Promise.all([
+      supabase.from('profiles').select('email'),
+      supabase
+        .from('subscriptions')
+        .select('email')
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString()),
+    ]);
+    const withSub = new Set((actives || []).map((s) => (s.email || '').toLowerCase()));
+    withSub.add('nekodu229@gmail.com'); // propriétaire (accès admin, pas un client sans abo)
+    emails = (profs || []).map((p) => p.email).filter((e) => e && !withSub.has(e.toLowerCase()));
   } else {
     const wantedPlans = segment === 'basique' ? ['basique'] : ['standard', 'premium'];
     const { data } = await supabase
