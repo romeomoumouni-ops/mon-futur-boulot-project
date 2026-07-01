@@ -86,13 +86,28 @@ export default function AdminPage() {
       return planByEmail.get((email || '').toLowerCase())?.plan || null;
     };
 
-    // Répartition par plan
-    const byPlan = { basique: 0, standard: 0, premium: 0, aucun: 0 };
+    // Utilisateurs ayant une session / ayant accédé à la version gratuite
+    // (une ligne user_cvs est créée dès la 1re connexion).
+    const cvSet = new Set(data.cvs.map((c) => c.user_id));
+
+    // Offre effective affichée : payant -> standard/premium ; sinon si l'utilisateur
+    // a accédé à la version gratuite -> 'gratuit' ; sinon 'aucun' (inscrit, jamais entré).
+    const tierOf = (p) => {
+      const email = (p.email || '').toLowerCase();
+      if (email === 'nekodu229@gmail.com') return 'premium';
+      const sub = planByEmail.get(email);
+      if (sub) return sub.plan === 'basique' ? 'gratuit' : sub.plan;
+      if (cvSet.has(p.id)) return 'gratuit';
+      return null;
+    };
+
+    // Répartition par offre
+    const byPlan = { gratuit: 0, standard: 0, premium: 0, aucun: 0 };
     for (const p of data.profiles) {
-      const pl = planOf(p.email);
-      if (pl === 'basique') byPlan.basique++;
-      else if (pl === 'standard') byPlan.standard++;
-      else if (pl === 'premium') byPlan.premium++;
+      const t = tierOf(p);
+      if (t === 'gratuit') byPlan.gratuit++;
+      else if (t === 'standard') byPlan.standard++;
+      else if (t === 'premium') byPlan.premium++;
       else byPlan.aucun++;
     }
 
@@ -111,11 +126,10 @@ export default function AdminPage() {
     const lettersBy = cnt(data.letters);
     const appsBy = cnt(data.apps);
     const supportBy = cnt(data.support.filter((s) => s.sender === 'user'));
-    const cvSet = new Set(data.cvs.map((c) => c.user_id));
 
     const users = data.profiles.map((p) => ({
       ...p,
-      plan: planOf(p.email),
+      plan: tierOf(p),
       letters: lettersBy.get(p.id) || 0,
       apps: appsBy.get(p.id) || 0,
       support: supportBy.get(p.id) || 0,
@@ -229,16 +243,16 @@ function Overview({ c }) {
         <Kpi label="Chiffre d'affaires total" value={fmtMoney(c.caTotal)} />
         <Kpi label="CA ce mois-ci" value={fmtMoney(c.caMonth)} accent="#2563eb" />
         <Kpi label="Utilisateurs" value={c.users.length} accent="#a855f7" />
-        <Kpi label="Abonnés actifs" value={c.byPlan.basique + c.byPlan.standard + c.byPlan.premium} accent="#f59e0b" />
+        <Kpi label="Abonnés payants" value={c.byPlan.standard + c.byPlan.premium} accent="#f59e0b" />
       </div>
 
       <div style={{ ...s.card, marginTop: 20 }}>
         <h3 style={s.h3}>Répartition par offre</h3>
         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-          <PlanPill label="Gratuit" n={c.byPlan.basique} color="#0891b2" />
+          <PlanPill label="Gratuit" n={c.byPlan.gratuit} color="#0891b2" />
           <PlanPill label="Standard" n={c.byPlan.standard} color={PRIMARY} />
           <PlanPill label="Premium" n={c.byPlan.premium} color="#a855f7" />
-          <PlanPill label="Sans abonnement actif" n={c.byPlan.aucun} color="#94a3b8" />
+          <PlanPill label="Aucune offre" n={c.byPlan.aucun} color="#94a3b8" />
         </div>
       </div>
 
@@ -303,7 +317,7 @@ function Users({ c }) {
 }
 
 function PlanTag({ plan }) {
-  const map = { basique: ['Gratuit', '#0891b2'], standard: ['Standard', PRIMARY], premium: ['Premium', '#a855f7'] };
+  const map = { gratuit: ['Gratuit', '#0891b2'], standard: ['Standard', PRIMARY], premium: ['Premium', '#a855f7'] };
   const [label, color] = map[plan] || ['Aucun', '#94a3b8'];
   return <span style={{ fontSize: 11, fontWeight: 700, color, background: color + '1a', padding: '3px 8px', borderRadius: 999 }}>{label}</span>;
 }
