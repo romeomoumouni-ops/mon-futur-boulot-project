@@ -14,6 +14,16 @@ export default function FreePlanButton({ label = 'Commencer gratuitement', prima
 
   const handleClick = () => {
     setLoading(true);
+    // Suivi Meta : prendre l'offre GRATUITE = prospect -> événement "Lead" (jamais Purchase).
+    // Déclenché une seule fois par navigateur.
+    try {
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        if (localStorage.getItem('mfb_pixel_lead') !== '1') {
+          window.fbq('track', 'Lead', { content_name: 'Offre Gratuite' });
+          localStorage.setItem('mfb_pixel_lead', '1');
+        }
+      }
+    } catch {}
     if (user) router.push('/dashboard');
     else router.push('/register');
   };
