@@ -4,6 +4,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 import CheckoutButton from '@/components/CheckoutButton';
+import FreePlanButton from '@/components/FreePlanButton';
 
 export default function PricingPage() {
   const { plan, selectPlan } = useContext(AppContext);
@@ -29,7 +30,7 @@ export default function PricingPage() {
   const faqData = [
     {
       q: "Comment démarrer ?",
-      a: "Choisis le plan Basique, Standard ou Premium, crée ton compte, et tu accèdes immédiatement à tes outils. Le Basique couvre les CV et lettres de motivation ; le Standard et le Premium ajoutent les offres d'emploi et les opportunités de ta niche."
+      a: "Crée ton compte gratuitement et tu accèdes immédiatement à tes outils. L'offre Gratuite couvre les CV et lettres de motivation ; le Standard et le Premium ajoutent les offres d'emploi quotidiennes et les opportunités de ta niche."
     },
     {
       q: "Comment se passe le paiement en FCFA ?",
@@ -74,7 +75,7 @@ export default function PricingPage() {
         <div className="container" style={{ textAlign: 'center' }}>
           {banner && (
             <div style={{ maxWidth: '640px', margin: '0 auto 24px', padding: '14px 18px', backgroundColor: 'rgba(0,184,124,0.12)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '14px', fontWeight: 500 }}>
-              🎉 Ton compte est créé ! Choisis ton abonnement ci-dessous pour accéder à ton espace et commencer.
+              🎉 Ton compte est créé ! Commence gratuitement, ou passe au Standard pour recevoir de nouvelles offres d'emploi chaque jour.
             </div>
           )}
           <h1 style={styles.title} className="hero-title-responsive">
@@ -105,20 +106,20 @@ export default function PricingPage() {
       <section style={{ padding: '20px 0 80px 0' }}>
         <div className="container" style={styles.cardsGrid}>
 
-          {/* Plan 1: Basique */}
+          {/* Plan 1: Gratuit */}
           <div style={styles.priceCard}>
-            <span style={styles.planName}>BASIQUE</span>
+            <span style={styles.planName}>GRATUIT</span>
             <p style={styles.planDesc}>L'essentiel pour préparer ta candidature.</p>
 
             <div style={styles.priceContainer}>
-              <span style={styles.priceAmount}>2 500</span>
-              <span style={styles.priceCurrency}>FCFA / mois</span>
+              <span style={styles.priceAmount}>0</span>
+              <span style={styles.priceCurrency}>FCFA</span>
             </div>
 
-            <p style={styles.priceCaption}>Payé mensuellement</p>
+            <p style={styles.priceCaption}>Gratuit, pour toujours</p>
 
             <div style={styles.cardBtn}>
-              <CheckoutButton plan="basique" primary={false} />
+              <FreePlanButton primary={false} />
             </div>
 
             <ul style={styles.featuresList}>
@@ -134,7 +135,7 @@ export default function PricingPage() {
           <div style={styles.popularCard}>
             <div style={styles.popularBadge}>⭐ RECOMMANDÉ</div>
             <span style={{...styles.planName, color: 'var(--primary)'}}>STANDARD</span>
-            <p style={{...styles.planDesc, color: 'var(--dark-text-muted)'}}>Pour une recherche d'emploi active, sans aucune limite.</p>
+            <p style={{...styles.planDesc, color: 'var(--dark-text-muted)'}}>Reçois de nouvelles offres d'emploi chaque jour et postule directement depuis la plateforme.</p>
 
             <div style={styles.priceContainer}>
               <span style={{...styles.priceAmount, color: '#fff'}}>5 000</span>
@@ -147,12 +148,16 @@ export default function PricingPage() {
               <CheckoutButton plan="standard" />
             </div>
 
+            <div style={{ background: 'rgba(0,184,124,0.14)', border: '1px solid var(--primary)', borderRadius: '10px', padding: '10px 12px', margin: '4px 0 14px', color: '#fff', fontSize: '13px', fontWeight: 600, lineHeight: 1.5 }}>
+              ⭐ De nouvelles offres chaque jour, ciblées selon ton domaine, ton secteur et ton pays — postule en un clic.
+            </div>
+
             <ul style={styles.featuresList}>
+              <li style={{color: '#fff', fontWeight: 700}}>✓ Nouvelles offres d'emploi CHAQUE JOUR</li>
+              <li style={{color: '#fff', fontWeight: 700}}>✓ Postule directement depuis la plateforme</li>
               <li style={{color: '#fff'}}>✓ CV performants illimités</li>
               <li style={{color: '#fff'}}>✓ Lettres de motivation illimitées</li>
-              <li style={{color: '#fff'}}>✓ Modifications illimitées</li>
-              <li style={{color: '#fff'}}>✓ Toutes les offres d'emploi en temps réel</li>
-              <li style={{color: '#fff'}}>✓ Accès aux nouvelles opportunités de ta niche</li>
+              <li style={{color: '#fff'}}>✓ Opportunités ciblées (domaine, secteur, pays)</li>
               <li style={{color: '#fff'}}>✓ Analyse ATS avancée du CV (Score)</li>
               <li style={{color: '#fff'}}>✓ Support prioritaire par WhatsApp</li>
             </ul>
@@ -195,7 +200,7 @@ export default function PricingPage() {
               <thead>
                 <tr>
                   <th style={styles.tableTh}>FONCTIONNALITÉ</th>
-                  <th style={styles.tableTh}>Basique</th>
+                  <th style={styles.tableTh}>Gratuit</th>
                   <th style={styles.tableTh}>Standard</th>
                   <th style={styles.tableTh}>Premium</th>
                 </tr>

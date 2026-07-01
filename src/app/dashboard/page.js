@@ -1505,7 +1505,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                       Offres réservées aux plans Standard &amp; Premium
                     </div>
                     <p style={{ fontSize: '12px', color: 'var(--light-text-muted)', margin: 0 }}>
-                      Le plan Basique te donne le CV et les lettres de motivation. Passe au Standard pour débloquer les offres d'emploi et les opportunités de ta niche.
+                      L'offre Gratuite te donne le CV et les lettres de motivation. Passe au Standard pour débloquer les offres d'emploi et les opportunités de ta niche.
                     </p>
                     <button className="btn btn-primary btn-sm" onClick={() => setCurrentView('pricing')}>Passer au Standard →</button>
                   </div>
@@ -1991,7 +1991,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div style={{ ...styles.atsCard, textAlign: 'center' }}>
                     <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>Score ATS — Standard &amp; Premium</div>
                     <p style={{ fontSize: '11px', color: 'var(--light-text-muted)', margin: 0 }}>
-                      L'analyse ATS avancée n'est pas incluse dans le plan Basique.{' '}
+                      L'analyse ATS avancée n'est pas incluse dans l'offre Gratuite.{' '}
                       <span onClick={() => setCurrentView('pricing')} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Passer au Standard →</span>
                     </p>
                   </div>
@@ -2176,7 +2176,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <div style={{ marginBottom: '12px' }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                   <h3 style={{ marginBottom: '8px' }}>Réservé aux plans Standard et Premium</h3>
                   <p style={{ color: 'var(--light-text-muted)', maxWidth: '460px', margin: '0 auto 20px' }}>
-                    Les offres d'emploi en temps réel et les opportunités de ta niche ne sont pas incluses dans le plan Basique. Passe au Standard pour y accéder.
+                    Les offres d'emploi en temps réel et les opportunités de ta niche ne sont pas incluses dans l'offre Gratuite. Passe au Standard pour y accéder.
                   </p>
                   <button className="btn btn-primary" onClick={() => setCurrentView('pricing')}>Passer au Standard →</button>
                 </div>
@@ -2325,7 +2325,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                   <label className="form-label">{t("profilePlanLabel", "Plan d'abonnement actuel")}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
                     <span className="cv-badge" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 'bold', fontSize: '12px', padding: '6px 12px' }}>
-                      {plan === 'basique' ? 'Plan Basique' : plan === 'standard' ? 'Plan Standard' : 'Plan Premium (6 mois)'}
+                      {accessPlan === 'standard' ? 'Plan Standard' : accessPlan === 'premium' ? 'Plan Premium (6 mois)' : 'Plan Gratuit'}
                     </span>
                     <button className="btn btn-secondary btn-sm" onClick={() => setCurrentView('pricing')}>{t("profileChangePlanBtn", "Changer de plan")}</button>
                   </div>
@@ -2453,16 +2453,16 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
 
               <div className="db-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '980px', margin: '0 auto' }}>
 
-                {/* Plan Basique */}
+                {/* Plan Gratuit */}
                 <div style={{ ...styles.priceCard, border: '1px solid var(--dark-border)' }}>
-                  <span style={styles.planName}>BASIQUE</span>
+                  <span style={styles.planName}>GRATUIT</span>
                   <div style={styles.priceContainer}>
-                    <span style={styles.priceAmount}>2 500</span>
-                    <span style={styles.priceCurrency}>FCFA/mois</span>
+                    <span style={styles.priceAmount}>0</span>
+                    <span style={styles.priceCurrency}>FCFA</span>
                   </div>
-                  <p style={styles.priceCaption}>L'essentiel pour préparer ta candidature</p>
+                  <p style={styles.priceCaption}>Gratuit, pour toujours</p>
                   <div style={styles.cardBtn}>
-                    <CheckoutButton plan="basique" primary={false} />
+                    <span className="btn btn-secondary" style={{ width: '100%', display: 'block', textAlign: 'center', padding: '15px 24px', fontSize: '15px', fontWeight: 700, opacity: 0.7, cursor: 'default' }}>Inclus gratuitement</span>
                   </div>
                   <ul style={styles.featuresList}>
                     <li style={{ color: 'var(--dark-text-muted)' }}>✓ CV performants illimités</li>
@@ -2522,7 +2522,7 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
               <div style={{ textAlign: 'center', marginTop: '40px' }}>
                 <div style={{ display: 'inline-block', padding: '16px 28px', backgroundColor: 'var(--dark-card)', border: '1px solid #a855f7', borderRadius: 'var(--radius-lg)' }}>
                   <p style={{ color: 'var(--dark-text-muted)', fontSize: '13px', margin: 0 }}>
-                    Conseil : le plan Premium (6 mois) revient à 2 500 FCFA/mois, soit le prix du Basique mais avec tout l'accès du Standard.
+                    Conseil : le plan Premium (6 mois) revient à 2 500 FCFA/mois, soit la moitié du Standard, avec tout l'accès inclus.
                   </p>
                 </div>
               </div>

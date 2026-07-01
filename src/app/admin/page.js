@@ -235,7 +235,7 @@ function Overview({ c }) {
       <div style={{ ...s.card, marginTop: 20 }}>
         <h3 style={s.h3}>Répartition par offre</h3>
         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-          <PlanPill label="Basique" n={c.byPlan.basique} color="#0891b2" />
+          <PlanPill label="Gratuit" n={c.byPlan.basique} color="#0891b2" />
           <PlanPill label="Standard" n={c.byPlan.standard} color={PRIMARY} />
           <PlanPill label="Premium" n={c.byPlan.premium} color="#a855f7" />
           <PlanPill label="Sans abonnement actif" n={c.byPlan.aucun} color="#94a3b8" />
@@ -303,7 +303,7 @@ function Users({ c }) {
 }
 
 function PlanTag({ plan }) {
-  const map = { basique: ['Basique', '#0891b2'], standard: ['Standard', PRIMARY], premium: ['Premium', '#a855f7'] };
+  const map = { basique: ['Gratuit', '#0891b2'], standard: ['Standard', PRIMARY], premium: ['Premium', '#a855f7'] };
   const [label, color] = map[plan] || ['Aucun', '#94a3b8'];
   return <span style={{ fontSize: 11, fontWeight: 700, color, background: color + '1a', padding: '3px 8px', borderRadius: 999 }}>{label}</span>;
 }
@@ -337,7 +337,7 @@ function Communication({ c, supabase }) {
 
       <label style={s.label}>Segment de destinataires</label>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
-        {[['all', 'Tous les utilisateurs'], ['no_sub', 'Sans abonnement'], ['basique', 'Basique uniquement'], ['standard_premium', 'Standard + Premium']].map(([k, label]) => (
+        {[['all', 'Tous les utilisateurs'], ['no_sub', 'Sans abonnement'], ['basique', 'Gratuit (anciens Basique)'], ['standard_premium', 'Standard + Premium']].map(([k, label]) => (
           <button key={k} onClick={() => setSegment(k)} style={{ ...s.segBtn, ...(segment === k ? s.segBtnActive : {}) }}>
             {label} <span style={{ opacity: 0.7 }}>({counts[k]})</span>
           </button>

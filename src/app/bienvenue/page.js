@@ -33,20 +33,23 @@ export default function BienvenuePage() {
     } catch {}
   };
 
-  // Bouton sûr : ne va au dashboard QUE si l'accès est réellement débloqué
-  // (évite d'être renvoyé vers /pricing si le paiement n'est pas encore validé).
+  // Cette page est la redirection APRÈS un paiement (Standard/Premium). Avec le modèle
+  // freemium, tout compte connecté a déjà l'accès gratuit ; on attend donc la confirmation
+  // du PAIEMENT réel = un abonnement payant enregistré par le webhook, détecté via
+  // current_access_expiry (non nul uniquement pour un abonnement payant). Cela garde le
+  // suivi Purchase correct et n'entre au dashboard qu'une fois le plan payé actif.
   const handleEnter = async () => {
     setEntering(true);
     setNote('');
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setStatus('nosession'); setEntering(false); return; }
-    const { data: ok } = await supabase.rpc('has_active_access');
+    const { data: exp } = await supabase.rpc('current_access_expiry');
     setEntering(false);
-    if (ok === true) {
+    if (exp) {
       await trackPurchaseOnce();
       router.push('/dashboard');
     } else {
-      setNote('⏳ Ton accès finit de s’activer, patiente quelques secondes puis réessaie.');
+      setNote('⏳ Ton paiement finit de s’activer, patiente quelques secondes puis réessaie.');
     }
   };
 
@@ -61,9 +64,9 @@ export default function BienvenuePage() {
         setStatus('nosession');
         return;
       }
-      const { data: ok } = await supabase.rpc('has_active_access');
+      const { data: exp } = await supabase.rpc('current_access_expiry');
       if (cancelled) return;
-      if (ok === true) {
+      if (exp) {
         setStatus('active');
         trackPurchaseOnce();
         setTimeout(() => router.push('/dashboard'), 1200);
