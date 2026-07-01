@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AppContext } from '@/context/AppContext';
 import { generateCvPdf, generateLetterPdf } from '@/lib/pdf';
 import CheckoutButton from '@/components/CheckoutButton';
+import { COUNTRY_INFO, COUNTRY_NAMES, isValidPhone } from '@/lib/phone';
 
 const INDUSTRIES = [
   { id: 'marketing', icon: '', label: 'Marketing & Com.', tip: 'Vocabulaire clé : KPI, ROI, engagement, funnel, stratégie de contenu. Ton conseillé : dynamique, créatif, orienté résultats. Valorise tes campagnes et leur impact mesurable.' },
@@ -935,6 +936,37 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
   const userEmail = user?.email || '';
   const userCountry = user?.country || '';
   const userPhone = user?.phone || '';
+
+  // ---- Modification du numéro de téléphone (Paramètres) ----
+  const [phoneCountry, setPhoneCountry] = useState('');
+  const [phoneValue, setPhoneValue] = useState('');
+  const [phoneSaving, setPhoneSaving] = useState(false);
+  const [phoneMsg, setPhoneMsg] = useState(null); // { ok } | { error }
+  const [phoneInit, setPhoneInit] = useState(false);
+  useEffect(() => {
+    if (!phoneInit && user) {
+      setPhoneCountry(COUNTRY_NAMES.includes(userCountry) ? userCountry : "Côte d'Ivoire");
+      setPhoneValue(userPhone || '');
+      setPhoneInit(true);
+    }
+  }, [user, phoneInit, userCountry, userPhone]);
+  const savePhone = async () => {
+    if (!isValidPhone(phoneValue, phoneCountry)) {
+      const info = COUNTRY_INFO[phoneCountry];
+      setPhoneMsg({ error: `Numéro invalide pour ${phoneCountry}. Vérifie le nombre de chiffres — exemple : ${info ? info.placeholder : '+225 07 12 34 56 78'}` });
+      return;
+    }
+    setPhoneSaving(true); setPhoneMsg(null);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { phone: phoneValue.trim(), country: phoneCountry } });
+      if (error) throw error;
+      try { await supabase.from('profiles').update({ phone: phoneValue.trim(), country: phoneCountry }).eq('id', user.id); } catch {}
+      setPhoneMsg({ ok: 'Numéro enregistré. Tu peux maintenant payer un abonnement sans souci.' });
+    } catch {
+      setPhoneMsg({ error: "Impossible d'enregistrer pour le moment. Réessaie." });
+    }
+    setPhoneSaving(false);
+  };
 
   // Complétude réelle du profil/CV (0–100%) calculée sur le contenu rempli
   const profileCompletion = (() => {
@@ -2624,6 +2656,42 @@ export default function DashboardPage({ defaultView = 'dashboard' }) {
                     <option value="fr">{lang === 'en' ? 'French' : 'Français'}</option>
                     <option value="en">{lang === 'en' ? 'English' : 'Anglais'}</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Coordonnées : numéro de téléphone (modifiable, validé) */}
+              <div style={{ backgroundColor: 'var(--light-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--light-border)', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '16px', marginBottom: '6px', color: 'var(--primary)', borderBottom: '1px solid var(--light-border)', paddingBottom: '10px' }}>Numéro de téléphone</h3>
+                <p style={{ fontSize: '12.5px', color: 'var(--light-text-muted)', margin: '0 0 16px' }}>Un numéro valide est nécessaire pour payer un abonnement. Corrige-le ici si besoin.</p>
+
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 150px' }}>
+                    <label className="form-label" style={{ fontSize: '13px' }}>Pays</label>
+                    <select className="form-input" value={phoneCountry} onChange={(e) => { setPhoneCountry(e.target.value); setPhoneMsg(null); }}>
+                      {COUNTRY_NAMES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: '2 1 220px' }}>
+                    <label className="form-label" style={{ fontSize: '13px' }}>Téléphone</label>
+                    <input
+                      type="tel"
+                      className="form-input"
+                      value={phoneValue}
+                      onChange={(e) => { setPhoneValue(e.target.value); setPhoneMsg(null); }}
+                      placeholder={COUNTRY_INFO[phoneCountry]?.placeholder || '+225 07 12 34 56 78'}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <button className="btn btn-primary btn-sm" disabled={phoneSaving} onClick={savePhone}>
+                    {phoneSaving ? 'Enregistrement…' : 'Enregistrer le numéro'}
+                  </button>
+                  {phoneMsg && (
+                    <span style={{ fontSize: '13px', color: phoneMsg.error ? 'var(--error)' : 'var(--primary)', fontWeight: 600 }}>
+                      {phoneMsg.error || phoneMsg.ok}
+                    </span>
+                  )}
                 </div>
               </div>
 
