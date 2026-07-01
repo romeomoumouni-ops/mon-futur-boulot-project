@@ -148,10 +148,6 @@ export default function PricingPage() {
               <CheckoutButton plan="standard" />
             </div>
 
-            <div style={{ background: 'rgba(0,184,124,0.14)', border: '1px solid var(--primary)', borderRadius: '10px', padding: '10px 12px', margin: '4px 0 14px', color: '#fff', fontSize: '13px', fontWeight: 600, lineHeight: 1.5 }}>
-              ⭐ De nouvelles offres chaque jour, ciblées selon ton domaine, ton secteur et ton pays — postule en un clic.
-            </div>
-
             <ul style={styles.featuresList}>
               <li style={{color: '#fff', fontWeight: 700}}>✓ Nouvelles offres d'emploi CHAQUE JOUR</li>
               <li style={{color: '#fff', fontWeight: 700}}>✓ Postule directement depuis la plateforme</li>
@@ -474,7 +470,7 @@ const styles = {
     gap: '12px',
     fontSize: '14px',
     color: 'var(--dark-text-muted)',
-    marginTop: 'auto'
+    marginTop: '0'
   },
   table: {
     width: '100%',
