@@ -50,7 +50,7 @@ export default function LandingPage() {
               <>
                 <Link href="/register?mode=login" style={styles.loginLink}>Connexion</Link>
                 <Link href="/register" className="btn btn-primary btn-sm">
-                  Commencer maintenant
+                  Commencer gratuitement
                 </Link>
               </>
             )}
@@ -81,7 +81,7 @@ export default function LandingPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <Link href="/register?mode=login" style={{ textAlign: 'center', padding: '10px' }}>Connexion</Link>
               <Link href="/register" className="btn btn-primary btn-sm">
-                Commencer maintenant
+                Commencer gratuitement
               </Link>
             </div>
           )}
@@ -103,7 +103,7 @@ export default function LandingPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '40px', width: '100%', maxWidth: '360px', marginLeft: 'auto', marginRight: 'auto' }}>
             <Link href="/register" className="btn btn-primary" style={{ width: '100%', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
-              <span style={{ fontWeight: 700 }}>Créer mon compte →</span>
+              <span style={{ fontWeight: 700 }}>Commencer gratuitement →</span>
               <span style={{ fontSize: '12px', fontWeight: 400, opacity: 0.9 }}>C'est ma première fois ici</span>
             </Link>
             <Link href={(user && accessPlan) ? '/dashboard' : '/register?mode=login'} className="btn btn-secondary" style={{ width: '100%', padding: '12px 24px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--dark-border)', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.25 }}>
@@ -232,7 +232,7 @@ export default function LandingPage() {
           <p>Rejoins les milliers de diplômés qui ont décroché leur premier emploi avec un CV qui fait la différence.</p>
           <div style={{ marginTop: '20px' }}>
             <Link href="/register" className="btn btn-primary" style={{ padding: '14px 32px' }}>
-              Commencer maintenant
+              Commencer gratuitement
             </Link>
           </div>
         </div>
