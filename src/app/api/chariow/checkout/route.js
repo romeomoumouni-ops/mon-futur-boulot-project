@@ -16,6 +16,12 @@ const COUNTRY_ISO = {
   'burkina faso': 'BF', 'gabon': 'GA', 'france': 'FR',
 };
 
+// Indicatif téléphonique par pays (ISO2) — sert à retirer l'indicatif du numéro
+// avant de l'envoyer à Chariow (qui attend le numéro NATIONAL + country_code).
+const DIAL_BY_ISO = {
+  CI: '225', SN: '221', CM: '237', BJ: '229', TG: '228', ML: '223', BF: '226', GA: '241', FR: '33',
+};
+
 const REDIRECT_URL = 'https://www.monfuturboulot.com/bienvenue';
 
 export async function POST(request) {
@@ -42,8 +48,14 @@ export async function POST(request) {
   const meta = user.user_metadata || {};
   const firstName = String(meta.first_name || 'Client').slice(0, 50);
   const lastName = String(meta.last_name || 'MonFuturBoulot').slice(0, 50);
-  const phoneDigits = String(meta.phone || '').replace(/\D/g, '') || '0700000000';
   const countryCode = COUNTRY_ISO[String(meta.country || '').toLowerCase().trim()] || 'CI';
+  // Numéro NATIONAL (on retire l'indicatif s'il a été saisi/pré-rempli), pour éviter
+  // un "numéro invalide" côté Chariow quand l'indicatif est déjà dans country_code.
+  let phoneDigits = String(meta.phone || '').replace(/\D/g, '') || '0700000000';
+  const dialDigits = DIAL_BY_ISO[countryCode];
+  if (dialDigits && phoneDigits.startsWith(dialDigits) && phoneDigits.length > dialDigits.length) {
+    phoneDigits = phoneDigits.slice(dialDigits.length);
+  }
 
   // E-mail DUMMY envoyé à Chariow : l'utilisateur ne reçoit AUCUN e-mail de Chariow.
   const dummyEmail = `noreply+${user.id}@monfuturboulot.com`;

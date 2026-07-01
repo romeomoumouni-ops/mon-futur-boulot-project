@@ -8,16 +8,37 @@ import { track } from '@/lib/track';
 
 // Pays proposés + indicatif et exemple de numéro (sert au pré-remplissage automatique
 // selon le pays détecté par l'IP, et au placeholder dynamique du champ téléphone).
+// natLen = nombre de chiffres attendus pour le numéro NATIONAL (hors indicatif),
+// tel qu'il s'écrit localement (avec le 0 initial le cas échéant). Sert à valider
+// le numéro dès l'inscription.
 const COUNTRY_INFO = {
-  "Côte d'Ivoire": { iso: 'CI', dial: '+225', placeholder: '+225 07 12 34 56 78' },
-  'Sénégal': { iso: 'SN', dial: '+221', placeholder: '+221 77 123 45 67' },
-  'Cameroun': { iso: 'CM', dial: '+237', placeholder: '+237 6 71 23 45 67' },
-  'Bénin': { iso: 'BJ', dial: '+229', placeholder: '+229 01 23 45 67 89' },
-  'Togo': { iso: 'TG', dial: '+228', placeholder: '+228 90 12 34 56' },
-  'Mali': { iso: 'ML', dial: '+223', placeholder: '+223 70 12 34 56' },
-  'Burkina Faso': { iso: 'BF', dial: '+226', placeholder: '+226 70 12 34 56' },
-  'Gabon': { iso: 'GA', dial: '+241', placeholder: '+241 06 12 34 56' },
+  "Côte d'Ivoire": { iso: 'CI', dial: '+225', placeholder: '+225 07 12 34 56 78', natLen: 10 },
+  'Sénégal': { iso: 'SN', dial: '+221', placeholder: '+221 77 123 45 67', natLen: 9 },
+  'Cameroun': { iso: 'CM', dial: '+237', placeholder: '+237 6 71 23 45 67', natLen: 9 },
+  'Bénin': { iso: 'BJ', dial: '+229', placeholder: '+229 01 23 45 67 89', natLen: 10 },
+  'Togo': { iso: 'TG', dial: '+228', placeholder: '+228 90 12 34 56', natLen: 8 },
+  'Mali': { iso: 'ML', dial: '+223', placeholder: '+223 70 12 34 56', natLen: 8 },
+  'Burkina Faso': { iso: 'BF', dial: '+226', placeholder: '+226 70 12 34 56', natLen: 8 },
+  'Gabon': { iso: 'GA', dial: '+241', placeholder: '+241 06 12 34 56', natLen: 8 },
 };
+
+// Renvoie le numéro national (chiffres, sans indicatif) pour un pays donné.
+function nationalDigits(phone, countryName) {
+  const info = COUNTRY_INFO[countryName];
+  let digits = String(phone || '').replace(/\D/g, '');
+  if (info) {
+    const dd = info.dial.replace(/\D/g, '');
+    if (digits.startsWith(dd)) digits = digits.slice(dd.length);
+  }
+  return digits;
+}
+
+// Numéro valide = bon nombre de chiffres nationaux pour le pays sélectionné.
+function isValidPhone(phone, countryName) {
+  const info = COUNTRY_INFO[countryName];
+  if (!info) return String(phone || '').replace(/\D/g, '').length >= 8;
+  return nationalDigits(phone, countryName).length === info.natLen;
+}
 // ISO2 -> nom du pays (pour mapper le résultat de la géolocalisation IP)
 const ISO_TO_COUNTRY = Object.fromEntries(
   Object.entries(COUNTRY_INFO).map(([name, info]) => [info.iso, name])
@@ -123,6 +144,13 @@ export default function RegisterPage() {
     } else {
       if (!firstName || !lastName || !email || !phone || !password) {
         setError('Veuillez remplir tous les champs.');
+        return;
+      }
+      // Numéro de téléphone valide OBLIGATOIRE dès l'inscription : un numéro invalide
+      // bloque le paiement ensuite (et il n'est pas modifiable dans les paramètres).
+      if (!isValidPhone(phone, country)) {
+        const info = COUNTRY_INFO[country];
+        setError(`Numéro de téléphone invalide pour ${country}. Vérifie qu'il a le bon nombre de chiffres — exemple : ${info ? info.placeholder : '+225 07 12 34 56 78'}`);
         return;
       }
       if (password.length < 6) {
